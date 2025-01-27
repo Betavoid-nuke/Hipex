@@ -1,0 +1,9 @@
+{
+  "name": "Countdown Maker",
+  "description": "Create custom countdown for events and special ocasions.",
+  "version": "1.0.0",
+  "author": "Jay Soni",
+  "license": "MIT",
+  "colors": ["#0000FF", "#000000", "#000000"],
+  "showLogoOnSigninPage": true
+}
