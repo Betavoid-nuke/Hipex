@@ -20,7 +20,7 @@ export const data = {
       items: [
         {
           title: "Routing",
-          url: "#",
+          url: "/onboarding",
         },
         {
           title: "Data Fetching",

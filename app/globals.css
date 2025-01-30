@@ -307,3 +307,9 @@
   scrollbar-width: thin; /* For Firefox */
   scrollbar-color: #cfcfcf71 transparent; /* For Firefox */
 }
+
+.obform {
+  background-color: #20202085;
+  color: white;
+  border: none;
+}

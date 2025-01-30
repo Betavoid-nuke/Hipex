@@ -18,16 +18,27 @@ export default function Page() {
         }}
       ></div>
 
-      {/* Glass effect */}
-      <div className="relative flex flex-col items-center justify-center h-full bg-white/10 backdrop-blur-lg rounded-lg p-8 space-y-4">
-        {/* Conditionally render the logo */}
-        {showLogo && (
-          <Image src="/logo.png" width={64} height={64} alt="Logo" style={{marginTop: "-20px", marginBottom: "-10px"}} />
-        )}
-        <span className="font-semibold text-white" style={{ fontSize: "28px", marginBottom: "20px" }}>
-          {projectInfo.name}
-        </span>
-        <SignIn />
+      {/* Centered glass effect container */}
+      <div className="flex items-center justify-center h-full">
+        {/* Glass effect block */}
+        <div className="relative bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 w-full max-w-md">
+          <div className="flex flex-col items-center justify-center space-y-4">
+            {/* Conditionally render the logo */}
+            {showLogo && (
+              <Image
+                src="/logo.png"
+                width={64}
+                height={64}
+                alt="Logo"
+                className="mb-2"
+              />
+            )}
+            <span className="font-semibold text-white text-center text-2xl">
+              {projectInfo.name}
+            </span>
+            <SignIn />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from "react"
 import {
   Sidebar,
@@ -17,8 +19,14 @@ import { data } from "../../CustomizingPlatform/SidebarMenuContent"
 import projectInfo from "../../CustomizingPlatform/information.json"
 import Image from "next/image"
 import {MakeNewProject} from "../Drawer/Drawer.jsx"
+import { useRouter, usePathname } from 'next/navigation'
+ 
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+  const router = useRouter();
+  const pathname = usePathname();
+
   return (
     <Sidebar {...props}>
 
@@ -43,26 +51,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="sidebar-content">
         <SidebarGroup>
           <SidebarMenu>
-            {data.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
-                  <a href={item.url} className="font-medium">
-                    {item.title}
-                  </a>
-                </SidebarMenuButton>
-                {item.items?.length ? (
-                  <SidebarMenuSub>
-                    {item.items.map((item) => (
-                      <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton asChild isActive={item.isActive}>
-                          <a href={item.url}>{item.title}</a>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                ) : null}
-              </SidebarMenuItem>
-            ))}
+
+            {data.navMain.map((item) => {
+
+              const isTabActive = (pathname.includes(item.url) && item.url.length > 1) ||  pathname === item.url;
+
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <a href={item.url} className="font-medium">
+                      {item.title}
+                    </a>
+                  </SidebarMenuButton>
+                  {item.items?.length ? (
+                    <SidebarMenuSub>
+                      {item.items.map((item) => (
+                        <SidebarMenuSubItem key={item.title}>
+                          <SidebarMenuSubButton asChild isActive={isTabActive}>
+                            <a href={item.url}>{item.title}</a>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  ) : null}
+                </SidebarMenuItem>
+              )
+            })}
+
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
