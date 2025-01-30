@@ -23,6 +23,9 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { InputWithLabel } from "../InputBtn/InputBtn";
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
  
 const FormSchema = z.object({
   time: z.date({
@@ -74,8 +77,13 @@ export function DateTimePickerForm() {
           name="time"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Enter your date & time (12h)</FormLabel>
-              <Popover>
+
+              <FormLabel>Enter date & time (12h) of the Event</FormLabel>
+
+              <div className="flex flex-col">
+
+                {/* date and time selector */}
+                <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -94,6 +102,7 @@ export function DateTimePickerForm() {
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
+
                 <PopoverContent className="w-auto p-0">
                   <div className="sm:flex">
                     <Calendar
@@ -185,11 +194,46 @@ export function DateTimePickerForm() {
                     </div>
                   </div>
                 </PopoverContent>
-              </Popover>
-              <FormDescription>
-                Please select your preferred date and time.
-              </FormDescription>
+                </Popover>
+
+                {/* event information */}
+                <InputWithLabel lable="Countdown Name" Placeholder="Enter name of the countdown"/>
+                <InputWithLabel lable="Countdown Description" Placeholder="Description"/>
+                <InputWithLabel lable="Event Link" Placeholder="Link to virtual event"/>
+
+                {/* socials */}
+                <Label className="mt-5" htmlFor="email">Social Hendles</Label>
+                <div className="socials flex flex-row mr-4 ml-4 mt-4 mb-5 ">
+                  <div className="flex items-center space-x-2 mr-4">
+                    <Switch id="airplane-mode" />
+                    <Label style={{fontWeight:'lighter'}}>Instagram</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 mr-4">
+                    <Switch id="airplane-mode" />
+                    <Label style={{fontWeight:'lighter'}}>Facebook</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 mr-4">
+                    <Switch id="airplane-mode" />
+                    <Label style={{fontWeight:'lighter'}}>Youtube</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 mr-4">
+                    <Switch id="airplane-mode" />
+                    <Label style={{fontWeight:'lighter'}}>LinkedIn</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 mr-4">
+                    <Switch id="airplane-mode" />
+                    <Label style={{fontWeight:'lighter'}}>Twitch</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 mr-4">
+                    <Switch id="airplane-mode" />
+                    <Label style={{fontWeight:'lighter'}}>Twitter(X)</Label>
+                  </div>
+                </div>
+
+              </div>
+
               <FormMessage />
+
             </FormItem>
           )}
         />

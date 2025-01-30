@@ -2,7 +2,6 @@
 
 import React, { useState } from "react"
 import { Minus, Plus, SquarePlus } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import {
   Drawer,
@@ -50,16 +49,15 @@ export function MakeNewProject() {
 
       {/* drawer logic */}
       <DrawerContent>
-        <div className="mx-auto w-full max-w-sm">
+        <div className="mx-auto w-520">
 
           {/* Header of the drawer */}
           <DrawerHeader>
-            <DrawerTitle>Create New Countdown</DrawerTitle>
-            <DrawerDescription>Select the date and date for the count down.</DrawerDescription>
+            <DrawerTitle style={{fontSize:'28px'}}>Create New Countdown</DrawerTitle>
           </DrawerHeader>
 
           <div className="p-4 pb-0" style={{marginBottom:'30px'}}>
-            <div className="flex items-center justify-center space-x-2">
+            <div className="flex flex-col items-center justify-center space-x-2">
               <DateTimePickerForm />
             </div>
             <div className="mt-3 h-[120px]">
