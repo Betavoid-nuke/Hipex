@@ -27,14 +27,14 @@ import { updateUser } from "@/lib/actions/user.action";
  
 interface Props {
   user: {
-    id: string;
-    objectId: string;
-    username: string;
-    name: string;
-    bio: string;
-    image: string;
+    id: string | undefined;
+    objectId: string | undefined;
+    username: string | undefined;
+    name: string | undefined;
+    bio: string | undefined;
+    image: string | undefined;
   };
-  btnTitle: string;
+  btnTitle: string | undefined;
 }
 
 const AccountProfile = ({ user, btnTitle }: Props) => {

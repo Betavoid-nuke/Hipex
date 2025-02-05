@@ -26,21 +26,86 @@ import { toast } from "sonner";
 import { InputWithLabel } from "../InputBtn/InputBtn";
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { usePathname, useRouter } from "next/navigation";
+import { createUpdateCountdown } from "@/lib/actions/user.action";
+
  
+// form definition
 const FormSchema = z.object({
   time: z.date({
     required_error: "A date and time is required.",
   }),
+  CDname: z.string().min(3, { message: 'Minimun 3 characters required' }).max(500),
+  CDDescription: z.string().min(5, { message: 'Minimun 5 characters required' }).max(50000),
+  CDlink: z.string().min(5, { message: 'Minimun 5 characters required' }).max(50000),
+  Instagram: z.boolean(),
+  Facebook: z.boolean(),
+  Youtube: z.boolean(),
+  LinkedIn: z.boolean(),
+  Twitch: z.boolean(),
+  Twitter: z.boolean()
 });
- 
+
+interface Props {
+  user: {
+    id: string;
+    objectId: string;
+    username: string;
+    name: string;
+    bio: string;
+    image: string;
+  };
+}
+
 export function DateTimePickerForm() {
+
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // default values
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      CDname: "",
+      CDDescription: "",
+      CDlink: "",
+      Instagram: false,
+      Facebook: false,
+      Youtube: false,
+      LinkedIn: false,
+      Twitch: false,
+      Twitter: false
+    },
   });
  
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast.success(`Selected date and time: ${format(data.time, "PPPPpppp")}`);
-  }
+  const onSubmit = async (values: z.infer<typeof FormSchema>) => {
+
+    toast.success(`Selected date and time: ${format(values.time, "PPPPpppp")}`);
+    console.log("values - " + values);
+
+    //when i will create the edit popup inside the edit countdown page, the CDID will be set to the _id of the countdown document as the createUpdateCountdown will use CDID to find the mongo document of the countdown user is editing and will update it
+    await createUpdateCountdown({
+      time: values.time,
+      CDname: values.CDname,
+      CDDescription: values.CDDescription,
+      CDlink: values.CDlink,
+      Instagram: values.Instagram,
+      Facebook: values.Facebook,
+      Youtube: values.Youtube,
+      LinkedIn: values.LinkedIn,
+      Twitch: values.Twitter,
+      Twitter: values.Twitch,
+      path: pathname,
+      CDID: ''
+    });
+
+    if (pathname === "/profile/edit") {
+      router.back();
+    } else {
+      router.push("/");
+    }
+
+  };
  
   function handleDateSelect(date: Date | undefined) {
     if (date) {
@@ -71,7 +136,9 @@ export function DateTimePickerForm() {
  
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="">
+
+        {/* date and time */}
         <FormField
           control={form.control}
           name="time"
@@ -196,40 +263,6 @@ export function DateTimePickerForm() {
                 </PopoverContent>
                 </Popover>
 
-                {/* event information */}
-                <InputWithLabel lable="Countdown Name" Placeholder="Enter name of the countdown"/>
-                <InputWithLabel lable="Countdown Description" Placeholder="Description"/>
-                <InputWithLabel lable="Event Link" Placeholder="Link to virtual event"/>
-
-                {/* socials */}
-                <Label className="mt-5" htmlFor="email">Social Hendles</Label>
-                <div className="socials flex flex-row mr-4 ml-4 mt-4 mb-5 ">
-                  <div className="flex items-center space-x-2 mr-4">
-                    <Switch id="airplane-mode" />
-                    <Label style={{fontWeight:'lighter'}}>Instagram</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 mr-4">
-                    <Switch id="airplane-mode" />
-                    <Label style={{fontWeight:'lighter'}}>Facebook</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 mr-4">
-                    <Switch id="airplane-mode" />
-                    <Label style={{fontWeight:'lighter'}}>Youtube</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 mr-4">
-                    <Switch id="airplane-mode" />
-                    <Label style={{fontWeight:'lighter'}}>LinkedIn</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 mr-4">
-                    <Switch id="airplane-mode" />
-                    <Label style={{fontWeight:'lighter'}}>Twitch</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 mr-4">
-                    <Switch id="airplane-mode" />
-                    <Label style={{fontWeight:'lighter'}}>Twitter(X)</Label>
-                  </div>
-                </div>
-
               </div>
 
               <FormMessage />
@@ -237,7 +270,188 @@ export function DateTimePickerForm() {
             </FormItem>
           )}
         />
+
+        {/* event information */}
+        <FormField
+          control={form.control}
+          name='CDname'
+          render={({ field }) => (
+            <FormItem className='flex w-full flex-col gap-1'>
+              <FormLabel className='text-base-semibold text-light-2'>
+                Bio
+              </FormLabel>
+              <FormControl>
+                <InputWithLabel lable="Countdown Name" Placeholder="Enter name of the countdown" {...field}/>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name='CDDescription'
+          render={({ field }) => (
+            <FormItem className='flex w-full flex-col gap-1'>
+              <FormLabel className='text-base-semibold text-light-2'>
+                Bio
+              </FormLabel>
+              <FormControl>
+                <InputWithLabel lable="Countdown Description" Placeholder="Description" {...field}/>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name='CDlink'
+          render={({ field }) => (
+            <FormItem className='flex w-full flex-col gap-1'>
+              <FormLabel className='text-base-semibold text-light-2'>
+                Bio
+              </FormLabel>
+              <FormControl>
+                <InputWithLabel lable="Event Link" Placeholder="Link to virtual event" {...field}/>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="mt-5"></div>
+        
+        {/* socials */}
+        <Label className="mt-20" htmlFor="email">Social Hendles</Label>
+        <div className="socials flex flex-row mr-4 ml-4 mt-4 mb-8 ">
+
+          <FormField
+            control={form.control}
+            name='Instagram'
+            render={({ field }) => (
+              <FormItem className='flex w-full flex-col gap-1'>
+                <FormControl>
+                <div className="flex items-center space-x-2 mr-4">
+                <Switch 
+                  id="airplane-mode"
+                  checked={field.value} // Bind to form state
+                  onCheckedChange={field.onChange} // Ensure it updates state
+                />
+                  <Label style={{fontWeight:'lighter'}}>Instagram</Label>
+                </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='Facebook'
+            render={({ field }) => (
+              <FormItem className='flex w-full flex-col gap-1'>
+                <FormControl>
+                <div className="flex items-center space-x-2 mr-4">
+                  <Switch 
+                    id="airplane-mode"
+                    checked={field.value} // Bind to form state
+                    onCheckedChange={field.onChange} // Ensure it updates state
+                  />
+                  <Label style={{fontWeight:'lighter'}}>Facebook</Label>
+                </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='Youtube'
+            render={({ field }) => (
+              <FormItem className='flex w-full flex-col gap-1'>
+                <FormControl>
+                  <div className="flex items-center space-x-2 mr-4">
+                  <Switch 
+                    id="airplane-mode"
+                    checked={field.value} // Bind to form state
+                    onCheckedChange={field.onChange} // Ensure it updates state
+                  />
+                  <Label style={{fontWeight:'lighter'}}>Youtube</Label>
+                </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='LinkedIn'
+            render={({ field }) => (
+              <FormItem className='flex w-full flex-col gap-1'>
+                <FormControl>
+                <div className="flex items-center space-x-2 mr-4">
+                  <Switch 
+                    id="airplane-mode"
+                    checked={field.value} // Bind to form state
+                    onCheckedChange={field.onChange} // Ensure it updates state
+                  />
+                  <Label style={{fontWeight:'lighter'}}>LinkedIn</Label>
+                </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='Twitch'
+            render={({ field }) => (
+              <FormItem className='flex w-full flex-col gap-1'>
+                <FormControl>
+                <div className="flex items-center space-x-2 mr-4">
+                  <Switch 
+                    id="airplane-mode"
+                    checked={field.value} // Bind to form state
+                    onCheckedChange={field.onChange} // Ensure it updates state
+                  />
+                  <Label style={{fontWeight:'lighter'}}>Twitch</Label>
+                </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='Twitter'
+            render={({ field }) => (
+              <FormItem className='flex w-full flex-col gap-1'>
+                <FormControl>
+                <div className="flex items-center space-x-2 mr-4">
+                  <Switch 
+                    id="airplane-mode"
+                    checked={field.value} // Bind to form state
+                    onCheckedChange={field.onChange} // Ensure it updates state
+                  />
+                  <Label style={{fontWeight:'lighter'}}>Twitter(X)</Label>
+                </div>
+
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+        </div>
+
+        {/* Submit button */}
         <Button type="submit">Submit</Button>
+
       </form>
     </Form>
   );

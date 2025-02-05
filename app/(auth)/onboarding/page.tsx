@@ -14,11 +14,11 @@ export default async function Page() {
   const userInfo = {}
   const userData = {
     id: user?.id,
-    objectId: userInfo?._id,
-    username: userInfo?.username || user?.username,
-    name: userInfo?.name || user?.firstName || "user",
-    bio: userInfo?.bio || "",
-    image: userInfo.image || user?.imageUrl
+    objectId: user?.id,
+    username: user?.username || undefined,
+    name: user?.firstName || "user",
+    bio: "",
+    image: user?.imageUrl
   }
 
   return (

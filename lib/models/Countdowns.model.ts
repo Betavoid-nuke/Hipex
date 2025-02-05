@@ -1,31 +1,59 @@
 import mongoose from "mongoose";
 
-const Countdownsschema = new mongoose.Schema({
-  text: {
+const CountdownSchema = new mongoose.Schema({
+  time: {
+    type: Date,
+    required: true,
+  },
+  CDname: {
     type: String,
     required: true,
   },
-  author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+  CDDescription: {
+    type: String,
     required: true,
   },
-  community: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Community",
+  CDlink: {
+    type: String,
+    required: true,
+  },
+  Instagram: {
+    type: Boolean,
+    default: false,
+  },
+  Facebook: {
+    type: Boolean,
+    default: false,
+  },
+  Youtube: {
+    type: Boolean,
+    default: false,
+  },
+  LinkedIn: {
+    type: Boolean,
+    default: false,
+  },
+  Twitch: {
+    type: Boolean,
+    default: false,
+  },
+  Twitter: {
+    type: Boolean,
+    default: false,
+  },
+  userid: {
+    type: String,
+    required: true,
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
-  likedBy: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Likedby",
-    },
-  ],
+  CDID: {
+    type: String,
+    required: false,
+  },
 });
 
-const Countdowns = mongoose.models.Thread || mongoose.model("Countdowns", Countdownsschema);
-
-export default Countdowns;
+const Countdown = mongoose.models.Countdown || mongoose.model("Countdown", CountdownSchema);
+export default Countdown;

@@ -8,7 +8,12 @@ import Thread from "../models/Countdowns.model";
 import User from "../models/user.model";
 
 import { connectToDB } from "../mongoose";
+import Countdowns from "../models/Countdowns.model";
 
+import { currentUser } from "@clerk/nextjs/server";
+
+
+//finds user
 export async function fetchUser(userId: string) {
   try {
     connectToDB();
@@ -22,8 +27,12 @@ export async function fetchUser(userId: string) {
   }
 }
 
+
+
+
+//create or update user
 interface Params {
-  userId: string;
+  userId: string | undefined;
   username: string;
   name: string;
   bio: string;
@@ -65,6 +74,94 @@ export async function updateUser({
   }
 }
 
+
+
+//create or update countdown
+interface cdprops {
+  CDID: string, // Pass empty string ("") to create a new document
+  time: Date,
+  CDname: string,
+  CDDescription: string,
+  CDlink: string,
+  Instagram: boolean,
+  Facebook: boolean,
+  Youtube: boolean,
+  LinkedIn: boolean,
+  Twitch: boolean,
+  Twitter: boolean,
+  path: string;
+}
+
+export async function createUpdateCountdown({
+  time,
+  CDname,
+  CDDescription,
+  CDlink,
+  Instagram,
+  Facebook,
+  Youtube,
+  LinkedIn,
+  Twitch,
+  Twitter,
+  path,
+  CDID
+}: cdprops): Promise<void> {
+  try {
+    await connectToDB();
+
+    const user = await currentUser();
+
+    // Check if CDID is provided, if not create a new countdown
+    if (!CDID || CDID === "") {
+      // Create new countdown if CDID is empty
+      const newCountdown = new Countdowns({
+        time,
+        CDname,
+        CDDescription,
+        CDlink,
+        Instagram,
+        Facebook,
+        Youtube,
+        LinkedIn,
+        Twitch,
+        Twitter,
+        userid: user?.id
+      });
+      await newCountdown.save(); // Save the new countdown
+    } else {
+      // Update existing countdown with the provided CDID
+      await Countdowns.findOneAndUpdate(
+        { _id: CDID }, // Find by _id (provided CDID)
+        {
+          time,
+          CDname,
+          CDDescription,
+          CDlink,
+          Instagram,
+          Facebook,
+          Youtube,
+          LinkedIn,
+          Twitch,
+          Twitter,
+          userid: user?.id
+        },
+        { upsert: true, new: true } // If document not found, it will create a new one
+      );
+    }
+
+    if (path === "/") {
+      revalidatePath(path);
+    }
+
+  } catch (error: any) {
+    console.log("failed to send data to mongo");
+    throw new Error(`Failed to create/update user: ${error.message}`);
+  }
+}
+
+
+
+//find user posts
 export async function fetchUserPosts(userId: string) {
   try {
     connectToDB();
@@ -96,6 +193,9 @@ export async function fetchUserPosts(userId: string) {
     throw error;
   }
 }
+
+
+
 
 // Almost similar to Thead (search + pagination) and Community (search + pagination)
 export async function fetchUsers({
