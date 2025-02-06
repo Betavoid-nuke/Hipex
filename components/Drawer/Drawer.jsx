@@ -14,6 +14,8 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import {DateTimePickerForm} from "../calenderpicker/CalenderPicker"
+import ShraderForm from "@/Shraded/ShraderForm"
+
 
 
 
@@ -55,11 +57,15 @@ const Slideshow = () => {
 
 
 export function MakeNewProject() {
-  const [goal, setGoal] = useState(350)
 
-  function onClick(adjustment) {
-    setGoal(Math.max(200, Math.min(400, goal + adjustment)))
-  }
+  //ShraderForm example use
+  const schemaF = {
+    fields: [
+      { name: "name", type: "text", label: "Full Name", required: true },
+      { name: "email", type: "email", label: "Email Address", required: true },
+      { name: "age", type: "number", label: "Age" },
+    ],
+  };
 
   return (
     <Drawer>
@@ -101,6 +107,8 @@ export function MakeNewProject() {
               <DrawerTitle style={{fontSize:'28px'}}>Create New Countdown</DrawerTitle>
             </DrawerHeader>
 
+            <ShraderForm schema={schemaF}></ShraderForm>
+
             <div className="p-4 pb-0" style={{marginBottom:'30px'}}>
               <div className="flex flex-col items-center justify-center space-x-2">
                 <DateTimePickerForm />
@@ -113,8 +121,10 @@ export function MakeNewProject() {
 
         </div>
       </DrawerContent>
+
     </Drawer>
   )
+
 }
 
 

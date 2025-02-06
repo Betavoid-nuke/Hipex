@@ -11,6 +11,8 @@ import { connectToDB } from "../mongoose";
 import Countdowns from "../models/Countdowns.model";
 
 import { currentUser } from "@clerk/nextjs/server";
+import { FormSchema } from "@/Shraded/types.ts/FormSchema";
+import { genModel } from "@/Shraded/ModelGenrator/genModel";
 
 
 //finds user
@@ -111,10 +113,35 @@ export async function createUpdateCountdown({
 
     const user = await currentUser();
 
+    //mongo model genrator +++++++++++++++++++++
+    const formSchema: FormSchema = {
+      fields: [
+        { name: "time", type: "date", label: "Time", required: true },
+        { name: "CDname", type: "text", label: "Countdown Name", required: true },
+        { name: "CDDescription", type: "text", label: "Countdown Description", required: true },
+        { name: "CDlink", type: "text", label: "Countdown Link", required: true },
+        { name: "Instagram", type: "text", label: "Instagram", required: false },
+        { name: "Facebook", type: "text", label: "Facebook", required: false },
+        { name: "Youtube", type: "text", label: "Youtube", required: false },
+        { name: "LinkedIn", type: "text", label: "LinkedIn", required: false },
+        { name: "Twitch", type: "text", label: "Twitch", required: false },
+        { name: "Twitter", type: "text", label: "Twitter", required: false },
+        { name: "CDID", type: "text", label: "CDID", required: false },
+        { name: "userid", type: "text", label: "userid", required: true }
+      ],
+    };
+    const model = genModel(formSchema, "Countdown2");
+    //this genrates the mongo model and saved it in the lib/models and returs that model to the const model
+    //we can use const model for all the mongo operations like findoneandupdate()
+    //mongo model genrator +++++++++++++++++++++
+
+
+
+
     // Check if CDID is provided, if not create a new countdown
     if (!CDID || CDID === "") {
       // Create new countdown if CDID is empty
-      const newCountdown = new Countdowns({
+      const newCountdown = new model({
         time,
         CDname,
         CDDescription,
@@ -130,7 +157,7 @@ export async function createUpdateCountdown({
       await newCountdown.save(); // Save the new countdown
     } else {
       // Update existing countdown with the provided CDID
-      await Countdowns.findOneAndUpdate(
+      await model.findOneAndUpdate(
         { _id: CDID }, // Find by _id (provided CDID)
         {
           time,
@@ -284,3 +311,6 @@ export async function getActivity(userId: string) {
     throw error;
   }
 }
+
+
+

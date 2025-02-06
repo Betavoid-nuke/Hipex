@@ -46,17 +46,6 @@ const FormSchema = z.object({
   Twitter: z.boolean()
 });
 
-interface Props {
-  user: {
-    id: string;
-    objectId: string;
-    username: string;
-    name: string;
-    bio: string;
-    image: string;
-  };
-}
-
 export function DateTimePickerForm() {
 
   const router = useRouter();
@@ -80,9 +69,6 @@ export function DateTimePickerForm() {
  
   const onSubmit = async (values: z.infer<typeof FormSchema>) => {
 
-    toast.success(`Selected date and time: ${format(values.time, "PPPPpppp")}`);
-    console.log("values - " + values);
-
     //when i will create the edit popup inside the edit countdown page, the CDID will be set to the _id of the countdown document as the createUpdateCountdown will use CDID to find the mongo document of the countdown user is editing and will update it
     await createUpdateCountdown({
       time: values.time,
@@ -99,7 +85,7 @@ export function DateTimePickerForm() {
       CDID: ''
     });
 
-    if (pathname === "/profile/edit") {
+    if (pathname === "/") {
       router.back();
     } else {
       router.push("/");
