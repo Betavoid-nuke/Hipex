@@ -8,9 +8,9 @@ interface Props {
 
 export default function Countdown({expdate}: Props) {
 
-    if (!expdate) {
-        return
-    }
+  if (!expdate) {
+    return
+  }
 
   const [timeLeft, setTimeLeft] = useState("");
   const [daysLeft, setdaysLeft] = useState("");
@@ -24,6 +24,8 @@ export default function Countdown({expdate}: Props) {
     const x = setInterval(() => {
       const now = new Date().getTime();
       const distance = countDownDate - now;
+
+      console.log('dist: '+now+' set: '+countDownDate);
 
       if (distance < 0) {
         clearInterval(x);
@@ -70,12 +72,6 @@ export default function Countdown({expdate}: Props) {
             <span className="textineditpage uppercase mt-1" style={{fontSize:"28px"}}>Seconds</span>
           </li>
         </ul>
-      </div>
-
-      <div id="content" className="emoji">
-        <span>🥳</span>
-        <span>🎉</span>
-        <span>🎂</span>
       </div>
 
     </div>

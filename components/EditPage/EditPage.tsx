@@ -127,8 +127,6 @@ export default function EditPage({
   PageStyle
 }: Props) {
 
-  console.log(PageStyle);
-
   const [isLoading, setIsLoading] = useState(true);
   const [bgColor, setBgColor] = useState(PageStyle?.backgroundColor || 'black'); // passing the background color from the database
   const [bgPattern, setBgPattern] = useState(PageStyle?.backgroundPattern || 'default'); // passing the background pattern from the database
