@@ -19,7 +19,7 @@ interface propr {
 function CDCard({name, description, timeend, id, PublishedName, loopint}: propr) {
 
   const pathname = usePathname(); // Get current path
-  const [fullURL, setFullURL] = useState<string>();
+  const [fullURL, setFullURL] = useState<string>(""); // default to empty string
 
   const dateObj = new Date(timeend);
   const TheURL = "/edit/"+ id;
@@ -31,7 +31,7 @@ function CDCard({name, description, timeend, id, PublishedName, loopint}: propr)
   useEffect(() => {
     // This code runs only on client
     const base = window.location.origin;
-    const full = `${base}${pathname}/hipexpage/${PublishedName}`;
+    const full = `${base}${pathname}hipexpage/${PublishedName}`;
     setFullURL(full);
   }, [pathname, PublishedName]);
 
