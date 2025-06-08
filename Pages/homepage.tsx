@@ -70,13 +70,14 @@ export default function Dash() {
         <p className="text-gray-500">No countdowns found.</p>
       ) : (
         <div className="flex gap-6 flex-wrap" style={{justifyContent:'center'}}>
-          {countdowns.slice().reverse().map((cd) => (
+          {countdowns.slice().reverse().map((cd, index) => (
             <CDCard key={cd._id} {...cd} 
             name={cd.CDname}
             description={cd.CDDescription}
             timeend={cd.time.toString()}
             id={cd._id}
-            PublishedName={cd.PublishedName}/>
+            PublishedName={cd.PublishedName}
+            loopint={index}/>
           ))}
         </div>
       )}

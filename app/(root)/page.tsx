@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import Dash from '@/Pages/homepage';
 import { ClerkProvider } from '@clerk/nextjs';
 import type { AppProps } from 'next/app';
+import { motion } from 'framer-motion';
 
 // Dynamically import Clerk components to avoid hydration errors
 const UserButton = dynamic(() => import('@clerk/nextjs').then(mod => mod.UserButton), {

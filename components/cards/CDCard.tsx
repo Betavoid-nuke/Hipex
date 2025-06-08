@@ -5,16 +5,18 @@ import Link from "next/link";
 import { Input } from "../ui/input";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { motion } from 'framer-motion';
 
 interface propr {
   name: string,
   description: string,
   timeend: string,
   id:string,
-  PublishedName: string
+  PublishedName: string,
+  loopint: number
 }
 
-function CDCard({name, description, timeend, id, PublishedName}: propr) {
+function CDCard({name, description, timeend, id, PublishedName, loopint}: propr) {
 
   const pathname = usePathname(); // Get current path
   const [fullURL, setFullURL] = useState<string>();
@@ -33,8 +35,15 @@ function CDCard({name, description, timeend, id, PublishedName}: propr) {
     setFullURL(full);
   }, [pathname, PublishedName]);
 
+  const loopintforanimation = loopint/30;
+
   return(
-      <div className="glow-border p-6 rounded-xl text-white w-64 mb-10">
+      <motion.div
+        initial={{ opacity: 0, y: 120 }}
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ delay: loopintforanimation }}
+        className="glow-border p-6 rounded-xl text-white w-64 mb-10"
+      >
         <Link href={TheURL}>
           <div className="cardThumbnail" style={{ height: "150px", position: "relative" }}>
            <Image
@@ -50,7 +59,7 @@ function CDCard({name, description, timeend, id, PublishedName}: propr) {
           <p className="text-fuchsia-500 font-semibold" style={{color:'#56adff'}}>{formatted}</p>
         </Link>
         <Input style={{marginTop:'20px', color:'darkgray', fontSize:'14px'}} readOnly type="text" value={fullURL} />
-      </div>
+      </motion.div>
   )
 
 }
