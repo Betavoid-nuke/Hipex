@@ -10,7 +10,7 @@ export function InputWithLabel({lable, Placeholder, ...props}:prop) {
   return (
     <div className="grid w-full max-w-sm items-center gap-1.5 mt-5">
       <Label>{lable}</Label>
-      <Input type="text" placeholder={Placeholder} {...props} />
+      <Input type="text" style={{background:"transparent", color:"azure", fontStyle:"normal", fontWeight:"lighter", borderColor:"azure"}} placeholder={Placeholder} {...props} />
     </div>
   )
 }

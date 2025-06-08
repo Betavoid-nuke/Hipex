@@ -2,7 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,13 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { usePathname, useRouter } from "next/navigation";
 import { createUpdateCountdown } from "@/lib/actions/user.action";
+import { revalidatePath } from "next/cache";
 
+const PageStyleSchema = z.object({
+  backgroundColor: z.string().optional(),
+  backgroundPattern: z.string().optional(),
+  fontColor: z.string().optional()
+});
  
 // form definition
 const FormSchema = z.object({
@@ -43,7 +49,16 @@ const FormSchema = z.object({
   Youtube: z.boolean(),
   LinkedIn: z.boolean(),
   Twitch: z.boolean(),
-  Twitter: z.boolean()
+  Twitter: z.boolean(),
+  status: z.boolean(),
+  Instagramlink: z.string(),
+  Facebooklink: z.string(),
+  Youtubelink: z.string(),
+  LinkedInlink: z.string(),
+  Twitchlink: z.string(),
+  Twitterlink: z.string(),
+  PageStyle: PageStyleSchema.optional(),
+  PublishedName: z.string()
 });
 
 export function DateTimePickerForm() {
@@ -63,7 +78,20 @@ export function DateTimePickerForm() {
       Youtube: false,
       LinkedIn: false,
       Twitch: false,
-      Twitter: false
+      Twitter: false,
+      status: false,
+      Instagramlink: 'www.intagram.com',
+      Facebooklink: 'www.facebook.com',
+      Youtubelink: 'www.youtube.com',
+      LinkedInlink: 'www.linkedin.com',
+      Twitchlink: 'www.twitch.com',
+      Twitterlink: 'www.x.com',
+      PageStyle: {
+        backgroundColor: "#07070a",
+        fontColor: "white",
+        backgroundPattern: "default"
+      },
+      PublishedName: ""
     },
   });
  
@@ -82,14 +110,23 @@ export function DateTimePickerForm() {
       Twitch: values.Twitter,
       Twitter: values.Twitch,
       path: pathname,
-      CDID: ''
+      CDID: '',
+      status: false,
+      Instagramlink: values.Instagramlink,
+      Facebooklink: values.Facebooklink,
+      Youtubelink: values.Youtubelink,
+      LinkedInlink: values.LinkedInlink,
+      Twitchlink: values.Twitchlink,
+      Twitterlink: values.Twitterlink,
+      PageStyle: {
+        backgroundColor: "#07070a",
+        fontColor: "white",
+        backgroundPattern: "default"
+      },
+      PublishedName: values.PublishedName
     });
 
-    if (pathname === "/") {
-      router.back();
-    } else {
-      router.push("/");
-    }
+    router.push("/sign-in");
 
   };
  
@@ -119,153 +156,46 @@ export function DateTimePickerForm() {
  
     form.setValue("time", newDate);
   }
+
+
+  //used for hidding and unhidding social media form fields when the toggle is switched
+  const instagramEnabled = useWatch({
+    control: form.control,
+    name: 'Instagram',
+  });
+  const FacebookEnabled = useWatch({
+    control: form.control,
+    name: 'Facebook',
+  });
+  const YoutubeEnabled = useWatch({
+    control: form.control,
+    name: 'Youtube',
+  });
+  const LinkedInEnabled = useWatch({
+    control: form.control,
+    name: 'LinkedIn',
+  });
+  const TwitchEnabled = useWatch({
+    control: form.control,
+    name: 'Twitch',
+  });
+  const TwitterEnabled = useWatch({
+    control: form.control,
+    name: 'Twitter',
+  });
+
+
  
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="">
-
-        {/* date and time */}
-        <FormField
-          control={form.control}
-          name="time"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-
-              <FormLabel>Enter date & time (12h) of the Event</FormLabel>
-
-              <div className="flex flex-col">
-
-                {/* date and time selector */}
-                <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "MM/dd/yyyy hh:mm aa")
-                      ) : (
-                        <span>MM/DD/YYYY hh:mm aa</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-
-                <PopoverContent className="w-auto p-0">
-                  <div className="sm:flex">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={handleDateSelect}
-                      initialFocus
-                    />
-                    <div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
-                      <ScrollArea className="w-64 sm:w-auto">
-                        <div className="flex sm:flex-col p-2">
-                          {Array.from({ length: 12 }, (_, i) => i + 1)
-                            .reverse()
-                            .map((hour) => (
-                              <Button
-                                key={hour}
-                                size="icon"
-                                variant={
-                                  field.value &&
-                                  field.value.getHours() % 12 === hour % 12
-                                    ? "default"
-                                    : "ghost"
-                                }
-                                className="sm:w-full shrink-0 aspect-square"
-                                onClick={() =>
-                                  handleTimeChange("hour", hour.toString())
-                                }
-                              >
-                                {hour}
-                              </Button>
-                            ))}
-                        </div>
-                        <ScrollBar
-                          orientation="horizontal"
-                          className="sm:hidden"
-                        />
-                      </ScrollArea>
-                      <ScrollArea className="w-64 sm:w-auto">
-                        <div className="flex sm:flex-col p-2">
-                          {Array.from({ length: 12 }, (_, i) => i * 5).map(
-                            (minute) => (
-                              <Button
-                                key={minute}
-                                size="icon"
-                                variant={
-                                  field.value &&
-                                  field.value.getMinutes() === minute
-                                    ? "default"
-                                    : "ghost"
-                                }
-                                className="sm:w-full shrink-0 aspect-square"
-                                onClick={() =>
-                                  handleTimeChange("minute", minute.toString())
-                                }
-                              >
-                                {minute.toString().padStart(2, "0")}
-                              </Button>
-                            )
-                          )}
-                        </div>
-                        <ScrollBar
-                          orientation="horizontal"
-                          className="sm:hidden"
-                        />
-                      </ScrollArea>
-                      <ScrollArea className="">
-                        <div className="flex sm:flex-col p-2">
-                          {["AM", "PM"].map((ampm) => (
-                            <Button
-                              key={ampm}
-                              size="icon"
-                              variant={
-                                field.value &&
-                                ((ampm === "AM" &&
-                                  field.value.getHours() < 12) ||
-                                  (ampm === "PM" &&
-                                    field.value.getHours() >= 12))
-                                  ? "default"
-                                  : "ghost"
-                              }
-                              className="sm:w-full shrink-0 aspect-square"
-                              onClick={() => handleTimeChange("ampm", ampm)}
-                            >
-                              {ampm}
-                            </Button>
-                          ))}
-                        </div>
-                      </ScrollArea>
-                    </div>
-                  </div>
-                </PopoverContent>
-                </Popover>
-
-              </div>
-
-              <FormMessage />
-
-            </FormItem>
-          )}
-        />
 
         {/* event information */}
         <FormField
           control={form.control}
           name='CDname'
           render={({ field }) => (
-            <FormItem className='flex w-full flex-col gap-1'>
-              <FormLabel className='text-base-semibold text-light-2'>
-                Bio
-              </FormLabel>
+            <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
               <FormControl>
                 <InputWithLabel lable="Countdown Name" Placeholder="Enter name of the countdown" {...field}/>
               </FormControl>
@@ -278,10 +208,7 @@ export function DateTimePickerForm() {
           control={form.control}
           name='CDDescription'
           render={({ field }) => (
-            <FormItem className='flex w-full flex-col gap-1'>
-              <FormLabel className='text-base-semibold text-light-2'>
-                Bio
-              </FormLabel>
+            <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
               <FormControl>
                 <InputWithLabel lable="Countdown Description" Placeholder="Description" {...field}/>
               </FormControl>
@@ -292,12 +219,22 @@ export function DateTimePickerForm() {
 
         <FormField
           control={form.control}
+          name='PublishedName'
+          render={({ field }) => (
+            <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
+              <FormControl>
+                <InputWithLabel lable="Countdown Name for Share Link" Placeholder="Share Link Name" {...field}/>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name='CDlink'
           render={({ field }) => (
-            <FormItem className='flex w-full flex-col gap-1'>
-              <FormLabel className='text-base-semibold text-light-2'>
-                Bio
-              </FormLabel>
+            <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
               <FormControl>
                 <InputWithLabel lable="Event Link" Placeholder="Link to virtual event" {...field}/>
               </FormControl>
@@ -306,11 +243,137 @@ export function DateTimePickerForm() {
           )}
         />
 
+        {/* date and time */}
+        <FormField
+          control={form.control}
+          name="time"
+          render={({ field }) => (
+            <FormItem className="flex flex-col mt-6" style={{color:'darkgray'}}>
+
+              <FormLabel>Choose date & time (12h) of the Event</FormLabel>
+
+              <div className="flex flex-col">
+
+                {/* date and time selector */}
+                  {/* trigger for date time picker popover */}
+                    <FormControl>
+                      <Button
+                        variant={"link"}
+                        style={{color:'darkgray', marginBottom:'20px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'space-between', width:'fit-content'}}
+                      >
+                        {field.value ? (
+                          format(field.value, "MM/dd/yyyy hh:mm aa")
+                        ) : (
+                          <span>MM/DD/YYYY hh:mm aa</span>
+                        )}
+                      </Button>
+                    </FormControl>
+                  
+                  {/* date time picker popover */}
+                  <div className="sm:flex" style={{display:'flex', justifyContent:'center', marginBottom:'20px'}}>
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={handleDateSelect}
+                      initialFocus
+                    />
+                    <div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
+                      <ScrollArea className="w-64 sm:w-auto">
+                          <div className="flex sm:flex-col p-2">
+                            {Array.from({ length: 12 }, (_, i) => i + 1)
+                              .reverse()
+                              .map((hour) => (
+                                <Button
+                                  key={hour}
+                                  type="button"
+                                  size="icon"
+                                  variant={
+                                    field.value &&
+                                    field.value.getHours() % 12 === hour % 12
+                                      ? "default"
+                                      : "ghost"
+                                  }
+                                  className="sm:w-full shrink-0 aspect-square"
+                                  onClick={() =>
+                                    handleTimeChange("hour", hour.toString())
+                                  }
+                                >
+                                  {hour}
+                                </Button>
+                              ))}
+                          </div>
+                          <ScrollBar
+                            orientation="horizontal"
+                            className="sm:hidden"
+                          />
+                      </ScrollArea>
+                      <ScrollArea className="w-64 sm:w-auto">
+                          <div className="flex sm:flex-col p-2">
+                            {Array.from({ length: 12 }, (_, i) => i * 5).map(
+                              (minute) => (
+                                <Button
+                                  key={minute}
+                                  type="button"
+                                  size="icon"
+                                  variant={
+                                    field.value &&
+                                    field.value.getMinutes() === minute
+                                      ? "default"
+                                      : "ghost"
+                                  }
+                                  className="sm:w-full shrink-0 aspect-square"
+                                  onClick={() =>
+                                    handleTimeChange("minute", minute.toString())
+                                  }
+                                >
+                                  {minute.toString().padStart(2, "0")}
+                                </Button>
+                              )
+                            )}
+                          </div>
+                          <ScrollBar
+                            orientation="horizontal"
+                            className="sm:hidden"
+                          />
+                      </ScrollArea>
+                      <ScrollArea className="">
+                          <div className="flex sm:flex-col p-2">
+                            {["AM", "PM"].map((ampm) => (
+                              <Button
+                                key={ampm}
+                                type="button"
+                                size="icon"
+                                variant={
+                                  field.value &&
+                                  ((ampm === "AM" &&
+                                    field.value.getHours() < 12) ||
+                                    (ampm === "PM" &&
+                                      field.value.getHours() >= 12))
+                                    ? "default"
+                                    : "ghost"
+                                }
+                                className="sm:w-full shrink-0 aspect-square"
+                                onClick={() => handleTimeChange("ampm", ampm)}
+                              >
+                                {ampm}
+                              </Button>
+                            ))}
+                          </div>
+                      </ScrollArea>
+                    </div>
+                  </div>
+              </div>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="mt-5"></div>
         
-        {/* socials */}
-        <Label className="mt-20" htmlFor="email">Social Hendles</Label>
-        <div className="socials flex flex-row mr-4 ml-4 mt-4 mb-8 ">
+        {/* socials toggles*/}
+        <Label style={{color:'darkgray'}} className="mt-20" htmlFor="email">Enable social Media buttons</Label>
+        <div className="socials flex flex-row mr-4 ml-4 mt-4 mb-2 " style={{color:'darkgray'}}>
 
           <FormField
             control={form.control}
@@ -418,26 +481,121 @@ export function DateTimePickerForm() {
             render={({ field }) => (
               <FormItem className='flex w-full flex-col gap-1'>
                 <FormControl>
-                <div className="flex items-center space-x-2 mr-4">
-                  <Switch 
-                    id="airplane-mode"
-                    checked={field.value} // Bind to form state
-                    onCheckedChange={field.onChange} // Ensure it updates state
-                  />
-                  <Label style={{fontWeight:'lighter'}}>Twitter(X)</Label>
-                </div>
+
+                  <div className="flex items-center space-x-2 mr-4">
+                    <Switch 
+                      id="airplane-mode"
+                      checked={field.value} // Bind to form state
+                      onCheckedChange={field.onChange} // Ensure it updates state
+                    />
+                    <Label style={{fontWeight:'lighter'}}>Twitter(X)</Label>
+                  </div>
 
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
         </div>
 
-        {/* Submit button */}
-        <Button type="submit">Submit</Button>
 
+
+
+        {/* Social media links when enabled fields */}
+        {instagramEnabled && (
+          <FormField
+            control={form.control}
+            name='Instagramlink'
+            render={({ field }) => (
+              <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
+                <FormControl>
+                  <InputWithLabel lable="Instagram Link" Placeholder="Link to virtual event" {...field}/>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {FacebookEnabled && (
+          <FormField
+            control={form.control}
+            name='Facebooklink'
+            render={({ field }) => (
+              <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
+                <FormControl>
+                  <InputWithLabel lable="Facebook Link" Placeholder="Link to virtual event" {...field}/>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+        
+        {YoutubeEnabled && (
+          <FormField
+            control={form.control}
+            name='Youtubelink'
+            render={({ field }) => (
+              <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
+                <FormControl>
+                  <InputWithLabel lable="Youtube Link" Placeholder="Link to virtual event" {...field}/>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {LinkedInEnabled && (
+          <FormField
+            control={form.control}
+            name='LinkedInlink'
+            render={({ field }) => (
+              <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
+                <FormControl>
+                  <InputWithLabel lable="Linkedin Link" Placeholder="Link to virtual event" {...field}/>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {TwitchEnabled && (
+          <FormField
+            control={form.control}
+            name='Twitchlink'
+            render={({ field }) => (
+              <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
+                <FormControl>
+                  <InputWithLabel lable="Twitch Link" Placeholder="Link to virtual event" {...field}/>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {TwitterEnabled && (
+          <FormField
+            control={form.control}
+            name='Twitterlink'
+            render={({ field }) => (
+              <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
+                <FormControl>
+                  <InputWithLabel lable="X Link" Placeholder="Link to virtual event" {...field}/>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+
+        {/* Submit button */}
+        <Button type="submit" variant='secondary' style={{marginTop:'30px', marginBottom:'50px'}}>Submit</Button>
+        
       </form>
     </Form>
   );

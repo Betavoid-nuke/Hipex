@@ -1,0 +1,57 @@
+import ShraderForm from "@/Shraded/ShraderForm"
+<ShraderForm schema={schemaF}></ShraderForm>
+
+  //ShraderForm example use
+  const schemaF = {
+    fields: [
+      { name: "name", type: "text", label: "Full Name", required: true },
+      { name: "email", type: "email", label: "Email Address", required: true },
+      { name: "age", type: "number", label: "Age" },
+    ],
+  };
+
+  
+makes a new form, but needs to refine alot more
+
+
+
+
+
+
+
+
+
+//shows random images from unsplash
+const Slideshow = () => {
+  const [images, setImages] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const response = await fetch("https://api.unsplash.com/photos/random?count=5&client_id=0TXCTXFveJ-nm2rwEo6Pbu4W6PI6JBqJM05XWbQzV2s");
+        const data = await response.json();
+        setImages(data.map(img => img.urls.regular));
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
+    };
+    fetchImages();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex(prevIndex => (prevIndex + 1) % images.length);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [images]);
+
+  return (
+    <div className="flex w-full slideshow" style={{ backgroundColor: "black", marginLeft: "20px", marginRight: "5px", marginBottom: "20px", height:"500px", marginTop:"20px", overflow:'hidden' }}>
+      {images.length > 0 && (
+        <img src={images[currentIndex]} alt="Slideshow" style={{ width: "100%", height: "100%", borderRadius: "8px" }} />
+      )}
+    </div>
+  );
+};
+

@@ -1,9 +1,10 @@
 {
-  "name": "Countdown Maker",
+  "name": "H I P E X",
   "description": "Create custom countdown for events and special ocasions.",
-  "version": "1.0.0",
+  "version": "Beta",
   "author": "Jay Soni",
   "license": "MIT",
   "colors": ["#0000FF", "#800080", "#00FF00"],
-  "showLogoOnSigninPage": true
+  "NameColor": "#56adff",
+  "showLogoOnSigninPage": false
 }

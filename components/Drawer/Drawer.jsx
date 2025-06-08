@@ -14,58 +14,12 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import {DateTimePickerForm} from "../calenderpicker/CalenderPicker"
-import ShraderForm from "@/Shraded/ShraderForm"
-
-
-
-
-
-const Slideshow = () => {
-  const [images, setImages] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const response = await fetch("https://api.unsplash.com/photos/random?count=5&client_id=0TXCTXFveJ-nm2rwEo6Pbu4W6PI6JBqJM05XWbQzV2s");
-        const data = await response.json();
-        setImages(data.map(img => img.urls.regular));
-      } catch (error) {
-        console.error("Error fetching images:", error);
-      }
-    };
-    fetchImages();
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex(prevIndex => (prevIndex + 1) % images.length);
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [images]);
-
-  return (
-    <div className="flex w-full slideshow" style={{ backgroundColor: "black", marginLeft: "20px", marginRight: "5px", marginBottom: "20px", height:"500px", marginTop:"20px", overflow:'hidden' }}>
-      {images.length > 0 && (
-        <img src={images[currentIndex]} alt="Slideshow" style={{ width: "100%", height: "100%", borderRadius: "8px" }} />
-      )}
-    </div>
-  );
-};
-
+import MordernButton from "../Buttons/MordernButton"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 
 
 export function MakeNewProject() {
-
-  //ShraderForm example use
-  const schemaF = {
-    fields: [
-      { name: "name", type: "text", label: "Full Name", required: true },
-      { name: "email", type: "email", label: "Email Address", required: true },
-      { name: "age", type: "number", label: "Age" },
-    ],
-  };
 
   return (
     <Drawer>
@@ -78,53 +32,47 @@ export function MakeNewProject() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: 'lightgreen',
             borderRadius: '8px',
             transition: 'transform 0.2s ease, background-color 0.2s ease',
+            marginBottom: '20px'
           }}
           onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
           onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
         >
-          <Button variant="primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {/* <Button variant="primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color:"black" }}>
             Create
             <SquarePlus />
-          </Button>
+          </Button> */}
+
+          <MordernButton name='CREATE' />
+
         </div>
       </DrawerTrigger>
 
       {/* drawer logic */}
-      <DrawerContent>
+      <DrawerContent className="glass">
         <div className="flex flex=row">
-
-          {/* <div className="flex w-full slideshow" style={{backgroundColor:'black', marginLeft:'20px', marginRight:'5px', marginBottom:'20px'}}></div> */}
-
-          <Slideshow />
-
           <div className="mx-auto w-full">
 
             {/* Header of the drawer */}
-            <DrawerHeader>
+            <DrawerHeader style={{justifyContent:"center", color:"darkgray"}}>
               <DrawerTitle style={{fontSize:'28px'}}>Create New Countdown</DrawerTitle>
             </DrawerHeader>
 
-            <ShraderForm schema={schemaF}></ShraderForm>
-
             <div className="p-4 pb-0" style={{marginBottom:'30px'}}>
               <div className="flex flex-col items-center justify-center space-x-2">
-                <DateTimePickerForm />
-              </div>
-              <div className="mt-3 h-[120px]">
+                <ScrollArea className="" style={{overflow:'hidden', overflowWrap:'normal', height:'600px'}}>
+                  {/* custom form for creating new timer */}
+                  <DateTimePickerForm />
+                </ScrollArea>
               </div>
             </div>
 
           </div>
-
         </div>
       </DrawerContent>
-
     </Drawer>
   )
-
 }
 
 

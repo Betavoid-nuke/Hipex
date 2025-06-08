@@ -53,6 +53,56 @@ const CountdownSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  PublishedName: {
+    type: String,
+    required: false,
+  },
+  status: {
+    type: Boolean,
+    required: false,
+  },
+  Instagramlink: {
+    type: String,
+    required: false,
+  },
+  Facebooklink: {
+    type: String,
+    required: false,
+  },
+  Youtubelink: {
+    type: String,
+    required: false,
+  },
+  LinkedInlink: {
+    type: String,
+    required: false,
+  },
+  Twitchlink: {
+    type: String,
+    required: false,
+  },
+  Twitterlink: {
+    type: String,
+    required: false,
+  },
+  PageStyle: {
+    backgroundColor: {
+      type: String,
+      default: "#07070a"
+    },
+    backgroundPattern: {
+      type: String,
+      default: "default"
+    },
+    fontColor: {
+      type: String,
+      default: "white"
+    },
+    headingStyle: {
+      type: String,
+      default: "default"
+    }
+  }
 });
 
 const Countdown = mongoose.models.Countdown || mongoose.model("Countdown", CountdownSchema);

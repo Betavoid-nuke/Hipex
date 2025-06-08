@@ -1,6 +1,6 @@
 "use server"
 
-import { FilterQuery, SortOrder } from "mongoose";
+import mongoose, { FilterQuery, SortOrder, Types } from "mongoose";
 import { revalidatePath } from "next/cache";
 
 import Community from "../models/community.model";
@@ -13,6 +13,7 @@ import Countdowns from "../models/Countdowns.model";
 import { currentUser } from "@clerk/nextjs/server";
 import { FormSchema } from "@/Shraded/types.ts/FormSchema";
 import { genModel } from "@/Shraded/ModelGenrator/genModel";
+import Countdown from "../models/Countdowns.model";
 
 
 //finds user
@@ -28,9 +29,6 @@ export async function fetchUser(userId: string) {
     throw new Error(`Failed to fetch user: ${error.message}`);
   }
 }
-
-
-
 
 //create or update user
 interface Params {
@@ -78,20 +76,37 @@ export async function updateUser({
 
 
 
-//create or update countdown
+
+//page style saved by user
+interface PageStyle {
+  backgroundColor?: string;
+  backgroundPattern?: string;
+  fontColor?: string;
+  headingStyle?: string;
+}
+
 interface cdprops {
-  CDID: string, // Pass empty string ("") to create a new document
-  time: Date,
-  CDname: string,
-  CDDescription: string,
-  CDlink: string,
-  Instagram: boolean,
-  Facebook: boolean,
-  Youtube: boolean,
-  LinkedIn: boolean,
-  Twitch: boolean,
-  Twitter: boolean,
-  path: string;
+  CDID: string; // Pass empty string ("") to create a new document
+  time: Date;
+  CDname: string;
+  CDDescription: string;
+  CDlink: string;
+  Instagram: boolean;
+  Facebook: boolean;
+  Youtube: boolean;
+  LinkedIn: boolean;
+  Twitch: boolean;
+  Twitter: boolean;
+  path: string | null;
+  status: boolean;
+  Instagramlink: string;
+  Facebooklink: string;
+  Youtubelink: string;
+  LinkedInlink: string;
+  Twitchlink: string;
+  Twitterlink: string;
+  PageStyle?: PageStyle;
+  PublishedName: string;
 }
 
 export async function createUpdateCountdown({
@@ -106,42 +121,27 @@ export async function createUpdateCountdown({
   Twitch,
   Twitter,
   path,
-  CDID
+  CDID,
+  status,
+  Instagramlink,
+  Facebooklink,
+  Youtubelink,
+  LinkedInlink,
+  Twitchlink,
+  Twitterlink,
+  PageStyle,
+  PublishedName
+  
 }: cdprops): Promise<void> {
   try {
     await connectToDB();
-
     const user = await currentUser();
 
-    //mongo model genrator +++++++++++++++++++++
-    const formSchema: FormSchema = {
-      fields: [
-        { name: "time", type: "date", label: "Time", required: true },
-        { name: "CDname", type: "text", label: "Countdown Name", required: true },
-        { name: "CDDescription", type: "text", label: "Countdown Description", required: true },
-        { name: "CDlink", type: "text", label: "Countdown Link", required: true },
-        { name: "Instagram", type: "text", label: "Instagram", required: false },
-        { name: "Facebook", type: "text", label: "Facebook", required: false },
-        { name: "Youtube", type: "text", label: "Youtube", required: false },
-        { name: "LinkedIn", type: "text", label: "LinkedIn", required: false },
-        { name: "Twitch", type: "text", label: "Twitch", required: false },
-        { name: "Twitter", type: "text", label: "Twitter", required: false },
-        { name: "CDID", type: "text", label: "CDID", required: false },
-        { name: "userid", type: "text", label: "userid", required: true }
-      ],
-    };
-    const model = genModel(formSchema, "Countdown2");
-    //this genrates the mongo model and saved it in the lib/models and returs that model to the const model
-    //we can use const model for all the mongo operations like findoneandupdate()
-    //mongo model genrator +++++++++++++++++++++
+    if (!user) throw new Error("User not authenticated");
 
-
-
-
-    // Check if CDID is provided, if not create a new countdown
     if (!CDID || CDID === "") {
-      // Create new countdown if CDID is empty
-      const newCountdown = new model({
+      // Create new countdown
+      const newCountdown = new Countdowns({
         time,
         CDname,
         CDDescription,
@@ -152,13 +152,23 @@ export async function createUpdateCountdown({
         LinkedIn,
         Twitch,
         Twitter,
-        userid: user?.id
+        userid: user.id,
+        status,
+        Instagramlink,
+        Facebooklink,
+        Youtubelink,
+        LinkedInlink,
+        Twitchlink,
+        Twitterlink,
+        PageStyle,
+        PublishedName
+  
       });
-      await newCountdown.save(); // Save the new countdown
+      await newCountdown.save();
     } else {
-      // Update existing countdown with the provided CDID
-      await model.findOneAndUpdate(
-        { _id: CDID }, // Find by _id (provided CDID)
+      // Update existing countdown
+      await Countdowns.findOneAndUpdate(
+        { _id: CDID },
         {
           time,
           CDname,
@@ -170,24 +180,235 @@ export async function createUpdateCountdown({
           LinkedIn,
           Twitch,
           Twitter,
-          userid: user?.id
+          userid: user.id,
+          status,Instagramlink,
+          Facebooklink,
+          Youtubelink,
+          LinkedInlink,
+          Twitchlink,
+          Twitterlink,
+          PageStyle,
+          PublishedName
         },
-        { upsert: true, new: true } // If document not found, it will create a new one
+        { upsert: true, new: true }
       );
     }
-
-    if (path === "/") {
-      revalidatePath(path);
+    
+    if (path) {
+      revalidatePath('/sign-in');
     }
 
   } catch (error: any) {
-    console.log("failed to send data to mongo");
-    throw new Error(`Failed to create/update user: ${error.message}`);
+    console.error("Failed to send data to Mongo:", error);
+    throw new Error(`Failed to create/update countdown: ${error.message}`);
+  }
+}
+
+
+type CountdownType = {
+  _id: string;
+  time: string | null;
+  CDname: string;
+  CDDescription: string;
+  CDlink: string;
+  Instagram: boolean;
+  Facebook: boolean;
+  Youtube: boolean;
+  LinkedIn: boolean;
+  Twitch: boolean;
+  Twitter: boolean;
+  userid: string;
+  createdAt: string | null;
+  CDID?: string;
+  Instagramlink: string;
+  Facebooklink: string;
+  Youtubelink: string;
+  LinkedInlink: string;
+  Twitchlink: string;
+  Twitterlink: string;
+  PublishedName: string;
+  PageStyle?: {
+    backgroundColor?: string;
+    backgroundPattern?: string;
+    fontColor?: string;
+    headingStyle?: string;
+  };
+};
+
+//gets all countdowns by the user
+export async function fetchUserCountdowns(): Promise<CountdownType[]> {
+  try {
+    await connectToDB();
+    const user = await currentUser();
+
+    if (!user?.id) return [];
+
+    const rawResults = await Countdown.find({ userid: user.id }).lean();
+
+    const results: CountdownType[] = rawResults.map((cd: any) => ({
+      _id: cd._id.toString(),
+      time: cd.time ? new Date(cd.time).toISOString() : null,
+      CDname: cd.CDname,
+      CDDescription: cd.CDDescription,
+      CDlink: cd.CDlink,
+      Instagram: cd.Instagram,
+      Facebook: cd.Facebook,
+      Youtube: cd.Youtube,
+      LinkedIn: cd.LinkedIn,
+      Twitch: cd.Twitch,
+      Twitter: cd.Twitter,
+      userid: cd.userid,
+      createdAt: cd.createdAt ? new Date(cd.createdAt).toISOString() : null,
+      CDID: cd.CDID || "",
+      Instagramlink: cd.Instagramlink,
+      Facebooklink: cd.Facebooklink,
+      Youtubelink: cd.Youtubelink,
+      LinkedInlink: cd.LinkedInlink,
+      Twitchlink: cd.Twitchlink,
+      Twitterlink: cd.Twitterlink,
+      PublishedName:cd.PublishedName,
+      PageStyle: cd.PageStyle
+      ? {
+          backgroundColor: cd.PageStyle.backgroundColor || "#ffffff",
+          backgroundPattern: cd.PageStyle.backgroundPattern || "default",
+          fontColor: cd.PageStyle.fontColor || "#000000",
+          headingStyle : cd.PageStyle.headingStyle || 'default'
+        }
+      : undefined,
+    }));
+
+    return results;
+  } catch (error: any) {
+    console.error("Error fetching user countdowns:", error);
+    throw new Error(`Failed to fetch countdowns: ${error.message}`);
+  }
+}
+
+export async function fetchCountdownById(id: string): Promise<CountdownType | null> {
+  try {
+    await connectToDB();
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.warn('Invalid countdown ID:', id);
+      return null;
+    }
+
+    const cd = await Countdown.findById(id).lean() as CountdownType | null;
+    if (!cd) return null;
+
+    return {
+      _id: cd._id.toString(),
+      time: cd.time ? new Date(cd.time).toISOString() : null,
+      CDname: cd.CDname,
+      CDDescription: cd.CDDescription,
+      CDlink: cd.CDlink,
+      Instagram: cd.Instagram,
+      Facebook: cd.Facebook,
+      Youtube: cd.Youtube,
+      LinkedIn: cd.LinkedIn,
+      Twitch: cd.Twitch,
+      Twitter: cd.Twitter,
+      userid: cd.userid,
+      createdAt: cd.createdAt ? new Date(cd.createdAt).toISOString() : null,
+      CDID: cd.CDID || '',
+      Instagramlink: cd.Instagramlink,
+      Facebooklink: cd.Facebooklink,
+      Youtubelink: cd.Youtubelink,
+      LinkedInlink: cd.LinkedInlink,
+      Twitchlink: cd.Twitchlink,
+      Twitterlink: cd.Twitterlink,
+      PublishedName: cd.PublishedName,
+      PageStyle: cd.PageStyle
+      ? {
+          backgroundColor: cd.PageStyle.backgroundColor || "#ffffff",
+          backgroundPattern: cd.PageStyle.backgroundPattern || "default",
+          fontColor: cd.PageStyle.fontColor || "#000000",
+          headingStyle : cd.PageStyle.headingStyle || 'default'
+        }
+      : undefined,
+      };
+  } catch (error: any) {
+    console.error('Error fetching countdown by ID:', error);
+    throw new Error(`Failed to fetch countdown: ${error.message}`);
+  }
+}
+
+//finds the countdown by the published name for the shareable link to print the countdown on the shared punlished page.
+export async function fetchCountdownByPublishedName(PublishedName: string): Promise<CountdownType | null> {
+  try {
+    await connectToDB();
+
+    if (!PublishedName) {
+      console.warn('No Published Name Specified for fetching the model');
+      return null;
+    }
+
+    const countdowns = await fetchUserCountdowns(); // Should return an array of countdowns
+    if (!countdowns || !Array.isArray(countdowns)) return null;
+
+    const cd = countdowns.find(item => item.PublishedName === PublishedName);
+    if (!cd) return null;
+
+    return {
+      _id: cd._id.toString(),
+      time: cd.time ? new Date(cd.time).toISOString() : null,
+      CDname: cd.CDname,
+      CDDescription: cd.CDDescription,
+      CDlink: cd.CDlink,
+      Instagram: cd.Instagram,
+      Facebook: cd.Facebook,
+      Youtube: cd.Youtube,
+      LinkedIn: cd.LinkedIn,
+      Twitch: cd.Twitch,
+      Twitter: cd.Twitter,
+      userid: cd.userid,
+      createdAt: cd.createdAt ? new Date(cd.createdAt).toISOString() : null,
+      CDID: cd.CDID || '',
+      Instagramlink: cd.Instagramlink,
+      Facebooklink: cd.Facebooklink,
+      Youtubelink: cd.Youtubelink,
+      LinkedInlink: cd.LinkedInlink,
+      Twitchlink: cd.Twitchlink,
+      Twitterlink: cd.Twitterlink,
+      PublishedName: cd.PublishedName,
+      PageStyle: cd.PageStyle
+        ? {
+            backgroundColor: cd.PageStyle.backgroundColor || "#ffffff",
+            backgroundPattern: cd.PageStyle.backgroundPattern || "default",
+            fontColor: cd.PageStyle.fontColor || "#000000",
+            headingStyle: cd.PageStyle.headingStyle || 'default',
+          }
+        : undefined,
+    };
+
+  } catch (error: any) {
+    console.error('Error fetching countdown by PublishedName:', error);
+    throw new Error(`Failed to fetch countdown: ${error.message}`);
   }
 }
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//OLD
 //find user posts
 export async function fetchUserPosts(userId: string) {
   try {
@@ -220,9 +441,6 @@ export async function fetchUserPosts(userId: string) {
     throw error;
   }
 }
-
-
-
 
 // Almost similar to Thead (search + pagination) and Community (search + pagination)
 export async function fetchUsers({
