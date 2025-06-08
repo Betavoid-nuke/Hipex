@@ -1,34 +1,27 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { toast } from "sonner";
 import { InputWithLabel } from "../InputBtn/InputBtn";
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { usePathname, useRouter } from "next/navigation";
 import { createUpdateCountdown } from "@/lib/actions/user.action";
-import { revalidatePath } from "next/cache";
+
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 
 const PageStyleSchema = z.object({
   backgroundColor: z.string().optional(),
@@ -130,7 +123,7 @@ export function DateTimePickerForm() {
 
   };
  
-  function handleDateSelect(date: Date | undefined) {
+  const handleDateSelect = (date: Date | null, _?: React.SyntheticEvent) => {
     if (date) {
       form.setValue("time", date);
     }
@@ -243,6 +236,12 @@ export function DateTimePickerForm() {
           )}
         />
 
+
+
+
+
+
+
         {/* date and time */}
         <FormField
           control={form.control}
@@ -272,10 +271,9 @@ export function DateTimePickerForm() {
                   {/* date time picker popover */}
                   <div className="sm:flex" style={{display:'flex', justifyContent:'center', marginBottom:'20px'}}>
                     <Calendar
-                      mode="single"
                       selected={field.value}
                       onSelect={handleDateSelect}
-                      initialFocus
+                      focusSelectedMonth
                     />
                     <div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
                       <ScrollArea className="w-64 sm:w-auto">
@@ -369,8 +367,12 @@ export function DateTimePickerForm() {
           )}
         />
 
+
+
+
+
+
         <div className="mt-5"></div>
-        
         {/* socials toggles*/}
         <Label style={{color:'darkgray'}} className="mt-20" htmlFor="email">Enable social Media buttons</Label>
         <div className="socials flex flex-row mr-4 ml-4 mt-4 mb-2 " style={{color:'darkgray'}}>
@@ -497,9 +499,6 @@ export function DateTimePickerForm() {
             )}
           />
         </div>
-
-
-
 
         {/* Social media links when enabled fields */}
         {instagramEnabled && (
