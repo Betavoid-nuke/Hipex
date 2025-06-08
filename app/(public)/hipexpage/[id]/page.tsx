@@ -3,7 +3,7 @@ import { fetchCountdownByPublishedName } from '@/lib/actions/user.action';
 import { FaInstagram, FaFacebook, FaYoutube, FaLinkedin, FaTwitch, FaTwitter } from 'react-icons/fa';
 import Editpage from '@/components/EditPage/EditPage';
 
-const Page = async ({ params }: { params: { id: string } }) => {
+export const Page = async ({ params }: { params: { id: string } }) => {
   const { id } = params;
   const countdown = await fetchCountdownByPublishedName(id);
 
