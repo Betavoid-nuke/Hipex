@@ -2,7 +2,7 @@
 const nextConfig = {
   experimental: {
     serverActions: {},
-    serverComponentsExternalPackages: ['mongoose'],
+    serverExternalPackages: ['mongoose'],
   },
   eslint: {
     ignoreDuringBuilds: true,
