@@ -35,7 +35,11 @@ interface PageProps {
   params: { slug: string };
 }
 
-export default function Home({ params }: PageProps) {
+export default async function Home({
+  params
+}: {
+  params: Promise<{ id: string }>
+}) {
   
   return (
     <ClerkProvider {...params}>
