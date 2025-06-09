@@ -29,7 +29,12 @@ const SignedOut = dynamic(() => import('@clerk/nextjs').then(mod => mod.SignedOu
 });
 
 
-function Home({ pageProps }: { pageProps: AppProps['pageProps'] }) {
+// function Home({ pageProps }: { pageProps: AppProps['pageProps'] }) {
+async function Home({
+  pageProps,
+}: {
+  pageProps: Promise<{ slug: string }>
+}) {
 
   
   return (
