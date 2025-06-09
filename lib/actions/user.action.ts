@@ -334,7 +334,7 @@ export async function fetchCountdownById(id: string): Promise<CountdownType | nu
 }
 
 //finds the countdown by the published name for the shareable link to print the countdown on the shared punlished page.
-export async function fetchCountdownByPublishedName(PublishedName: string): Promise<CountdownType | null> {
+export async function fetchCountdownByPublishedName(PublishedName: string | Promise<any>): Promise<CountdownType | null> {
   try {
     await connectToDB();
 
