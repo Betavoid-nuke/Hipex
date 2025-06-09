@@ -44,6 +44,7 @@ const FormSchema = z.object({
   Twitchlink: z.string(),
   Twitterlink: z.string(),
   PageStyle: PageStyleSchema.optional(),
+  PublishedName: z.string()
 });
 
 
@@ -75,6 +76,7 @@ type CountdownType = {
     fontColor?: string;
     headingStyle?: string;
   };
+  PublishedName: string;
 };
 
 interface props {
@@ -113,7 +115,8 @@ export default function SaveButton({countdown, CDID} : props){
           fontColor: getTextolor(),
           backgroundPattern: getBackgroundPattern(),
           headingStyle: getHeadingStyle()
-        }
+        },
+        PublishedName: countdown.PublishedName
       }
 
     });
@@ -153,7 +156,8 @@ export default function SaveButton({countdown, CDID} : props){
           fontColor: getTextolor(), //get new text color
           backgroundPattern: getBackgroundPattern(), //get new background pattern
           headingStyle: getHeadingStyle()
-        } 
+        },
+        PublishedName: values.PublishedName
       });
 
       if (loader) loader.style.display = 'none';
