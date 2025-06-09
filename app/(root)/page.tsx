@@ -30,7 +30,7 @@ const SignedOut = dynamic(() => import('@clerk/nextjs').then(mod => mod.SignedOu
 export default function Home({ params }: { params: Promise<{ id: string }> }) {
   
   return (
-    <ClerkProvider {...params}>
+    <ClerkProvider {...params} publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
 
       {/* User bubble at the top right corner */}
       <div className="sticky top-5 z-50" style={{display: 'flex', flexDirection: 'row-reverse', justifyContent: 'flex-start', marginTop:'-50px', marginLeft: '200px'}}>
