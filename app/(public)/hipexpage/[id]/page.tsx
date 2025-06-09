@@ -2,16 +2,11 @@
 import { fetchCountdownByPublishedName } from '@/lib/actions/user.action';
 import { FaInstagram, FaFacebook, FaYoutube, FaLinkedin, FaTwitch, FaTwitter } from 'react-icons/fa';
 import Editpage from '@/components/EditPage/EditPage';
+import { use } from "react";
 
-type PageProps = {
-  params: {
-    id: string | Promise<any>;
-  };
-};
+export default async function hipexpage({params}: {params: Promise<{ id: string }>}) {
 
-export default async function hipexpage({ params }: PageProps) {
-
-  const { id } = params;
+  const { id } = use(params);
   const countdown = await fetchCountdownByPublishedName(id);
 
   if (!countdown) {
