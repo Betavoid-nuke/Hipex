@@ -15,9 +15,13 @@ import { EditPagePattern } from '@/components/PagePattern/EditPagePattern';
 import { HeadingStyleSelector } from '@/components/HeadingStyle/HeadingStyleSelector';
 
 
-const Page = async ({ params }: { params: { id: string } }) => {
+export default async function Page({
+  params
+}: {
+  params: Promise<{ id: string }>
+}) {
 
-  const { id } = params;
+  const { id } = await params;
   const countdown = await fetchCountdownById(id);
 
   if (!countdown) {
@@ -60,4 +64,3 @@ const Page = async ({ params }: { params: { id: string } }) => {
 
 };
 
-export default Page;
