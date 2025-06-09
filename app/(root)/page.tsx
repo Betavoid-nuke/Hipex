@@ -29,16 +29,16 @@ const SignedOut = dynamic(() => import('@clerk/nextjs').then(mod => mod.SignedOu
 });
 
 
-// function Home({ pageProps }: { pageProps: AppProps['pageProps'] }) {
-function Home({
-  pageProps,
-}: {
-  pageProps: Promise<{ slug: string }>
-}) {
 
+// function Home({ pageProps }: { pageProps: AppProps['pageProps'] }) {
+interface PageProps {
+  params: { slug: string };
+}
+
+export default function Home({ params }: PageProps) {
   
   return (
-    <ClerkProvider {...pageProps}>
+    <ClerkProvider {...params}>
 
       {/* User bubble at the top right corner */}
       <div className="sticky top-5 z-50" style={{display: 'flex', flexDirection: 'row-reverse', justifyContent: 'flex-start', marginTop:'-50px', marginLeft: '200px'}}>
@@ -60,8 +60,6 @@ function Home({
     </ClerkProvider>
   );
 }
-
-export default Home;
 
 
 
