@@ -24,6 +24,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: projectInfo.name,
   description: projectInfo.description,
+  icons: {
+    icon: '/logofin.ico', // or '/favicon.png' or whatever file you used
+  }
 };
 
 export default function RootLayout({
@@ -32,6 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

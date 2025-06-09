@@ -64,10 +64,5 @@ export default function Home({ params }: { params: Promise<{ id: string }> }) {
 
 
 
-//when we refresh too fast, again and again the hydration shit comes up alot, so put checks and useeffects in all pages to prevent that, 
-//and make sure all server and client shit is well seperated
-
-//todo
-//need to redesign the sign-in and sign-up page with the new theme, and also put loading signs everywhere
 
 // populate the cards with info and also put default thumbnails to the cards so they are not white empty shit

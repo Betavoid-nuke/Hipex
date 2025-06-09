@@ -41,12 +41,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
               <a href="#" style={{display:'flex', justifyContent:'center'}}>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold" style={{color:logoColor, fontSize:'22px', marginTop:'20px'}}>{projectInfo.name}</span>
+                  {/* <span className="font-semibold" style={{color:logoColor, fontSize:'22px', marginTop:'20px'}}>{projectInfo.name}</span> */}
+                  <img src="/hipex.png" alt="My Image" style={{ width: '103px', height: 'auto' }} />
                 </div>
               </a>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
+      <div style={{width:'100%', background:'rgb(48, 48, 48)', height:'1px'}}></div>
+
 
       <SidebarContent className="sidebar-content">
         <SidebarGroup>
