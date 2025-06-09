@@ -23,8 +23,8 @@ export const data = {
       url: "#",
       items: [
         {
-          title: "Routing",
-          url: "/onboarding",
+          title: "Hipex Playground",
+          url: "/livecoding",
         },
         {
           title: "Data Fetching",
