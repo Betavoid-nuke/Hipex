@@ -4,9 +4,9 @@ import { FaInstagram, FaFacebook, FaYoutube, FaLinkedin, FaTwitch, FaTwitter } f
 import Editpage from '@/components/EditPage/EditPage';
 import { use } from "react";
 
-export default async function hipexpage({params}: {params: Promise<{ id: string }>}) {
+export default async function hipex({params}: {params: Promise<{ id: string }>}) {
 
-  const { id } = use(params);
+  const { id } = await params;
   const countdown = await fetchCountdownByPublishedName(id);
 
   if (!countdown) {
