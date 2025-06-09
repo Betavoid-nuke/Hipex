@@ -2,8 +2,11 @@
 import { fetchCountdownByPublishedName } from '@/lib/actions/user.action';
 import { FaInstagram, FaFacebook, FaYoutube, FaLinkedin, FaTwitch, FaTwitter } from 'react-icons/fa';
 import Editpage from '@/components/EditPage/EditPage';
+import { AppProps } from 'next/app';
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function hipexpage({ params }: { params: { id: string } }, { pageProps }: { pageProps: AppProps['pageProps'] }) {
+
+
   const { id } = params;
   const countdown = await fetchCountdownByPublishedName(id);
 
@@ -28,6 +31,7 @@ export default async function Page({ params }: { params: { id: string } }) {
     <div
       className="containergrid min-h-screen bg-black text-white flex flex-col justify-between w-full"
       style={{ background: 'transparent', position: 'fixed', width: '-webkit-fill-available' } as React.CSSProperties}
+      {...pageProps}
     >
       <Editpage
         CDDescription={countdown.CDDescription}
