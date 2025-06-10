@@ -2,19 +2,19 @@ export const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/",
       items: [
         {
           title: "Analytics",
-          url: "",
+          url: "/",
         },
         {
           title: "Countdowns",
-          url: "#",
+          url: "/",
         },
         {
           title: "Information",
-          url: "#",
+          url: "/",
         },
       ],
     },
@@ -24,7 +24,7 @@ export const data = {
       items: [
         {
           title: "Hipex Playground",
-          url: "/livecoding",
+          url: "/customhipex/8907897",
         },
         {
           title: "Data Fetching",
