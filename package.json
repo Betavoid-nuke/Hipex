@@ -58,7 +58,6 @@
     "tailwindcss-animate": "^1.0.7",
     "uploadthing": "^7.4.4",
     "vaul": "^1.1.2",
-    "xterm-addon-fit": "^0.5.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
