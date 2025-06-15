@@ -233,9 +233,17 @@ export default function EditPage({
       case "Retro":
         return "headingStyle1";
       case "CityNight":
-        return "headingStyle1";
+        return "headingStyle2";
       case "Neon":
-        return "default";
+        return "headingStyle3";
+      case "retro2":
+        return "headingStyle4";
+      case "Melting":
+        return "headingStyle5";
+      case "Matrix":
+        return "headingStyle6";
+      case "Noeffect":
+        return "";
       default:
         return ""; // fallback to default
     }
@@ -296,9 +304,10 @@ export default function EditPage({
     >
 
       <div className="p-8 max-w-4xl mx-auto w-full flex-grow" style={{zIndex:"99"}}>
-        <h1 className={`${getHeadingClassName(headingStyle)} textineditpage fontMain font-light mb-2 text-center`} style={{ fontSize: "54px" }}>
+        <h1 className={`${getHeadingClassName(headingStyle)} textineditpage fontMain font-light mb-2 text-center`} style={{ fontSize: "54px" }} data-text={CDname}>
           {CDname}
         </h1>
+        <div className={`${getHeadingClassName(headingStyle)}sd textineditpage fontMain font-light mb-2 text-center`}></div>
         <p className={`${getHeadingClassName(headingStyle)}SH textineditpage fontMain text-gray-400 text-center max-w-xl mx-auto mb-12 text-lg font-light`}>
           {CDDescription}
         </p>

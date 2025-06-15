@@ -1,9 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../selectTextColor/select"
-import { sendBackgroundPattern, sendtHeadingstyle, setBackgroundPattern, setHeadingstyle } from "../EditPage/EditPage";
+import { sendtHeadingstyle, setHeadingstyle } from "../EditPage/EditPage";
 
 let defaultHeadingStyle;
 let headingStyle:any;
@@ -34,7 +34,11 @@ export function HeadingStyleSelector() {
           <SelectLabel>Heading Style</SelectLabel>
           <SelectItem value="Retro">Retro</SelectItem>
           <SelectItem value="CityNight">City Night</SelectItem>
-          <SelectItem value="Neon">Neon</SelectItem>
+          <SelectItem value="Neon">Seven</SelectItem>
+          <SelectItem value="retro2">Retro with Hover Animation</SelectItem>
+          <SelectItem value="Melting">Melting Text</SelectItem>
+          <SelectItem value="Matrix">Matrix</SelectItem>
+          <SelectItem value="Noeffect">No Effect</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>

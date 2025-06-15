@@ -1514,7 +1514,6 @@ li span {
 /* heading text styles */
 .headingStyle1 {
 	font-size: 42px !important;
-	font-style: italic;
 	text-transform: uppercase;
 	color: transparent;
 	-webkit-text-stroke: white;
@@ -1526,13 +1525,7 @@ li span {
 	animation: flicker 0.5s ease-in-out infinite alternate;
 
 	&:hover {
-		color: #ffffff;
-	}
-}
-
-.headingStyle1SH {
-	@media (max-width: 768px) {
-		font-size: 24px;
+		color: var(--editpagetextcolor);
 	}
 }
 
@@ -1546,21 +1539,242 @@ li span {
 		text-shadow: 2px 2px 20px white;
 	}
 }
-/* 
-@keyframes flicker {
-	0% {
-		opacity: 0.5;
-		text-shadow: 2px 2px 10px white;
-	}
-	100% {
-		opacity: 1;
-		text-shadow: 2px 2px 20px rgb(14, 14, 14);
-	}
-} */
-
-
-/* was working on sub heading and saving heading styles */
 
 
 
 
+
+
+.headingStyle2 {
+  margin: auto;
+  font-size: 3.5rem;
+  font-weight: 300;
+  animation: lights 5s 750ms linear infinite;
+}
+
+@keyframes lights {
+  0% {
+    color: var(--editpagetextcolor);
+    text-shadow:
+      0 0 1em hsla(320, 100%, 50%, 0.2),
+      0 0 0.125em hsla(320, 100%, 60%, 0.3),
+      -1em -0.125em 0.5em hsla(40, 100%, 60%, 0),
+      1em 0.125em 0.5em hsla(200, 100%, 60%, 0);
+  }
+  
+  30% { 
+    color: hsl(230, 100%, 66%);
+    text-shadow:
+      0 0 1em hsla(320, 100%, 50%, 0.5),
+      0 0 0.125em hsla(320, 100%, 60%, 0.5),
+      -0.5em -0.125em 0.25em hsla(40, 100%, 60%, 0.2),
+      0.5em 0.125em 0.25em hsla(200, 100%, 60%, 0.4);
+  }
+  
+  40% { 
+    color: hsl(230, 100%, 95%);
+    text-shadow:
+      0 0 1em hsla(320, 100%, 50%, 0.5),
+      0 0 0.125em hsla(320, 100%, 90%, 0.5),
+      -0.25em -0.125em 0.125em hsla(40, 100%, 60%, 0.2),
+      0.25em 0.125em 0.125em hsla(200, 100%, 60%, 0.4);
+  }
+  
+  70% {
+    color: hsl(230, 80%, 90%);
+    text-shadow:
+      0 0 1em hsla(320, 100%, 50%, 0.5),
+      0 0 0.125em hsla(320, 100%, 60%, 0.5),
+      0.5em -0.125em 0.25em hsla(40, 100%, 60%, 0.2),
+      -0.5em 0.125em 0.25em hsla(200, 100%, 60%, 0.4);
+  }
+  
+  100% {
+    color: hsl(230, 40%, 80%);
+    text-shadow:
+      0 0 1em hsla(320, 100%, 50%, 0.2),
+      0 0 0.125em hsla(320, 100%, 60%, 0.3),
+      1em -0.125em 0.5em hsla(40, 100%, 60%, 0),
+      -1em 0.125em 0.5em hsla(200, 100%, 60%, 0);
+  }
+  
+}
+
+
+
+
+/* Style 7
+   ----------------------------- */
+.headingStyle3 {
+    text-align: center;
+    font-size:30px; font-weight:300; color:#919191; letter-spacing:8px;
+    text-transform: uppercase;
+
+    display: grid;
+    grid-template-columns: 1fr max-content 1fr;
+    grid-template-rows: 20px 0;
+    grid-gap: 20px;
+    align-items: center;
+}
+
+.headingStyle3:after{
+    content: " ";
+    display: block;
+    border-bottom: 0.5px solid #666666;
+    border-top: 0.5px solid #757575;
+    height: 2px;
+  background-color:#d8d8d8;
+}
+
+.headingStyle3:after,.headingStyle3:before {
+    content: " ";
+    display: block;
+    border-bottom: 1px solid #777777;
+    border-top: 1px solid #757575;
+    height: 5px;
+  background-color:#5c5c5c;
+}
+
+
+
+
+
+
+.headingStyle4 {
+  transition: all 0.5s;
+  -webkit-text-stroke: 4px #d6f4f4;
+  font-variation-settings: "wght" 900, "ital" 1;
+  font-size: 15rem;
+  text-align: center;
+  color: transparent;
+  font-family: "Meta", sans-serif;
+  text-shadow: 10px 10px 0px #c9bdff,
+    15px 15px 0px #e601c0,
+    20px 20px 0px #e9019a,
+    25px 25px 0px #f40418,
+    45px 45px 10px #482896;
+  cursor: pointer;
+}
+
+.headingStyle4:hover {
+  font-variation-settings: "wght" 100, "ital" 0;
+  text-shadow: none;
+}
+
+@font-face {
+  src: url("https://www.axis-praxis.org/fonts/webfonts/MetaVariableDemo-Set.woff2")
+    format("woff2");
+  font-family: "Meta";
+  font-style: normal;
+  font-weight: normal;
+}
+
+
+
+
+
+
+
+
+.headingStyle5 {
+    font-size: 8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--editpagetextcolor);
+    position: relative;
+    animation: melt 3s infinite ease-in-out;
+    background: linear-gradient(90deg, #dee9ff, #9b44ff, #ff13c4);
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.headingStyle5::before,
+.headingStyle5::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #ff6f61, #ffbd44, #ff6f61);
+    -webkit-background-clip: text;
+    color: transparent;
+    z-index: -1;
+    transform: scaleY(1);
+    opacity: 0.5;
+    animation: drip 3s infinite ease-in-out;
+}
+
+.headingStyle5::after {
+    filter: blur(10px);
+    opacity: 0.3;
+}
+
+/* Keyframes for melting effect */
+@keyframes melt {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(20px);
+    }
+}
+
+@keyframes drip {
+    0%, 100% {
+        transform: scaleY(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scaleY(1.5);
+        opacity: 0.7;
+    }
+}
+
+
+
+
+
+
+
+.headingStyle6 {
+  color: var(--editpagetextcolor);
+  font-size: 80px;
+  font-family: monospace;
+  position: relative;
+  text-shadow: 0 0 10px var(--editpagetextcolor), 0 0 20px #0f0, 0 0 30px #0f0;
+  z-index: 2; /* Ensure it stays above the rain effect */
+}
+
+.headingStyle6::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  animation: glitch 2s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  transform: translate(-2px, -2px);
+  color: var(--editpagetextcolor);
+  text-shadow: 0 0 5px #0f0, 0 0 15px #0f0;
+}
+
+/* Glitch effect for the text */
+@keyframes glitch {
+  0%, 100% {
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+    transform: translate(0);
+  }
+  33% {
+    clip-path: polygon(0 0, 100% 0, 100% 15%, 0 15%);
+    transform: translate(-5px, -5px);
+  }
+  66% {
+    clip-path: polygon(0 85%, 100% 85%, 100% 100%, 0 100%);
+    transform: translate(5px, 5px);
+  }
+}
+
+
+
+/* var(--editpagetextcolor) gives the color from the header color picker */  
