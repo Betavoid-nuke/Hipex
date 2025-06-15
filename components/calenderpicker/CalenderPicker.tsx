@@ -15,13 +15,12 @@ import {
 } from "@/components/ui/form";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { InputWithLabel } from "../InputBtn/InputBtn";
-import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { usePathname, useRouter } from "next/navigation";
 import { createUpdateCountdown } from "@/lib/actions/user.action";
-
-import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { ComboBoxResponsive } from "../dropdown_projecttype/Ddprojecttype";
+import { Label } from "@/components/ui/label"
 
 const PageStyleSchema = z.object({
   backgroundColor: z.string().optional(),
@@ -51,7 +50,8 @@ const FormSchema = z.object({
   Twitchlink: z.string(),
   Twitterlink: z.string(),
   PageStyle: PageStyleSchema.optional(),
-  PublishedName: z.string()
+  PublishedName: z.string(),
+  projectType: z.string().optional(),
 });
 
 export function DateTimePickerForm() {
@@ -84,7 +84,8 @@ export function DateTimePickerForm() {
         fontColor: "white",
         backgroundPattern: "default"
       },
-      PublishedName: ""
+      PublishedName: "",
+      projectType: "template",
     },
   });
  
@@ -116,7 +117,8 @@ export function DateTimePickerForm() {
         fontColor: "white",
         backgroundPattern: "default"
       },
-      PublishedName: values.PublishedName
+      PublishedName: values.PublishedName,
+      projectType: values.projectType
     });
 
     router.push("/sign-in");
@@ -230,6 +232,48 @@ export function DateTimePickerForm() {
             <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
               <FormControl>
                 <InputWithLabel lable="Event Link" Placeholder="Link to virtual event" {...field}/>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name='projectType'
+          render={({ field }) => (
+            <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
+              <FormControl>
+                <>
+                <Label className="mt-5">Project Type</Label>
+
+
+
+
+
+
+
+
+
+
+
+
+                <ComboBoxResponsive />
+                {/* if the selected value here is template, we need to show another combobox or a popover to let user select the template, 
+                in popover we will have 2 sections, one for the templates user bought from the marketplace or uploaded, and other section for the platform templates */}
+
+
+
+
+
+
+
+
+
+
+                
+          
+                </>
               </FormControl>
               <FormMessage />
             </FormItem>

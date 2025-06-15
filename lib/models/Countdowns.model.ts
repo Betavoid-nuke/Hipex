@@ -102,7 +102,12 @@ const CountdownSchema = new mongoose.Schema({
       type: String,
       default: "default"
     }
-  }
+  },
+  projectType: {
+    type: String,
+    required: true,
+    default: "template"
+  } //template and custom
 });
 
 const Countdown = mongoose.models.Countdown || mongoose.model("Countdown", CountdownSchema);

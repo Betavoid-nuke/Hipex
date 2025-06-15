@@ -107,6 +107,7 @@ interface cdprops {
   Twitterlink: string;
   PageStyle?: PageStyle;
   PublishedName: string;
+  projectType: string | undefined;
 }
 
 export async function createUpdateCountdown({
@@ -130,7 +131,8 @@ export async function createUpdateCountdown({
   Twitchlink,
   Twitterlink,
   PageStyle,
-  PublishedName
+  PublishedName,
+  projectType
   
 }: cdprops): Promise<void> {
   try {
@@ -161,7 +163,8 @@ export async function createUpdateCountdown({
         Twitchlink,
         Twitterlink,
         PageStyle,
-        PublishedName
+        PublishedName,
+        projectType
   
       });
       await newCountdown.save();
@@ -188,7 +191,8 @@ export async function createUpdateCountdown({
           Twitchlink,
           Twitterlink,
           PageStyle,
-          PublishedName
+          PublishedName,
+          projectType
         },
         { upsert: true, new: true }
       );
@@ -233,6 +237,7 @@ type CountdownType = {
     fontColor?: string;
     headingStyle?: string;
   };
+  projectType: string;
 };
 
 //gets all countdowns by the user
@@ -275,6 +280,7 @@ export async function fetchUserCountdowns(): Promise<CountdownType[]> {
           headingStyle : cd.PageStyle.headingStyle || 'default'
         }
       : undefined,
+      projectType: cd.projectType || 'template',
     }));
 
     return results;
@@ -326,6 +332,7 @@ export async function fetchCountdownById(id: string): Promise<CountdownType | nu
           headingStyle : cd.PageStyle.headingStyle || 'default'
         }
       : undefined,
+      projectType: cd.projectType || 'template',
       };
   } catch (error: any) {
     console.error('Error fetching countdown by ID:', error);
@@ -379,6 +386,7 @@ export async function fetchCountdownByPublishedName(PublishedName: string | Prom
             headingStyle: cd.PageStyle.headingStyle || 'default',
           }
         : undefined,
+        projectType: cd.projectType || 'template',
     };
 
   } catch (error: any) {
