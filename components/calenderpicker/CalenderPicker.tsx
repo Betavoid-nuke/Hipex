@@ -19,8 +19,10 @@ import { Switch } from "@/components/ui/switch"
 import { usePathname, useRouter } from "next/navigation";
 import { createUpdateCountdown } from "@/lib/actions/user.action";
 import 'react-datepicker/dist/react-datepicker.css'
-import { ComboBoxResponsive } from "../dropdown_projecttype/Ddprojecttype";
+import { ProjectTypedropdown } from "../dropdown_projecttype/Ddprojecttype";
 import { Label } from "@/components/ui/label"
+import { ProjectTypePicker } from "../projectTypePicker/typePicker";
+import React from "react";
 
 const PageStyleSchema = z.object({
   backgroundColor: z.string().optional(),
@@ -54,10 +56,41 @@ const FormSchema = z.object({
   projectType: z.string().optional(),
 });
 
+
+
+//for when the user selects the template as project type in the ComboBoxResponsive component, this variable will be set to true and the ProjectTypePicker component will be unhidden
+//this variable is used to control the visibility of the ProjectTypePicker component
+type Status = {
+  value: string
+  label: string
+}
+let TemplateProjectSelected = false;
+export function setProjectType(type: Status | null) {
+  if (type?.value === 'Template') {
+    TemplateProjectSelected = true;
+  } else if (type?.value === 'Custom') {
+    TemplateProjectSelected = false;
+  }
+}
+
+
+
+
 export function DateTimePickerForm() {
 
   const router = useRouter();
   const pathname = usePathname();
+  const [templateProjectSelected, setTemplateProjectSelected] = React.useState(false)
+
+  function setProjectType(type: Status | null) {
+    if (type?.value === 'Template') {
+      setTemplateProjectSelected(true);
+    } else {
+      setTemplateProjectSelected(false);
+    }
+  }
+
+
 
   // default values
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -179,7 +212,6 @@ export function DateTimePickerForm() {
     name: 'Twitter',
   });
 
-
  
   return (
     <Form {...form}>
@@ -242,37 +274,20 @@ export function DateTimePickerForm() {
           control={form.control}
           name='projectType'
           render={({ field }) => (
-            <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
+            <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray', marginBottom:'30px'}}>
               <FormControl>
                 <>
-                <Label className="mt-5">Project Type</Label>
+                  <Label className="mt-5" style={{marginTop: '30px'}}>Project Type</Label>
+                  
+                  {/*
+                    The ComboBoxResponsive component is used to select the project type.
+                  */}
+                  <ProjectTypedropdown setProjectType={setProjectType} />
 
-
-
-
-
-
-
-
-
-
-
-
-                <ComboBoxResponsive />
-                {/* if the selected value here is template, we need to show another combobox or a popover to let user select the template, 
-                in popover we will have 2 sections, one for the templates user bought from the marketplace or uploaded, and other section for the platform templates */}
-
-
-
-
-
-
-
-
-
-
-                
-          
+                  {templateProjectSelected && (
+                    <ProjectTypePicker />
+                  )}
+                  
                 </>
               </FormControl>
               <FormMessage />
