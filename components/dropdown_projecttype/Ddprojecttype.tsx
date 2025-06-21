@@ -20,7 +20,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Command } from "../command/command"
-import { setProjectType } from "../calenderpicker/CalenderPicker";
 
 type Status = {
   value: string

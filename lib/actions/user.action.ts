@@ -107,7 +107,7 @@ interface cdprops {
   Twitterlink: string;
   PageStyle?: PageStyle;
   PublishedName: string;
-  projectType: string | undefined;
+  projectType: boolean;
 }
 
 export async function createUpdateCountdown({
@@ -138,7 +138,7 @@ export async function createUpdateCountdown({
   try {
     await connectToDB();
     const user = await currentUser();
-
+    
     if (!user) throw new Error("User not authenticated");
 
     if (!CDID || CDID === "") {
@@ -237,7 +237,7 @@ type CountdownType = {
     fontColor?: string;
     headingStyle?: string;
   };
-  projectType: string;
+  projectType: boolean;
 };
 
 //gets all countdowns by the user
@@ -280,7 +280,7 @@ export async function fetchUserCountdowns(): Promise<CountdownType[]> {
           headingStyle : cd.PageStyle.headingStyle || 'default'
         }
       : undefined,
-      projectType: cd.projectType || 'template',
+      projectType: cd.projectType,
     }));
 
     return results;
@@ -332,7 +332,7 @@ export async function fetchCountdownById(id: string): Promise<CountdownType | nu
           headingStyle : cd.PageStyle.headingStyle || 'default'
         }
       : undefined,
-      projectType: cd.projectType || 'template',
+      projectType: cd.projectType || true,
       };
   } catch (error: any) {
     console.error('Error fetching countdown by ID:', error);
@@ -386,7 +386,7 @@ export async function fetchCountdownByPublishedName(PublishedName: string | Prom
             headingStyle: cd.PageStyle.headingStyle || 'default',
           }
         : undefined,
-        projectType: cd.projectType || 'template',
+        projectType: cd.projectType || true,
     };
 
   } catch (error: any) {

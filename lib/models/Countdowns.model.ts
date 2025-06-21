@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { boolean } from "zod";
 
 const CountdownSchema = new mongoose.Schema({
   time: {
@@ -104,10 +105,9 @@ const CountdownSchema = new mongoose.Schema({
     }
   },
   projectType: {
-    type: String,
-    required: true,
-    default: "template"
-  } //template and custom
+    type: Boolean,
+    default: true,
+  }
 });
 
 const Countdown = mongoose.models.Countdown || mongoose.model("Countdown", CountdownSchema);

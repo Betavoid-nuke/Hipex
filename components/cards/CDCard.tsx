@@ -13,16 +13,27 @@ interface propr {
   timeend: string,
   id:string,
   PublishedName: string,
-  loopint: number
+  loopint: number,
+  projectType?: boolean
 }
 
-function CDCard({name, description, timeend, id, PublishedName, loopint}: propr) {
+function CDCard({name, description, timeend, id, PublishedName, loopint, projectType}: propr) {
 
   const pathname = usePathname(); // Get current path
   const [fullURL, setFullURL] = useState<string>(""); // default to empty string
-
   const dateObj = new Date(timeend);
-  const TheURL = "/edit/"+ id;
+  let TheURL = ""; // Initialize TheURL variable
+  
+
+  // Determine the URL based on projectType
+  // If projectType is true, use "/edit/{id}", otherwise use "/customhipex/{id}"
+  if(projectType) {
+    TheURL = "/edit/"+ id;
+  }
+  else {
+    TheURL = "/customhipex/"+ id;
+  }
+  
 
   // Format to "HH:MM:SS | YYYY-MM-DD"
   const formatted = `${dateObj.toTimeString().slice(0, 8)} | ${dateObj.toISOString().split("T")[0]}`;
@@ -64,3 +75,24 @@ function CDCard({name, description, timeend, id, PublishedName, loopint}: propr)
 
 }
 export default CDCard;
+
+
+//todo:
+
+//need to add the published and unpublished badge and the 3 dot drop down to publish and unpublish the project
+//also need a badge for custom or template project indicator
+//add a preview button that opens the project in a new tab
+//add a delete button that deletes the project
+//add a edit button that opens the project in edit mode
+
+//when publishing ask if user wanna share their page on discovery page for other users to see
+//make a discovery page that shows all the published projects with a search bar and filter options
+//allow users to like and comment on the projects
+//add a feature to follow users and see their projects in a feed
+//add search bar on discovert page
+
+//maek marketplace page and add bunch of templates by hipex and allow users to but them
+//show all bought templates from marketplace in the owned tab of the project type picker so users can customize them, when selected a template, send information of it to populate the page instead of populating the information filled by user in the form
+
+//integrate secured buying system with stripe or something to allow users to buy templates and pay for them
+//make a page for users to see their purchased templates and allow them to download them or use them in their projects

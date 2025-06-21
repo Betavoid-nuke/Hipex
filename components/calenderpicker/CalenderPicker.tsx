@@ -64,29 +64,20 @@ type Status = {
   value: string
   label: string
 }
-let TemplateProjectSelected = false;
-export function setProjectType(type: Status | null) {
-  if (type?.value === 'Template') {
-    TemplateProjectSelected = true;
-  } else if (type?.value === 'Custom') {
-    TemplateProjectSelected = false;
-  }
-}
-
-
-
 
 export function DateTimePickerForm() {
 
   const router = useRouter();
   const pathname = usePathname();
-  const [templateProjectSelected, setTemplateProjectSelected] = React.useState(false)
+  const [templateProjectSelected, setTemplateProjectSelected] = React.useState(true)
 
   function setProjectType(type: Status | null) {
     if (type?.value === 'Template') {
       setTemplateProjectSelected(true);
+      
     } else {
       setTemplateProjectSelected(false);
+      
     }
   }
 
@@ -151,7 +142,7 @@ export function DateTimePickerForm() {
         backgroundPattern: "default"
       },
       PublishedName: values.PublishedName,
-      projectType: values.projectType
+      projectType: templateProjectSelected
     });
 
     router.push("/sign-in");
@@ -282,7 +273,7 @@ export function DateTimePickerForm() {
                   {/*
                     The ComboBoxResponsive component is used to select the project type.
                   */}
-                  <ProjectTypedropdown setProjectType={setProjectType} />
+                  <ProjectTypedropdown setProjectType={setProjectType} {...field}/>
 
                   {templateProjectSelected && (
                     <ProjectTypePicker />

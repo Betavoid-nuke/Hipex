@@ -77,7 +77,8 @@ export default function Dash() {
             timeend={cd.time.toString()}
             id={cd._id}
             PublishedName={cd.PublishedName}
-            loopint={index}/>
+            loopint={index}
+            projectType={cd.projectType}/>
           ))}
         </div>
       )}
