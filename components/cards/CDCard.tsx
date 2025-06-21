@@ -6,6 +6,9 @@ import { Input } from "../ui/input";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from 'framer-motion';
+import Chip from '@mui/material/Chip';
+import FaceIcon from '@mui/icons-material/Face';
+import { CardMenu } from "../CardMenu/CardDDMenu";
 
 interface propr {
   name: string,
@@ -57,6 +60,8 @@ function CDCard({name, description, timeend, id, PublishedName, loopint, project
       >
         <Link href={TheURL}>
           <div className="cardThumbnail" style={{ height: "150px", position: "relative" }}>
+           <Chip size="small" color="primary" icon={<FaceIcon />} style={{zIndex:'99', position:'absolute', margin:'10px'}} label="Draft" />
+           <CardMenu />
            <Image
              src="/assets/cards/1.jpg"
              alt="Thumbnail"
