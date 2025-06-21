@@ -50,13 +50,13 @@ export function MakeNewProject() {
       </DrawerTrigger>
 
       {/* drawer logic */}
-      <DrawerContent className="glass">
+      <DrawerContent className="glass glow-border-indi">
         <div className="flex flex=row">
           <div className="mx-auto w-full">
 
             {/* Header of the drawer */}
             <DrawerHeader style={{justifyContent:"center", color:"darkgray"}}>
-              <DrawerTitle style={{fontSize:'28px'}}>Create New Countdown</DrawerTitle>
+              <DrawerTitle style={{fontSize:'28px'}}>Create New Hipex Page</DrawerTitle>
             </DrawerHeader>
 
             <div className="p-4 pb-0" style={{marginBottom:'30px'}}>

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sidebar"
 import NextTopLoader from 'nextjs-toploader';
 import { Toaster } from "@/components/toast/sonner";
+import Goingbackbtn from "@/components/GoBack/Goingbackbtn";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,6 +53,7 @@ export default function RootLayout({
                 <div className="flex items-center gap-2 px-3" style={{ color: "gray", zIndex:'999' }}>
                   <SidebarTrigger />
                 </div>
+                <Goingbackbtn white={true} />
               </header>
 
               <div className="flex gap-2 p-2">

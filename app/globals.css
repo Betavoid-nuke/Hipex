@@ -243,18 +243,61 @@
 
 
 
+
+
+
+
 /* styles.css */
 .glass {
-  background: rgba(16, 16, 17, 0.774); /* White with transparency */
+  background: rgba(18, 10, 34, 0.774); /* White with transparency */
   backdrop-filter: blur(2px); /* Blur everything behind */
   -webkit-backdrop-filter: blur(2px); /* Safari support */
   border-top: 10px;
   border-bottom: 0px;
   border: 1px solid rgba(0, 0, 0, 0);
   box-shadow: 0 4px 50px rgba(0, 0, 0, 0.568);
-  margin-left: 50px;
-  margin-right: 50px;
 }
+
+/* Glowing border layer — hidden by default */
+.glass::before {
+  content: '';
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background: linear-gradient(45deg, #00ff9d, #992be2, #0084ff, #00ffff);
+  background-size: 200% 200%;
+  animation: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  opacity: 1;
+  animation: borderAnimation 3s ease infinite;
+
+}
+
+@keyframes borderAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
+
+
+
 
 
 

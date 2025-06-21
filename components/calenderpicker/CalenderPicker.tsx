@@ -215,7 +215,7 @@ export function DateTimePickerForm() {
           render={({ field }) => (
             <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
               <FormControl>
-                <InputWithLabel lable="Countdown Name" Placeholder="Enter name of the countdown" {...field}/>
+                <InputWithLabel lable="Page Name" Placeholder="Enter name of the countdown" {...field}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -228,7 +228,7 @@ export function DateTimePickerForm() {
           render={({ field }) => (
             <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
               <FormControl>
-                <InputWithLabel lable="Countdown Description" Placeholder="Description" {...field}/>
+                <InputWithLabel lable="Page Description" Placeholder="Description" {...field}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -241,7 +241,7 @@ export function DateTimePickerForm() {
           render={({ field }) => (
             <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
               <FormControl>
-                <InputWithLabel lable="Countdown Name for Share Link" Placeholder="Share Link Name" {...field}/>
+                <InputWithLabel lable="Page Name for Share Link" Placeholder="Share Link Name" {...field}/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -254,7 +254,7 @@ export function DateTimePickerForm() {
           render={({ field }) => (
             <FormItem className='flex w-full flex-col gap-1' style={{color:'darkgray'}}>
               <FormControl>
-                <InputWithLabel lable="Event Link" Placeholder="Link to virtual event" {...field}/>
+                <InputWithLabel lable="Link for main button" Placeholder="Link to virtual event" {...field}/>
               </FormControl>
               <FormMessage />
             </FormItem>
