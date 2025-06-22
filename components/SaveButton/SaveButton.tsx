@@ -79,6 +79,7 @@ type CountdownType = {
   };
   PublishedName: string;
   projectType: boolean;
+  published: boolean;
 };
 
 interface props {
@@ -161,7 +162,8 @@ export default function SaveButton({countdown, CDID} : props){
           headingStyle: getHeadingStyle()
         },
         PublishedName: values.PublishedName,
-        projectType: values.projectType
+        projectType: values.projectType,
+        published: countdown.published //keep the published status same as before
       });
 
       if (loader) loader.style.display = 'none';
