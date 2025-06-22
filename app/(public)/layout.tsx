@@ -2,12 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import projectInfo from "../../CustomizingPlatform/information.json";
-import { AppSidebar } from "@/components/shared/app-sidebar";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
 import NextTopLoader from 'nextjs-toploader';
 import { Toaster } from "@/components/toast/sonner";
 
@@ -42,7 +36,6 @@ export default function RootLayout({
           <div className="flex">
             <section className="h-full w-full" style={{width:'-webkit-fill-available'}}>
               <div className="w-full h-full">
-                <NextTopLoader />
                 {children}
               </div>
               <Toaster />

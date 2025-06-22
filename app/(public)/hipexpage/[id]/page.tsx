@@ -11,6 +11,7 @@ export default async function Page({
 
   const { id } = await params;
   const countdown = await fetchCountdownByPublishedName(id);
+  const PublishedStatus = countdown?.published;
 
   if (!countdown) {
     return (
@@ -30,18 +31,27 @@ export default async function Page({
   ];
 
   return (
-    <div
-      className="containergrid min-h-screen bg-black text-white flex flex-col justify-between w-full"
-      style={{ background: 'transparent', position: 'fixed', width: '-webkit-fill-available' } as React.CSSProperties}
-    >
-      <Editpage
-        CDDescription={countdown.CDDescription}
-        CDname={countdown.CDname}
-        CDlink={countdown.CDlink}
-        time={countdown.time}
-        socialLinks={socialLinks}
-        PageStyle={countdown.PageStyle}
-      />
-    </div>
+    <>
+      {PublishedStatus ? (
+        <div
+          className="containergrid min-h-screen bg-black text-white flex flex-col justify-between w-full"
+          style={{ background: 'transparent', position: 'fixed', width: '-webkit-fill-available' } as React.CSSProperties}
+        >
+          <Editpage
+            CDDescription={countdown.CDDescription}
+            CDname={countdown.CDname}
+            CDlink={countdown.CDlink}
+            time={countdown.time}
+            socialLinks={socialLinks}
+            PageStyle={countdown.PageStyle}
+          />
+        </div>
+      ) : (
+        <div className="flex flex-col justify-center items-center text-center text-gray-400" style={{ height:'100%', marginTop:'300px' }}>
+          <h1 className="text-2xl font-semibold">This Hipex Page is not published yet.</h1>
+          <p className="mt-2 text-sm text-gray-500">Please check back later or contact the page owner.</p>
+        </div>
+      )}
+    </>
   );
 }

@@ -78,7 +78,9 @@ export default function Dash() {
             id={cd._id}
             PublishedName={cd.PublishedName}
             loopint={index}
-            projectType={cd.projectType}/>
+            projectType={cd.projectType}
+            published={cd.published}
+          />
           ))}
         </div>
       )}

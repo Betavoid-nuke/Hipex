@@ -107,6 +107,10 @@ const CountdownSchema = new mongoose.Schema({
   projectType: {
     type: Boolean,
     default: true,
+  },
+  published: {
+    type: Boolean,
+    default: false,
   }
 });
 

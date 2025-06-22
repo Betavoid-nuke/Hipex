@@ -54,6 +54,7 @@ const FormSchema = z.object({
   PageStyle: PageStyleSchema.optional(),
   PublishedName: z.string(),
   projectType: z.string().optional(),
+  published: z.boolean()
 });
 
 
@@ -110,6 +111,7 @@ export function DateTimePickerForm() {
       },
       PublishedName: "",
       projectType: "template",
+      published: false
     },
   });
  
@@ -142,7 +144,8 @@ export function DateTimePickerForm() {
         backgroundPattern: "default"
       },
       PublishedName: values.PublishedName,
-      projectType: templateProjectSelected
+      projectType: templateProjectSelected,
+      published: false
     });
 
     router.push("/sign-in");

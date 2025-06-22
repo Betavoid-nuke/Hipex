@@ -11,8 +11,6 @@ import { connectToDB } from "../mongoose";
 import Countdowns from "../models/Countdowns.model";
 
 import { currentUser } from "@clerk/nextjs/server";
-import { FormSchema } from "@/Shraded/types.ts/FormSchema";
-import { genModel } from "@/Shraded/ModelGenrator/genModel";
 import Countdown from "../models/Countdowns.model";
 
 
@@ -77,6 +75,58 @@ export async function updateUser({
 
 
 
+// Optional: Use an in-memory map or Redis in production
+const toggleHistory: Map<string, number[]> = new Map();
+export async function publishToggle(CDID: string): Promise<void> {
+  try {
+    await connectToDB();
+    const user = await currentUser();
+    if (!user) throw new Error("User not authenticated");
+    if (!CDID) throw new Error("CDID is required");
+
+    const existing = await Countdowns.findById(CDID);
+    if (!existing) throw new Error("Countdown not found");
+
+    // Ensure the user owns the document
+    if (existing.userid.toString() !== user.id.toString()) {
+      throw new Error("Unauthorized access to this countdown");
+    }
+
+    // === Rate-limiting: Max 5 toggles per 10 minutes per document per user ===
+    const userKey = `${user.id}_${CDID}`;
+    const now = Date.now();
+    const windowSize = 10 * 60 * 1000; // 10 minutes
+    const maxToggles = 5;
+
+    const history = toggleHistory.get(userKey) || [];
+    const recent = history.filter((timestamp) => now - timestamp < windowSize);
+
+    if (recent.length >= maxToggles) {
+      throw new Error("Rate limit exceeded: Too many toggle attempts. Try again later.");
+    }
+
+    recent.push(now);
+    toggleHistory.set(userKey, recent);
+
+    // === Toggle the published field ===
+    const toggledPublished = !existing.published;
+
+    await Countdowns.findByIdAndUpdate(
+      CDID,
+      { published: toggledPublished },
+      { new: false } // important: do not return or upsert
+    );
+
+  } catch (error: any) {
+    console.error("Failed to toggle published:", error);
+    throw new Error(`Failed to toggle published: ${error.message}`);
+  }
+}
+
+
+
+
+
 //page style saved by user
 interface PageStyle {
   backgroundColor?: string;
@@ -108,6 +158,7 @@ interface cdprops {
   PageStyle?: PageStyle;
   PublishedName: string;
   projectType: boolean;
+  published: boolean;
 }
 
 export async function createUpdateCountdown({
@@ -132,7 +183,8 @@ export async function createUpdateCountdown({
   Twitterlink,
   PageStyle,
   PublishedName,
-  projectType
+  projectType,
+  published
   
 }: cdprops): Promise<void> {
   try {
@@ -164,8 +216,9 @@ export async function createUpdateCountdown({
         Twitterlink,
         PageStyle,
         PublishedName,
-        projectType
-  
+        projectType,
+        published
+
       });
       await newCountdown.save();
     } else {
@@ -192,7 +245,8 @@ export async function createUpdateCountdown({
           Twitterlink,
           PageStyle,
           PublishedName,
-          projectType
+          projectType,
+          published
         },
         { upsert: true, new: true }
       );
@@ -238,6 +292,7 @@ type CountdownType = {
     headingStyle?: string;
   };
   projectType: boolean;
+  published: boolean;
 };
 
 //gets all countdowns by the user
@@ -281,6 +336,7 @@ export async function fetchUserCountdowns(): Promise<CountdownType[]> {
         }
       : undefined,
       projectType: cd.projectType,
+      published: cd.published
     }));
 
     return results;
@@ -333,6 +389,7 @@ export async function fetchCountdownById(id: string): Promise<CountdownType | nu
         }
       : undefined,
       projectType: cd.projectType || true,
+      published: cd.published
       };
   } catch (error: any) {
     console.error('Error fetching countdown by ID:', error);
@@ -387,6 +444,7 @@ export async function fetchCountdownByPublishedName(PublishedName: string | Prom
           }
         : undefined,
         projectType: cd.projectType || true,
+        published: cd.published
     };
 
   } catch (error: any) {

@@ -18,14 +18,23 @@ interface propr {
   PublishedName: string,
   loopint: number,
   projectType?: boolean
+  published: boolean
 }
 
-function CDCard({name, description, timeend, id, PublishedName, loopint, projectType}: propr) {
+function CDCard({name, description, timeend, id, PublishedName, loopint, projectType, published}: propr) {
 
+  const [Publishedstatus, setPublishedstatus] = useState(published);
   const pathname = usePathname(); // Get current path
   const [fullURL, setFullURL] = useState<string>(""); // default to empty string
   const dateObj = new Date(timeend);
   let TheURL = ""; // Initialize TheURL variable
+
+
+  // Function to toggle the published status
+  // This will be called when the user clicks the publish/unpublish button in the CardMenu
+  function togglePublishBadge() {
+    setPublishedstatus((prev) => !prev);
+  }
   
 
   // Determine the URL based on projectType
@@ -51,6 +60,8 @@ function CDCard({name, description, timeend, id, PublishedName, loopint, project
 
   const loopintforanimation = loopint/30;
 
+
+
   return(
       <motion.div
         initial={{ opacity: 0, y: 120 }}
@@ -58,10 +69,32 @@ function CDCard({name, description, timeend, id, PublishedName, loopint, project
         transition={{ delay: loopintforanimation }}
         className="glow-border p-6 rounded-xl text-white w-64 mb-10"
       >
+
+        {/* Sub-menu for the cards */}
+        <CardMenu CDID={id} initialPublished={published} onTogglePublish={togglePublishBadge} />
+
         <Link href={TheURL}>
           <div className="cardThumbnail" style={{ height: "150px", position: "relative" }}>
-           <Chip size="small" color="primary" icon={<FaceIcon />} style={{zIndex:'99', position:'absolute', margin:'10px'}} label="Draft" />
-           <CardMenu />
+            
+            {/* Display published or unpublished badge */}
+            {Publishedstatus ? (
+              <Chip
+                size="small"
+                color="success"
+                icon={<FaceIcon />}
+                style={{ zIndex: '99', position: 'absolute', margin: '10px' }}
+                label="Published"
+              />
+            ) : (
+              <Chip
+                size="small"
+                color="secondary"
+                icon={<FaceIcon />}
+                style={{ zIndex: '99', position: 'absolute', margin: '10px' }}
+                label="Unpublished"
+              />
+            )}
+            
            <Image
              src="/assets/cards/1.jpg"
              alt="Thumbnail"
