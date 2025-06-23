@@ -13,9 +13,10 @@ interface Project {
   CDID: string;
   initialPublished : boolean;
   onTogglePublish: () => void; // this is the callback
+  onDelete: () => void; // callback for delete action
 }
 
-export function CardMenu({CDID, initialPublished, onTogglePublish }: Project) {
+export function CardMenu({CDID, initialPublished, onTogglePublish, onDelete }: Project) {
 
   const [published, setPublished] = useState(initialPublished);
   const [loading, setLoading] = useState(false);
@@ -58,6 +59,33 @@ export function CardMenu({CDID, initialPublished, onTogglePublish }: Project) {
     }
   };
 
+  const handleDelete = async () => {
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/delete-project", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ CDID }),
+      });
+
+      const data = await res.json();
+
+      onDelete(); // Call the callback to notify parent component
+
+      if (!res.ok) {
+        console.error("Delete failed:", data.error);
+        return;
+      }
+
+    } catch (err: any) {
+      console.error("Delete error:", err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <DropdownMenu>
@@ -74,13 +102,10 @@ export function CardMenu({CDID, initialPublished, onTogglePublish }: Project) {
           <DropdownMenuItem onClick={handlePublishToggle}>
             {loading ? "Processing..." : published ? "Unpublish" : "Publish"}
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            Duplicate
-          </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem disabled>
             List on Marketplace
           </DropdownMenuItem>
-          <DropdownMenuItem variant="destructive">
+          <DropdownMenuItem variant="destructive" onClick={handleDelete}>
             Delete
           </DropdownMenuItem>
         </DropdownMenuGroup>

@@ -7,8 +7,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 
 export default function Dash() {
+
+
   const [countdowns, setCountdowns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     const loadCountdowns = async () => {
@@ -24,6 +27,21 @@ export default function Dash() {
 
     loadCountdowns();
   }, []);
+
+
+  // Function to update the countdowns state after deletion
+  // This will remove the card with the given CDID from the state
+  const updateCards = async (CDID: string) => {
+    try {
+
+      setCountdowns(prev => prev.filter(cd => cd._id !== CDID));
+      console.log('updated');
+
+    } catch (err: any) {
+      console.error("Delete error:", err.message);
+    }
+  };
+
 
   return (
     <div className="p-6" style={{ background: 'transparent'}} >
@@ -80,6 +98,7 @@ export default function Dash() {
             loopint={index}
             projectType={cd.projectType}
             published={cd.published}
+            onDelete={() => updateCards(cd._id)}
           />
           ))}
         </div>

@@ -19,9 +19,10 @@ interface propr {
   loopint: number,
   projectType?: boolean
   published: boolean
+  onDelete: () => void
 }
 
-function CDCard({name, description, timeend, id, PublishedName, loopint, projectType, published}: propr) {
+function CDCard({name, description, timeend, id, PublishedName, loopint, projectType, published, onDelete}: propr) {
 
   const [Publishedstatus, setPublishedstatus] = useState(published);
   const pathname = usePathname(); // Get current path
@@ -71,7 +72,7 @@ function CDCard({name, description, timeend, id, PublishedName, loopint, project
       >
 
         {/* Sub-menu for the cards */}
-        <CardMenu CDID={id} initialPublished={published} onTogglePublish={togglePublishBadge} />
+        <CardMenu CDID={id} initialPublished={published} onTogglePublish={togglePublishBadge} onDelete={onDelete} />
 
         <Link href={TheURL}>
           <div className="cardThumbnail" style={{ height: "150px", position: "relative" }}>
