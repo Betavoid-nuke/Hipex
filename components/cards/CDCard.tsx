@@ -75,6 +75,28 @@ function CDCard({name, description, timeend, id, PublishedName, loopint, project
         <CardMenu CDID={id} initialPublished={published} onTogglePublish={togglePublishBadge} onDelete={onDelete} />
 
         <Link href={TheURL}>
+
+          <div style={{marginLeft:'90px', position:'relative'}}>
+            {/* Display published or unpublished badge */}
+            {!projectType ? (
+              <Chip
+                size="small"
+                color="primary"
+                icon={<FaceIcon />}
+                style={{ zIndex: '99', position: 'absolute', margin: '10px' }}
+                label="Custom"
+              />
+            ) : (
+              <Chip
+                size="small"
+                color="info"
+                icon={<FaceIcon />}
+                style={{ zIndex: '99', position: 'absolute', margin: '10px' }}
+                label="Template"
+              />
+            )}
+          </div>
+
           <div className="cardThumbnail" style={{ height: "150px", position: "relative" }}>
             
             {/* Display published or unpublished badge */}
@@ -84,7 +106,7 @@ function CDCard({name, description, timeend, id, PublishedName, loopint, project
                 color="success"
                 icon={<FaceIcon />}
                 style={{ zIndex: '99', position: 'absolute', margin: '10px' }}
-                label="Published"
+                label="Published  "
               />
             ) : (
               <Chip
