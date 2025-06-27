@@ -111,6 +111,26 @@ const CountdownSchema = new mongoose.Schema({
   published: {
     type: Boolean,
     default: false,
+  },
+  customCode: {
+    type: new mongoose.Schema({
+      defaultFilesList: {
+        type: [String],
+        required: true
+      },
+      defaultFilesData: {
+        type: [
+          {
+            name: { type: String, required: true },
+            language: { type: String, required: true },
+            value: { type: String, required: true }
+          }
+        ],
+        default: []
+      }
+    }, { _id: false }),
+    required: false,
+    default: undefined
   }
 });
 

@@ -135,6 +135,17 @@ interface PageStyle {
   headingStyle?: string;
 }
 
+interface FileData {
+  name: string;
+  language: string;
+  value: string;
+}
+
+interface CustomCode {
+  defaultFilesList: string[];
+  defaultFilesData: FileData[];
+}
+
 interface cdprops {
   CDID: string; // Pass empty string ("") to create a new document
   time: Date;
@@ -159,6 +170,7 @@ interface cdprops {
   PublishedName: string;
   projectType: boolean;
   published: boolean;
+  customCode?: CustomCode;
 }
 
 export async function createUpdateCountdown({
@@ -184,7 +196,8 @@ export async function createUpdateCountdown({
   PageStyle,
   PublishedName,
   projectType,
-  published
+  published,
+  customCode
   
 }: cdprops): Promise<void> {
   try {
@@ -192,6 +205,9 @@ export async function createUpdateCountdown({
     const user = await currentUser();
     
     if (!user) throw new Error("User not authenticated");
+
+    console.log(customCode);
+    
 
     if (!CDID || CDID === "") {
       // Create new countdown
@@ -217,7 +233,8 @@ export async function createUpdateCountdown({
         PageStyle,
         PublishedName,
         projectType,
-        published
+        published,
+        customCode
 
       });
       await newCountdown.save();
@@ -246,7 +263,8 @@ export async function createUpdateCountdown({
           PageStyle,
           PublishedName,
           projectType,
-          published
+          published,
+          customCode
         },
         { upsert: true, new: true }
       );
@@ -293,6 +311,7 @@ type CountdownType = {
   };
   projectType: boolean;
   published: boolean;
+  customCode?: CustomCode;
 };
 
 //gets all countdowns by the user
@@ -336,7 +355,11 @@ export async function fetchUserCountdowns(): Promise<CountdownType[]> {
         }
       : undefined,
       projectType: cd.projectType,
-      published: cd.published
+      published: cd.published,
+      customCode: cd.customCode ? {
+        defaultFilesList: cd.customCode.defaultFilesList || [],
+        defaultFilesData: cd.customCode.defaultFilesData || []
+      } : undefined
     }));
 
     return results;
@@ -354,6 +377,7 @@ export async function fetchCountdownById(id: string): Promise<CountdownType | nu
       console.warn('Invalid countdown ID:', id);
       return null;
     }
+    
 
     const cd = await Countdown.findById(id).lean() as CountdownType | null;
     if (!cd) return null;
@@ -389,7 +413,11 @@ export async function fetchCountdownById(id: string): Promise<CountdownType | nu
         }
       : undefined,
       projectType: cd.projectType || true,
-      published: cd.published
+      published: cd.published,
+      customCode: cd.customCode ? {
+        defaultFilesList: cd.customCode.defaultFilesList || [],
+        defaultFilesData: cd.customCode.defaultFilesData || []
+      } : undefined
       };
   } catch (error: any) {
     console.error('Error fetching countdown by ID:', error);
@@ -443,8 +471,12 @@ export async function fetchCountdownByPublishedName(PublishedName: string | Prom
             headingStyle: cd.PageStyle.headingStyle || 'default',
           }
         : undefined,
-        projectType: cd.projectType || true,
-        published: cd.published
+      projectType: cd.projectType || true,
+      published: cd.published,
+      customCode: cd.customCode ? {
+        defaultFilesList: cd.customCode.defaultFilesList || [],
+        defaultFilesData: cd.customCode.defaultFilesData || []
+      } : undefined
     };
 
   } catch (error: any) {

@@ -23,12 +23,27 @@ import { ProjectTypedropdown } from "../dropdown_projecttype/Ddprojecttype";
 import { Label } from "@/components/ui/label"
 import { ProjectTypePicker } from "../projectTypePicker/typePicker";
 import React from "react";
+import { defaultFilesData, defaultFilesList } from "@/CodePlayground/context/data";
 
 const PageStyleSchema = z.object({
   backgroundColor: z.string().optional(),
   backgroundPattern: z.string().optional(),
   fontColor: z.string().optional()
 });
+
+//for the custom code section, this is used to define the default files that will be used in the custom code section of the countdown page
+const FileDataSchema = z.object({
+  name: z.string(),
+  language: z.string(),
+  value: z.string(),
+});
+
+// this schema is used to define the default files that will be used in the custom code section of the countdown page
+const CustomCodeSchema = z.object({
+  defaultFilesList: z.array(z.string()),
+  defaultFilesData: z.array(FileDataSchema),
+});
+
  
 // form definition
 const FormSchema = z.object({
@@ -54,7 +69,8 @@ const FormSchema = z.object({
   PageStyle: PageStyleSchema.optional(),
   PublishedName: z.string(),
   projectType: z.string().optional(),
-  published: z.boolean()
+  published: z.boolean(),
+  customCode: CustomCodeSchema.optional()
 });
 
 
@@ -111,11 +127,19 @@ export function DateTimePickerForm() {
       },
       PublishedName: "",
       projectType: "template",
-      published: false
+      published: false,
+      customCode: {
+        defaultFilesList: defaultFilesList,
+        defaultFilesData: defaultFilesData
+      }
     },
   });
  
   const onSubmit = async (values: z.infer<typeof FormSchema>) => {
+
+    console.log(defaultFilesList);
+    console.log(defaultFilesData);
+    
 
     //when i will create the edit popup inside the edit countdown page, the CDID will be set to the _id of the countdown document as the createUpdateCountdown will use CDID to find the mongo document of the countdown user is editing and will update it
     await createUpdateCountdown({
@@ -145,7 +169,10 @@ export function DateTimePickerForm() {
       },
       PublishedName: values.PublishedName,
       projectType: templateProjectSelected,
-      published: false
+      published: false,
+      customCode: templateProjectSelected
+        ? { defaultFilesList: [], defaultFilesData: [] }
+        : { defaultFilesList: defaultFilesList, defaultFilesData: defaultFilesData }
     });
 
     router.push("/sign-in");
@@ -646,7 +673,8 @@ export function DateTimePickerForm() {
 
 
         {/* Submit button */}
-        <Button type="submit" variant='secondary' style={{marginTop:'30px', marginBottom:'50px'}}>Submit</Button>
+        <Button variant='secondary' style={{marginTop:'30px', marginBottom:'50px'}}>Submit</Button>
+        {/* type="submit" */}
         
       </form>
     </Form>

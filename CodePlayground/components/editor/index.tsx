@@ -13,7 +13,7 @@ import { customTheme } from './themes';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 
 const Index: FC = () => {
-	const { activeFile, filesData, changeActiveFile, addFileData } = useAppContext();
+	const { activeFile, filesData, changeActiveFile, addFileData } = useAppContext(); // filesData has everything, we need to save the active file data
 	const [wrap, setWrap] = useState(false);
 
 	const handleEditorChange = useDebouncedCallback(
@@ -36,7 +36,12 @@ const Index: FC = () => {
 
 	return (
 		<>
-			<Nav>
+			<Nav
+			  style={{
+			    minHeight: '36px',
+			    transition: 'all 0.3s ease-in-out',
+			  }}
+			>
 				{filesData.map((file) => (
 					<NavItem
 						key={file.name}
