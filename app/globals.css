@@ -1834,6 +1834,55 @@ li span {
 
 
 
+/* Custom scrollbar for a cleaner look in dark mode */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #1F2937;
+}
+::-webkit-scrollbar-thumb {
+    background: #4B5563;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #6B7280;
+}
+/* Transition for view switching */
+/* These will be handled by React state and conditional rendering,
+   but keeping them here if raw class toggling is desired.
+   Make sure you understand these might be overridden by React's rendering flow. */
+.view {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.view-hidden {
+    opacity: 0;
+    transform: scale(0.98);
+    pointer-events: none;
+    position: absolute; /* Hide from layout flow when hidden */
+}
+.view-visible {
+    opacity: 1;
+    transform: scale(1);
+    position: static; /* Take up space when visible */
+}
+
+/* Base body styles from HTML */
+body {
+    background-color: #111827; /* bg-gray-900 */
+    color: #E5E7EB; /* text-gray-200 */
+    /* font-family will be set by Next.js's @next/font/google */
+    -webkit-font-smoothing: antialiased; /* antialiased */
+    -moz-osx-font-smoothing: grayscale; /* antialiased */
+}
+
+
+
+
+
+
+
 
 
 

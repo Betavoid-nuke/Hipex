@@ -60,10 +60,3 @@ export default function Home({ params }: { params: Promise<{ id: string }> }) {
 
 
 
-
-
-
-
-
-
-// populate the cards with info and also put default thumbnails to the cards so they are not white empty shit
