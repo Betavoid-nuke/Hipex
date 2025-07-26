@@ -42,7 +42,7 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
-const appId = firebaseConfig.appId || window.__app_id || 'default_app_id'; // Fallback to a default app ID if not set
+const appId = firebaseConfig.appId || 'default_app_id'; // Fallback to a default app ID if not set
 
 // --- Firebase Initialization ---
 const app: FirebaseApp = initializeApp(firebaseConfig);
