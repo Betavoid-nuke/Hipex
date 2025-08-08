@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D CAD to 3D Real-time Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #000000;
+            --bg-panel: #111111;
+            --border-color: #2a2a2a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #888888;
+            --accent-color: #0d6efd;
+            --accent-hover: #3b82f6;
+            --danger-color: #dc3545;
+            --danger-hover: #ef4444;
+            --success-color: #198754;
+            --resizer-color: #333333;
+            --resizer-hover-color: var(--accent-color);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        #main-container { 
+            display: flex; 
+            width: 100vw; 
+            height: 100vh; 
+        }
+        
+        #file-tree-panel {
+            width: 240px;
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        #file-tree-panel h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-left: 0.5rem;
+            color: var(--text-primary);
+        }
+        #canvas-list-container {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        #canvas-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #canvas-list li {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+            margin-bottom: 4px;
+        }
+        #canvas-list li .canvas-name {
+            flex-grow: 1;
+        }
+        #canvas-list li:hover {
+            background-color: #222222;
+            border-color: #333;
+            color: var(--text-primary);
+        }
+        #canvas-list li.active {
+            background-color: var(--accent-color);
+            border-color: var(--accent-hover);
+            color: white;
+            font-weight: 500;
+        }
+        .eye-icon {
+            margin-right: 0.75rem;
+            width: 16px;
+            height: 16px;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+        }
+        #canvas-list li:hover .eye-icon {
+            color: var(--text-primary);
+        }
+        li.active .eye-icon, li.active:hover .eye-icon {
+            color: white;
+        }
+        #sidebar-footer {
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+        #add-layer-btn {
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 0.375rem;
+            border: 1px solid #444;
+            background-color: #222;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        #add-layer-btn:hover {
+            background-color: #333;
+            border-color: #555;
+        }
+
+        #content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #toolbar { 
+            padding: 0.5rem 1rem; 
+            border-bottom: 1px solid var(--border-color); 
+            background-color: var(--bg-panel); 
+            display: flex; 
+            gap: 0.5rem; 
+            align-items: center; 
+            flex-shrink: 0;
+        }
+        #toolbar button {  
+            padding: 0.5rem 0.75rem; 
+            border-radius: 0.375rem; 
+            border: 1px solid #444; 
+            background-color: #222; 
+            color: var(--text-primary); 
+            cursor: pointer; 
+            transition: all 0.2s ease-in-out; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem;  
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        #toolbar button:hover { 
+            background-color: #333; 
+            border-color: #555; 
+        }
+        #toolbar button.active { 
+            background-color: var(--accent-color); 
+            color: #ffffff; 
+            border-color: var(--accent-color); 
+        }
+        #toolbar button.delete-btn {
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+            background-color: transparent;
+        }
+        #toolbar button.delete-btn:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        #toolbar button.delete-btn:hover svg {
+            color: white;
+        }
+
+        .tool-separator {
+            width: 1px;
+            height: 24px;
+            background-color: var(--border-color);
+            margin: 0 0.5rem;
+        }
+        
+        #curve-options {
+            display: none; /* Hidden by default */
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: 0.5rem;
+        }
+        #curve-options label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        #curve-options input {
+            background-color: #000;
+            border: 1px solid #444;
+            color: var(--text-primary);
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            width: 60px;
+        }
+
+
+        #editor-area {
+            display: flex;
+            flex: 1;
+            background-color: var(--bg-main);
+            overflow: hidden;
+            position: relative;
+        }
+
+        #panel-2d-container {
+            flex: 1 1 50%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-width: 200px;
+            background-color: var(--bg-main);
+        }
+        
+        #canvas-container { 
+            flex-grow: 1; 
+            position: relative; 
+            overflow: hidden; 
+        }
+        #drawing-canvas { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            cursor: crosshair; 
+        }
+        
+        #wall-editor {
+            width: 280px;
+            background-color: var(--bg-panel);
+            border-left: 1px solid var(--border-color);
+            display: none; /* Toggled by JS */
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        #wall-editor-content {
+            padding: 1rem;
+            flex-grow: 1;
+        }
+        #wall-editor h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        #wall-editor label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        #wall-editor input {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            background-color: #000;
+            border: 1px solid #444;
+            color: var(--text-primary);
+        }
+        #wall-editor-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        #editor-tool-delete {
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 0.375rem;
+            border: 1px solid var(--danger-color);
+            background-color: transparent;
+            color: var(--danger-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        #editor-tool-delete:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        #panel-3d { 
+            flex: 1 1 50%;
+            position: relative; 
+            min-width: 200px;
+            background-color: var(--bg-main);
+        }
+        #renderer-container { 
+            width: 100%; 
+            height: 100%; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+        }
+        
+        .resizer {
+            background-color: var(--resizer-color);
+            cursor: col-resize;
+            height: 100%;
+            width: 5px;
+            z-index: 5;
+            transition: background-color 0.2s;
+        }
+        .resizer:hover {
+            background-color: var(--resizer-hover-color);
+        }
+
+        .info-box { 
+            position: absolute; 
+            top: 10px; 
+            left: 10px; 
+            background: rgba(0,0,0,0.6); 
+            color: var(--text-primary);
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            font-size: 0.8rem; 
+            pointer-events: none; 
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7); z-index: 99; 
+            display: none; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: var(--bg-panel); color: var(--text-primary);
+            padding: 1.5rem; border-radius: 0.5rem;
+            width: 400px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .modal-content h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+        .modal-content label { display: block; margin-bottom: 0.5rem; }
+        .modal-content input { width: 100%; padding: 0.5rem; border-radius: 0.25rem; background-color: #000; border: 1px solid #444; color: var(--text-primary); }
+        .modal-actions { margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.5rem; }
+        .modal-actions button { padding: 0.5rem 1rem; border-radius: 0.25rem; border: 1px solid transparent; cursor: pointer; transition: background-color 0.2s; font-weight: 500;}
+        .modal-actions .btn-primary { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .modal-actions .btn-primary:hover { background-color: var(--accent-hover); }
+        .modal-actions .btn-secondary { background-color: #333; color: var(--text-primary); border-color: #555;}
+        .modal-actions .btn-secondary:hover { background-color: #444; }
+    </style>
+</head>
+<body>
+
+    <div id="main-container">
+        <!-- Layers Panel -->
+        <div id="file-tree-panel">
+            <h3>Layers</h3>
+            <div id="canvas-list-container">
+                <ul id="canvas-list"></ul>
+            </div>
+            <div id="sidebar-footer">
+                <button id="add-layer-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2z"/></svg>
+                    Add Layer
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="content-area">
+            <!-- Toolbar -->
+            <div id="toolbar">
+                 <button id="tool-rectangle" title="Rectangle Wall Tool">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-square" viewBox="0 0 16 16"><path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/></svg>
+                </button>
+                <button id="tool-curve" title="Curve Wall Tool">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-vector-pen" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M10.646.646a.5.5 0 0 1 .708 0l4 4a.5.5 0 0 1 0 .708l-1.902 1.902-.829 3.313a1.5 1.5 0 0 1-1.024 1.024l-3.313.829-1.902 1.902a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708l1.902-1.902.829-3.313a1.5 1.5 0 0 1 1.024-1.024l3.313-.829L10.646.646zM11.5 2 10 3.5 8.5 2 7 3.5 5.5 2 4 3.5 2.5 2 1 3.5 2 5l1.5-1.5L5 5l1.5-1.5L8 5l1.5-1.5L11 5l1.5-1.5L14 5l1.5-1.5L14 2l-1.5 1.5L11.5 2z"/></svg>
+                </button>
+                <button id="tool-circle" title="Pillar/Circle Tool">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/></svg>
+                </button>
+                <div id="curve-options">
+                    <label for="curve-thickness-input">Thickness:</label>
+                    <input type="number" id="curve-thickness-input" value="10" min="1">
+                </div>
+                <div class="tool-separator"></div>
+                <button id="tool-clear" title="Clear All" class="delete-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                    Clear All
+                </button>
+            </div>
+
+            <div id="editor-area">
+                <!-- 2D Panel Container -->
+                <div id="panel-2d-container">
+                    <div id="canvas-container">
+                        <canvas id="drawing-canvas"></canvas>
+                    </div>
+                    <!-- Properties Panel -->
+                    <div id="wall-editor">
+                        <div id="wall-editor-content">
+                            <h3 id="editor-title">Edit Properties</h3>
+                            <div class="input-group" id="group-wall-height">
+                                <label for="wall-height-input">Height</label>
+                                <input type="number" id="wall-height-input" value="50">
+                            </div>
+                             <div class="input-group" id="group-wall-thickness">
+                                <label for="wall-thickness-input">Wall Thickness</label>
+                                <input type="number" id="wall-thickness-input" value="10">
+                            </div>
+                            <div class="input-group" id="group-pillar-radius">
+                                <label for="pillar-radius-input">Radius</label>
+                                <input type="number" id="pillar-radius-input" value="20">
+                            </div>
+                            <div class="input-group" id="group-pillar-segments">
+                                <label for="pillar-segments-input">Segments (Pattern)</label>
+                                <input type="number" id="pillar-segments-input" value="32" min="3">
+                            </div>
+                        </div>
+                        <div id="wall-editor-footer">
+                             <button id="editor-tool-delete">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                                Delete Shape
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resizer -->
+                <div class="resizer" id="resizer"></div>
+
+                <!-- 3D Panel -->
+                <div id="panel-3d">
+                    <div id="renderer-container"></div>
+                    <div class="info-box">
+                        <b>3D View:</b> Click+Drag = Orbit | Right-Click+Drag = Pan | Scroll = Zoom
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Canvas Modal -->
+    <div id="create-canvas-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3>Create New Layer</h3>
+            <label for="new-canvas-name">Layer Name</label>
+            <input type="text" id="new-canvas-name" placeholder="e.g., Second Floor">
+            <div class="modal-actions">
+                <button id="cancel-create-canvas" class="btn-secondary">Cancel</button>
+                <button id="confirm-create-canvas" class="btn-primary">Create</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Library Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three-csg-ts@3.1.11/dist/index.global.js"></script>
+
+    <!-- Main Application Script -->
+    <script>
+        // --- GLOBAL STATE ---
+        let scene, camera, renderer, controls, wallGroup;
+        let canvases = [{ id: 0, name: 'Ground Floor', height: 0, shapes: [] }];
+        let currentCanvasId = 0;
+        let referenceCanvasId = null;
+        let selectedShape = null;
+        const SNAP_POINT_RADIUS = 5;
+        const SNAP_DISTANCE = 10;
+        let scale = 1.0;
+        const MIN_SCALE = 0.2;
+        const MAX_SCALE = 5.0;
+        let newCanvasData = {};
+
+        // --- ACTION STATES ---
+        let activeTool = 'rectangle'; // 'rectangle', 'curve', 'circle'
+        let isDrawing = false;
+        let isPannning = false;
+        let isDraggingFromSnap = false;
+        let isShiftPressed = false;
+        let dragStartState = {};
+        let activeSnapTarget = null;
+        let hoveredSnapPoint = null;
+        let curvePoints = [];
+        let currentWallThickness = 10;
+        
+        // Canvas Panning
+        let panStart = { x: 0, y: 0 };
+        let canvasOffset = { x: 0, y: 0 };
+
+        // --- DOM ELEMENTS ---
+        const canvas = document.getElementById('drawing-canvas');
+        const ctx = canvas.getContext('2d');
+        const panel2dContainer = document.getElementById('panel-2d-container');
+        const canvasContainer = document.getElementById('canvas-container');
+        const wallEditor = document.getElementById('wall-editor');
+        const editorTitle = document.getElementById('editor-title');
+        const wallHeightInput = document.getElementById('wall-height-input');
+        const wallThicknessInput = document.getElementById('wall-thickness-input');
+        const pillarRadiusInput = document.getElementById('pillar-radius-input');
+        const pillarSegmentsInput = document.getElementById('pillar-segments-input');
+        const groupWallHeight = document.getElementById('group-wall-height');
+        const groupWallThickness = document.getElementById('group-wall-thickness');
+        const groupPillarRadius = document.getElementById('group-pillar-radius');
+        const groupPillarSegments = document.getElementById('group-pillar-segments');
+        const canvasList = document.getElementById('canvas-list');
+        const createCanvasModal = document.getElementById('create-canvas-modal');
+        const newCanvasNameInput = document.getElementById('new-canvas-name');
+        const panel3d = document.getElementById('panel-3d');
+        const resizer = document.getElementById('resizer');
+        const curveOptions = document.getElementById('curve-options');
+        const curveThicknessInput = document.getElementById('curve-thickness-input');
+
+
+        // --- 3D SCENE INITIALIZATION ---
+        function init3D() {
+            const container = document.getElementById('renderer-container');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000000); // Black background
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 1, 5000);
+            camera.position.set(200, 250, 350);
+            camera.lookAt(0, 0, 0);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.screenSpacePanning = true;
+
+            const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444, 1.5 );
+            hemiLight.position.set( 0, 300, 0 );
+            scene.add( hemiLight );
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            dirLight.position.set(100, 200, 150);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            const groundGeo = new THREE.PlaneGeometry(2000, 2000);
+            const groundMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            
+            const gridHelper = new THREE.GridHelper(2000, 100, '#444444', '#2a2a2a');
+            scene.add(gridHelper);
+
+            wallGroup = new THREE.Group();
+            scene.add(wallGroup);
+            
+            renderer.domElement.addEventListener('click', on3DViewClick);
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // --- 2D CANVAS INITIALIZATION & DRAWING ---
+        function init2D() {
+            resizeCanvas();
+            canvas.addEventListener('mousedown', onMouseDown);
+            canvas.addEventListener('mousemove', onMouseMove);
+            canvas.addEventListener('mouseup', onMouseUp);
+            canvas.addEventListener('mouseleave', onMouseLeave);
+            canvas.addEventListener('contextmenu', e => e.preventDefault());
+            canvas.addEventListener('wheel', onCanvasWheel);
+            canvas.addEventListener('dblclick', onDoubleClick);
+        }
+
+        function resizeCanvas() {
+            const rect = canvasContainer.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            drawAllShapes();
+        }
+        
+        function getSnapPoints(shape) {
+            const points = [];
+            if (shape.type === 'curve' || shape.type === 'circle') {
+                // No snapping for curves or circles for now
+            } else { // Rectangle and legacy walls
+                for (let i = 0; i < shape.points.length; i++) {
+                    const p1 = shape.points[i];
+                    const p2 = shape.points[(i + 1) % shape.points.length];
+                    points.push({
+                        x: (p1.x + p2.x) / 2,
+                        y: (p1.y + p2.y) / 2,
+                        parentId: shape.id
+                    });
+                }
+            }
+            return points;
+        }
+
+        function drawAllShapes() {
+            const currentCanvas = canvases.find(c => c.id === currentCanvasId);
+            if (!currentCanvas) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(canvasOffset.x, canvasOffset.y);
+            ctx.scale(scale, scale);
+
+            // --- Draw Reference Layer ---
+            if (referenceCanvasId !== null && referenceCanvasId !== currentCanvasId) {
+                const referenceCanvas = canvases.find(c => c.id === referenceCanvasId);
+                if (referenceCanvas) {
+                    ctx.strokeStyle = 'rgba(136, 136, 136, 0.5)';
+                    ctx.setLineDash([5 / scale, 5 / scale]);
+                    ctx.lineWidth = 1 / scale;
+
+                    referenceCanvas.shapes.forEach(shape => {
+                        drawShape(shape, ctx, true);
+                    });
+                    ctx.setLineDash([]);
+                }
+            }
+
+            // --- Draw Active Layer ---
+            currentCanvas.shapes.forEach(shape => {
+                const isSelected = selectedShape && selectedShape.id === shape.id;
+                drawShape(shape, ctx, false, isSelected);
+            });
+            
+            // --- Draw curve in progress ---
+            if (activeTool === 'curve' && curvePoints.length > 0) {
+                const mousePos = getMousePos({clientX: lastMouseX, clientY: lastMouseY});
+                const previewPoints = [...curvePoints, mousePos];
+                
+                if (previewPoints.length >= 2) {
+                    const curve = generateCatmullRomSpline(previewPoints);
+                    const wallPolygon = createWallPolygonFromCurve(curve, currentWallThickness);
+
+                    if (wallPolygon && wallPolygon.length > 0) {
+                        ctx.fillStyle = 'rgba(136, 136, 136, 0.4)';
+                        ctx.strokeStyle = 'var(--text-secondary)';
+                        ctx.lineWidth = 1 / scale;
+                        ctx.setLineDash([4 / scale, 4 / scale]);
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(wallPolygon[0].x, wallPolygon[0].y);
+                        for(let i = 1; i < wallPolygon.length; i++) {
+                            ctx.lineTo(wallPolygon[i].x, wallPolygon[i].y);
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                    }
+                }
+
+                ctx.fillStyle = 'var(--text-secondary)';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1 / scale;
+                curvePoints.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, (SNAP_POINT_RADIUS - 1) / scale, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.stroke();
+                });
+            }
+
+            // --- Draw Snap Points ---
+            currentCanvas.shapes.forEach(shape => {
+                if (shape.type === 'rectangle' || !shape.type) {
+                    const snapPoints = getSnapPoints(shape);
+                    snapPoints.forEach(p => {
+                        const isHovered = hoveredSnapPoint && hoveredSnapPoint.x === p.x && hoveredSnapPoint.y === p.y;
+                        
+                        if (isHovered) {
+                            ctx.fillStyle = 'var(--success-color)';
+                            ctx.strokeStyle = '#000';
+                            ctx.lineWidth = 1 / scale;
+                            ctx.beginPath();
+                            ctx.arc(p.x, p.y, (SNAP_POINT_RADIUS + 2) / scale, 0, 2 * Math.PI);
+                            ctx.fill();
+                            ctx.stroke();
+                        } else {
+                            ctx.fillStyle = 'rgba(136, 136, 136, 0.6)';
+                            ctx.strokeStyle = '#000000';
+                            ctx.lineWidth = 1.5 / scale;
+                            ctx.beginPath();
+                            ctx.arc(p.x, p.y, SNAP_POINT_RADIUS / scale, 0, 2 * Math.PI);
+                            ctx.fill();
+                            ctx.stroke();
+                        }
+                    });
+                }
+            });
+            ctx.restore();
+        }
+
+        function drawShape(shape, context, isReference, isSelected) {
+            let wallPoints;
+            if (shape.type === 'curve') {
+                const curvePoints = generateCatmullRomSpline(shape.points);
+                wallPoints = createWallPolygonFromCurve(curvePoints, shape.thickness);
+            } else if (shape.type === 'circle') {
+                context.beginPath();
+                context.arc(shape.center.x, shape.center.y, shape.radius, 0, Math.PI * 2);
+            } else { // Rectangle and legacy
+                wallPoints = shape.points;
+            }
+
+            if (wallPoints) {
+                if(wallPoints.length === 0) return;
+                context.beginPath();
+                context.moveTo(wallPoints[0].x, wallPoints[0].y);
+                for(let i = 1; i < wallPoints.length; i++) {
+                    context.lineTo(wallPoints[i].x, wallPoints[i].y);
+                }
+                context.closePath();
+            }
+
+            if(isReference) {
+                context.stroke();
+            } else {
+                context.strokeStyle = isSelected ? 'var(--accent-hover)' : 'var(--accent-color)';
+                context.fillStyle = isSelected ? 'rgba(59, 130, 246, 0.3)' : 'rgba(13, 110, 253, 0.2)';
+                context.lineWidth = isSelected ? 2 / scale : 1.5 / scale;
+                context.fill();
+                context.stroke();
+            }
+        }
+
+        // --- MOUSE/TOOL LOGIC ---
+        let startPoint = { x: 0, y: 0 };
+        let lastMouseX = 0, lastMouseY = 0;
+
+        function getMousePos(evt, useScale = true) {
+            const rect = canvas.getBoundingClientRect();
+            const currentScale = useScale ? scale : 1;
+            return {
+                x: (evt.clientX - rect.left - canvasOffset.x) / currentScale,
+                y: (evt.clientY - rect.top - canvasOffset.y) / currentScale
+            };
+        }
+
+        function onMouseDown(e) {
+            if (e.button === 2) { // Pan
+                isPannning = true;
+                panStart.x = e.clientX;
+                panStart.y = e.clientY;
+                canvas.style.cursor = 'grabbing';
+                return;
+            }
+            if (e.button !== 0) return;
+            
+            // Prioritize dragging from snap point
+            if (hoveredSnapPoint) {
+                isDraggingFromSnap = true;
+                const currentCanvas = canvases.find(c => c.id === currentCanvasId);
+                dragStartState = {
+                    startPos: { ...hoveredSnapPoint },
+                    parentShape: currentCanvas.shapes.find(s => s.id === hoveredSnapPoint.parentId)
+                };
+                hoveredSnapPoint = null;
+                return;
+            }
+
+            if (activeTool === 'curve') {
+                const pos = getMousePos(e);
+                curvePoints.push(pos);
+                isDrawing = true;
+                drawAllShapes();
+                return;
+            }
+
+            if (activeTool === 'rectangle' || activeTool === 'circle') {
+                isDrawing = true;
+                startPoint = getMousePos(e);
+            }
+        }
+        
+        function onDoubleClick(e) {
+            const mousePos = getMousePos(e);
+            const currentCanvas = canvases.find(c => c.id === currentCanvasId);
+            const clickedShape = findClickedShape(mousePos, currentCanvas.shapes);
+            
+            if (clickedShape) {
+                selectedShape = clickedShape;
+                openWallEditor(clickedShape);
+            } else {
+                selectedShape = null;
+                closeWallEditor();
+            }
+            drawAllShapes();
+        }
+
+        function findClickedShape(position, shapes) {
+            return shapes.find(shape => {
+                if (shape.type === 'circle') {
+                    const dx = position.x - shape.center.x;
+                    const dy = position.y - shape.center.y;
+                    return (dx * dx + dy * dy) < (shape.radius * shape.radius);
+                }
+
+                let wallPoints;
+                if(shape.type === 'curve') {
+                    const curvePoints = generateCatmullRomSpline(shape.points);
+                    wallPoints = createWallPolygonFromCurve(curvePoints, shape.thickness);
+                } else {
+                    wallPoints = shape.points;
+                }
+                if(!wallPoints) return false;
+                
+                let inside = false;
+                for (let i = 0, j = wallPoints.length - 1; i < wallPoints.length; j = i++) {
+                    const xi = wallPoints[i].x, yi = wallPoints[i].y;
+                    const xj = wallPoints[j].x, yj = wallPoints[j].y;
+                    const intersect = ((yi > position.y) !== (yj > position.y))
+                        && (position.x < (xj - xi) * (position.y - yi) / (yj - yi) + xi);
+                    if (intersect) inside = !inside;
+                }
+                return inside;
+            });
+        }
+
+
+        function onCanvasWheel(e) {
+            e.preventDefault();
+            const zoomIntensity = 0.1;
+            const wheel = e.deltaY < 0 ? 1 : -1;
+            const zoom = Math.exp(wheel * zoomIntensity);
+            
+            const mousePos = getMousePos(e, false);
+            const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale * zoom));
+            
+            canvasOffset.x = mousePos.x - (mousePos.x - canvasOffset.x) * (newScale / scale);
+            canvasOffset.y = mousePos.y - (mousePos.y - canvasOffset.y) * (newScale / scale);
+            
+            scale = newScale;
+            drawAllShapes();
+        }
+
+        function onMouseMove(e) {
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+
+            if (isPannning) {
+                const dx = e.clientX - panStart.x;
+                const dy = e.clientY - panStart.y;
+                canvasOffset.x += dx;
+                canvasOffset.y += dy;
+                panStart.x = e.clientX;
+                panStart.y = e.clientY;
+                drawAllShapes();
+                return;
+            }
+
+            if (activeTool === 'curve' && isDrawing) {
+                drawAllShapes();
+                return;
+            }
+
+            let currentPos = getMousePos(e);
+            activeSnapTarget = null;
+            
+            // Hover detection for snap points
+            if (!isDraggingFromSnap) {
+                let foundHover = null;
+                const currentCanvas = canvases.find(c => c.id === currentCanvasId);
+                if (currentCanvas) {
+                    currentCanvas.shapes.forEach(shape => {
+                        if (shape.type === 'rectangle' || !shape.type) {
+                            const snapPoints = getSnapPoints(shape);
+                            for (const point of snapPoints) {
+                                const dx = currentPos.x - point.x;
+                                const dy = currentPos.y - point.y;
+                                if (dx * dx + dy * dy < (SNAP_POINT_RADIUS / scale) ** 2) {
+                                    foundHover = point;
+                                    break;
+                                }
+                            }
+                        }
+                        if(foundHover) return;
+                    });
+                }
+                if (hoveredSnapPoint !== foundHover) {
+                    hoveredSnapPoint = foundHover;
+                    canvas.style.cursor = foundHover ? 'pointer' : 'crosshair';
+                    drawAllShapes();
+                }
+            }
+            
+            // Drawing preview for dragging from snap point
+            if (isDraggingFromSnap) {
+                if (isShiftPressed) {
+                    const { startPos } = dragStartState;
+                    const vec = { x: currentPos.x - startPos.x, y: currentPos.y - startPos.y };
+                    const len = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
+
+                    if (len > 0) {
+                        const angleRad = Math.atan2(vec.y, vec.x);
+                        const angleDeg = angleRad * (180 / Math.PI);
+                        const snapIncrement = 10;
+                        const snappedAngleDeg = Math.round(angleDeg / snapIncrement) * snapIncrement;
+                        const snappedAngleRad = snappedAngleDeg * (Math.PI / 180);
+
+                        currentPos.x = startPos.x + len * Math.cos(snappedAngleRad);
+                        currentPos.y = startPos.y + len * Math.sin(snappedAngleRad);
+                    }
+                }
+
+                let closestSnap = null;
+                let minSnapDist = (SNAP_DISTANCE / scale)**2;
+                canvases.forEach(c => {
+                    c.shapes.forEach(shape => {
+                        if (c.id === currentCanvasId && shape.id === dragStartState.parentShape.id) return;
+                        getSnapPoints(shape).forEach(p => {
+                            const distSq = (p.x - currentPos.x)**2 + (p.y - currentPos.y)**2;
+                            if (distSq < minSnapDist) {
+                                minSnapDist = distSq;
+                                closestSnap = p;
+                            }
+                        });
+                    });
+                });
+                if (closestSnap) {
+                    currentPos.x = closestSnap.x;
+                    currentPos.y = closestSnap.y;
+                    activeSnapTarget = closestSnap;
+                }
+
+                drawAllShapes();
+                ctx.save();
+                ctx.translate(canvasOffset.x, canvasOffset.y);
+                ctx.scale(scale, scale);
+                ctx.fillStyle = 'rgba(13, 110, 253, 0.3)';
+                ctx.strokeStyle = 'rgba(59, 130, 246, 0.8)';
+                ctx.lineWidth = 1 / scale;
+
+                const { startPos, parentShape } = dragStartState;
+                const thickness = parentShape.thickness || Math.min(parentShape.width, parentShape.height);
+                
+                const vec = { x: currentPos.x - startPos.x, y: currentPos.y - startPos.y };
+                const len = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
+                if (len > 0) {
+                    const perpVec = { x: -vec.y / len, y: vec.x / len };
+                    const p1 = { x: startPos.x - perpVec.x * thickness / 2, y: startPos.y - perpVec.y * thickness / 2 };
+                    const p2 = { x: startPos.x + perpVec.x * thickness / 2, y: startPos.y + perpVec.y * thickness / 2 };
+                    const p3 = { x: currentPos.x + perpVec.x * thickness / 2, y: currentPos.y + perpVec.y * thickness / 2 };
+                    const p4 = { x: currentPos.x - perpVec.x * thickness / 2, y: currentPos.y - perpVec.y * thickness / 2 };
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.lineTo(p3.x, p3.y);
+                    ctx.lineTo(p4.x, p4.y);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                }
+                ctx.restore();
+                return;
+            }
+            
+            if (isDrawing && (activeTool === 'rectangle' || activeTool === 'circle')) {
+                 drawAllShapes();
+                 ctx.save();
+                 ctx.translate(canvasOffset.x, canvasOffset.y);
+                 ctx.scale(scale, scale);
+                 ctx.fillStyle = 'rgba(13, 110, 253, 0.3)';
+                 ctx.strokeStyle = 'rgba(59, 130, 246, 0.8)';
+                 ctx.lineWidth = 1 / scale;
+                 ctx.beginPath();
+                 if (activeTool === 'rectangle') {
+                    ctx.rect(startPoint.x, startPoint.y, currentPos.x - startPoint.x, currentPos.y - startPoint.y);
+                 } else { // Circle
+                    const radius = Math.sqrt((currentPos.x - startPoint.x)**2 + (currentPos.y - startPoint.y)**2);
+                    ctx.arc(startPoint.x, startPoint.y, radius, 0, Math.PI * 2);
+                 }
+                 ctx.fill();
+                 ctx.stroke();
+                 ctx.restore();
+            }
+        }
+
+        function onMouseUp(e) {
+            if (isPannning) {
+                isPannning = false;
+                canvas.style.cursor = hoveredSnapPoint ? 'pointer' : 'crosshair';
+                return;
+            }
+            
+            let endPoint = getMousePos(e);
+            const currentCanvas = canvases.find(c => c.id === currentCanvasId);
+
+            if (isDraggingFromSnap) {
+                if (activeSnapTarget) {
+                    endPoint.x = activeSnapTarget.x;
+                    endPoint.y = activeSnapTarget.y;
+                }
+                const { startPos, parentShape } = dragStartState;
+                const thickness = parentShape.thickness || Math.min(parentShape.width, parentShape.height);
+                const vec = { x: endPoint.x - startPos.x, y: endPoint.y - startPos.y };
+                const len = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
+
+                if (len > 2) {
+                    const perpVec = { x: -vec.y / len, y: vec.x / len };
+                    const p1 = { x: startPos.x - perpVec.x * thickness / 2, y: startPos.y - perpVec.y * thickness / 2 };
+                    const p2 = { x: startPos.x + perpVec.x * thickness / 2, y: startPos.y + perpVec.y * thickness / 2 };
+                    const p3 = { x: endPoint.x + perpVec.x * thickness / 2, y: endPoint.y + perpVec.y * thickness / 2 };
+                    const p4 = { x: endPoint.x - perpVec.x * thickness / 2, y: endPoint.y - perpVec.y * thickness / 2 };
+                    
+                    currentCanvas.shapes.push({
+                        id: Date.now(),
+                        type: 'rectangle',
+                        points: [p1, p2, p3, p4],
+                        wallHeight: parentShape.wallHeight,
+                        thickness: thickness,
+                        width: len,
+                        height: thickness
+                    });
+                }
+            } else if (isDrawing) {
+                if (activeTool === 'rectangle') {
+                    const rect = {
+                        x: Math.min(startPoint.x, endPoint.x),
+                        y: Math.min(startPoint.y, endPoint.y),
+                        w: Math.abs(startPoint.x - endPoint.x),
+                        h: Math.abs(startPoint.y - endPoint.y)
+                    };
+                    if (rect.w > 2 && rect.h > 2) {
+                        currentCanvas.shapes.push({
+                            id: Date.now(),
+                            type: 'rectangle',
+                            points: [
+                                { x: rect.x, y: rect.y },
+                                { x: rect.x + rect.w, y: rect.y },
+                                { x: rect.x + rect.w, y: rect.y + rect.h },
+                                { x: rect.x, y: rect.y + rect.h }
+                            ],
+                            wallHeight: 50,
+                            thickness: 10,
+                            width: rect.w,
+                            height: rect.h
+                        });
+                    }
+                } else if (activeTool === 'circle') {
+                    const radius = Math.sqrt((endPoint.x - startPoint.x)**2 + (endPoint.y - startPoint.y)**2);
+                    if (radius > 1) {
+                        currentCanvas.shapes.push({
+                            id: Date.now(),
+                            type: 'circle',
+                            center: startPoint,
+                            radius: radius,
+                            height: 50,
+                            segments: 32, // Default segments
+                        });
+                    }
+                }
+            }
+            
+            isDrawing = false;
+            isDraggingFromSnap = false;
+            activeSnapTarget = null;
+            drawAllShapes();
+            update3DScene();
+        }
+
+        function onMouseLeave() {
+            if (isDrawing || isPannning || isDraggingFromSnap) {
+                isDrawing = false;
+                isPannning = false;
+                isDraggingFromSnap = false;
+                dragStartState = {};
+                drawAllShapes();
+                update3DScene();
+            }
+        }
+        
+        function openWallEditor(shape) {
+            wallEditor.style.display = 'flex';
+            
+            if (shape.type === 'circle') {
+                editorTitle.textContent = "Edit Pillar";
+                groupWallHeight.style.display = 'block';
+                groupWallThickness.style.display = 'none';
+                groupPillarRadius.style.display = 'block';
+                groupPillarSegments.style.display = 'block';
+                
+                wallHeightInput.value = shape.height;
+                pillarRadiusInput.value = shape.radius;
+                pillarSegmentsInput.value = shape.segments;
+
+            } else { // Rectangle or Curve
+                editorTitle.textContent = "Edit Wall";
+                groupWallHeight.style.display = 'block';
+                groupWallThickness.style.display = 'block';
+                groupPillarRadius.style.display = 'none';
+                groupPillarSegments.style.display = 'none';
+
+                wallHeightInput.value = shape.wallHeight;
+                wallThicknessInput.value = shape.thickness || 10;
+            }
+        }
+
+        function closeWallEditor() {
+            wallEditor.style.display = 'none';
+            if (selectedShape) {
+                selectedShape = null;
+                drawAllShapes();
+            }
+        }
+        
+        function createWallPolygonFromCurve(points, thickness) {
+            if (points.length < 2) return [];
+
+            const wallPoints = [];
+            const halfThick = thickness / 2;
+
+            for (let i = 0; i < points.length; i++) {
+                const p1 = points[i];
+                const p0 = points[i - 1] || p1;
+                const p2 = points[i + 1] || p1;
+
+                const v1 = { x: p1.x - p0.x, y: p1.y - p0.y };
+                const v2 = { x: p2.x - p1.x, y: p2.y - p1.y };
+
+                const n1 = { x: -v1.y, y: v1.x };
+                const n2 = { x: -v2.y, y: v2.x };
+                
+                const l1 = Math.sqrt(n1.x * n1.x + n1.y * n1.y) || 1;
+                n1.x /= l1; n1.y /= l1;
+
+                const l2 = Math.sqrt(n2.x * n2.x + n2.y * n2.y) || 1;
+                n2.x /= l2; n2.y /= l2;
+
+                let bisector = { x: n1.x + n2.x, y: n1.y + n2.y };
+                const bl = Math.sqrt(bisector.x * bisector.x + bisector.y * bisector.y) || 1;
+                bisector.x /= bl; bisector.y /= bl;
+
+                const dot = n1.x * bisector.x + n1.y * bisector.y;
+                
+                if (Math.abs(dot) < 0.0001) {
+                    wallPoints.push({ x: p1.x + n1.x * halfThick, y: p1.y + n1.y * halfThick });
+                } else {
+                    const miterLength = halfThick / dot;
+                    wallPoints.push({ x: p1.x + bisector.x * miterLength, y: p1.y + bisector.y * miterLength });
+                }
+            }
+            
+            for (let i = points.length - 1; i >= 0; i--) {
+                const p1 = points[i];
+                const p0 = points[i - 1] || p1;
+                const p2 = points[i + 1] || p1;
+
+                const v1 = { x: p1.x - p0.x, y: p1.y - p0.y };
+                const v2 = { x: p2.x - p1.x, y: p2.y - p1.y };
+
+                const n1 = { x: -v1.y, y: v1.x };
+                const n2 = { x: -v2.y, y: v2.x };
+                
+                const l1 = Math.sqrt(n1.x * n1.x + n1.y * n1.y) || 1;
+                n1.x /= l1; n1.y /= l1;
+
+                const l2 = Math.sqrt(n2.x * n2.x + n2.y * n2.y) || 1;
+                n2.x /= l2; n2.y /= l2;
+
+                let bisector = { x: n1.x + n2.x, y: n1.y + n2.y };
+                const bl = Math.sqrt(bisector.x * bisector.x + bisector.y * bisector.y) || 1;
+                bisector.x /= bl; bisector.y /= bl;
+
+                const dot = n1.x * bisector.x + n1.y * bisector.y;
+                
+                if (Math.abs(dot) < 0.0001) {
+                    wallPoints.push({ x: p1.x - n1.x * halfThick, y: p1.y - n1.y * halfThick });
+                } else {
+                    const miterLength = halfThick / dot;
+                    wallPoints.push({ x: p1.x - bisector.x * miterLength, y: p1.y - bisector.y * miterLength });
+                }
+            }
+
+            return wallPoints;
+        }
+
+        function generateCatmullRomSpline(points, segments = 20) {
+            if (points.length < 2) return points;
+
+            const curve = new THREE.CatmullRomCurve3(
+                points.map(p => new THREE.Vector3(p.x, p.y, 0))
+            );
+            return curve.getPoints(points.length * segments).map(v => ({x: v.x, y: v.y}));
+        }
+
+
+        function update3DScene() {
+            while (wallGroup.children.length > 0) {
+                wallGroup.remove(wallGroup.children[0]);
+            }
+
+            const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.6, metalness: 0.1 });
+            const offsetX = -canvas.width / 2;
+            const offsetZ = -canvas.height / 2;
+
+            canvases.forEach(c => {
+                c.shapes.forEach(shape => {
+                    let geometry;
+                    let mesh;
+
+                    if (shape.type === 'circle') {
+                        geometry = new THREE.CylinderGeometry(shape.radius, shape.radius, shape.height, shape.segments);
+                        mesh = new THREE.Mesh(geometry, wallMaterial.clone());
+                        mesh.position.set(shape.center.x + offsetX, c.height + shape.height / 2, shape.center.y + offsetZ);
+                    } else {
+                        let wallShapePoints = [];
+                        if (shape.type === 'curve') {
+                            const curvePoints = generateCatmullRomSpline(shape.points);
+                            wallShapePoints = createWallPolygonFromCurve(curvePoints, shape.thickness);
+                        } else {
+                            wallShapePoints = shape.points;
+                        }
+
+                        if (wallShapePoints.length === 0) return;
+
+                        const wallShape = new THREE.Shape();
+                        wallShape.moveTo(wallShapePoints[0].x + offsetX, wallShapePoints[0].y + offsetZ);
+                        for (let i = 1; i < wallShapePoints.length; i++) {
+                            wallShape.lineTo(wallShapePoints[i].x + offsetX, wallShapePoints[i].y + offsetZ);
+                        }
+                        
+                        const extrudeSettings = { steps: 1, depth: shape.wallHeight, bevelEnabled: false };
+                        geometry = new THREE.ExtrudeGeometry(wallShape, extrudeSettings);
+                        mesh = new THREE.Mesh(geometry, wallMaterial.clone());
+                        mesh.rotation.x = -Math.PI / 2;
+                        mesh.position.y = c.height;
+                    }
+                    
+                    mesh.castShadow = true;
+                    mesh.receiveShadow = true;
+                    mesh.userData = { canvasId: c.id, shapeId: shape.id };
+                    wallGroup.add(mesh);
+                });
+            });
+        }
+
+        // --- UI AND EVENT LISTENERS ---
+        function renderFileTree() {
+            const eyeOpenSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>`;
+            const eyeClosedSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash-fill" viewBox="0 0 16 16"><path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7.029 7.029 0 0 0 2.79-.588zM5.21 3.088A7.028 7.028 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474L5.21 3.089z"/><path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829l-2.83-2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12-.708.708z"/></svg>`;
+
+            canvasList.innerHTML = '';
+            
+            const sortedCanvases = [...canvases].sort((a, b) => {
+                if (a.id === 0) return -1;
+                if (b.id === 0) return 1;
+                return a.id - b.id;
+            });
+
+            sortedCanvases.forEach(c => {
+                const li = document.createElement('li');
+                li.dataset.id = c.id;
+
+                const eyeIcon = document.createElement('div');
+                eyeIcon.classList.add('eye-icon');
+                const isReference = referenceCanvasId === c.id;
+                eyeIcon.innerHTML = isReference ? eyeOpenSVG : eyeClosedSVG;
+
+                eyeIcon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (c.id === currentCanvasId) return;
+
+                    referenceCanvasId = isReference ? null : c.id;
+                    renderFileTree();
+                    drawAllShapes();
+                });
+
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = c.name;
+                nameSpan.classList.add('canvas-name');
+
+                li.appendChild(eyeIcon);
+                li.appendChild(nameSpan);
+
+                if (c.id === currentCanvasId) li.classList.add('active');
+                
+                li.addEventListener('click', () => {
+                    if (currentCanvasId === c.id) return;
+                    currentCanvasId = c.id;
+                    if (referenceCanvasId === currentCanvasId) referenceCanvasId = null;
+                    closeWallEditor();
+                    renderFileTree();
+                    drawAllShapes();
+                });
+
+                canvasList.appendChild(li);
+            });
+        }
+
+        function on3DViewClick(event) {
+           const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            const rect = renderer.domElement.getBoundingClientRect();
+
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(wallGroup.children, true);
+
+            if (intersects.length > 0) {
+                const intersect = intersects[0];
+                const clickedObject = intersect.object;
+                const faceNormal = intersect.face.normal.clone().applyQuaternion(clickedObject.quaternion);
+                
+                const isTopSurface = (clickedObject.geometry.type === "CylinderGeometry" && faceNormal.y > 0.99) || 
+                                     (clickedObject.geometry.type === "ExtrudeGeometry" && faceNormal.y > 0.99);
+
+                if (isTopSurface) {
+                    const { canvasId, shapeId } = clickedObject.userData;
+                    const parentCanvas = canvases.find(c => c.id === canvasId);
+                    if (!parentCanvas) return;
+                    const parentShape = parentCanvas.shapes.find(s => s.id === shapeId);
+                    if (!parentShape) return;
+                    
+                    // *** FIX: Correctly determine the shape's 3D height for new layer positioning ***
+                    const shapeHeight = parentShape.type === 'circle' ? parentShape.height : parentShape.wallHeight;
+                    newCanvasData.height = parentCanvas.height + shapeHeight;
+
+                    createCanvasModal.style.display = 'flex';
+                    newCanvasNameInput.focus();
+                }
+            }
+        }
+
+        function handleResize() {
+            resizeCanvas();
+            const container3D = document.getElementById('renderer-container');
+            camera.aspect = container3D.clientWidth / container3D.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container3D.clientWidth, container3D.clientHeight);
+        }
+        
+        window.addEventListener('resize', handleResize);
+
+        window.addEventListener('keydown', (e) => { 
+            if (e.key === 'Shift') isShiftPressed = true; 
+            if (e.key === 'Enter' && activeTool === 'curve' && curvePoints.length > 1) {
+                const currentCanvas = canvases.find(c => c.id === currentCanvasId);
+                currentCanvas.shapes.push({
+                    id: Date.now(),
+                    type: 'curve',
+                    points: curvePoints,
+                    wallHeight: 50,
+                    thickness: currentWallThickness,
+                });
+                curvePoints = [];
+                isDrawing = false;
+                drawAllShapes();
+                update3DScene();
+            }
+             if (e.key === 'Escape') {
+                curvePoints = [];
+                isDrawing = false;
+                closeWallEditor();
+                drawAllShapes();
+            }
+        });
+        window.addEventListener('keyup', (e) => { if (e.key === 'Shift') isShiftPressed = false; });
+
+        document.getElementById('tool-clear').addEventListener('click', () => {
+            const currentCanvas = canvases.find(c => c.id === currentCanvasId);
+            if (currentCanvas) {
+                currentCanvas.shapes = [];
+                closeWallEditor();
+                drawAllShapes();
+                update3DScene();
+            }
+        });
+
+        document.getElementById('editor-tool-delete').addEventListener('click', () => {
+            if (!selectedShape) return;
+            const currentCanvas = canvases.find(c => c.id === currentCanvasId);
+            if (currentCanvas) {
+                const index = currentCanvas.shapes.findIndex(s => s.id === selectedShape.id);
+                if (index > -1) {
+                    currentCanvas.shapes.splice(index, 1);
+                }
+            }
+            closeWallEditor();
+            drawAllShapes();
+            update3DScene();
+        });
+
+        wallHeightInput.addEventListener('change', () => {
+            if (!selectedShape) return;
+            if (selectedShape.type === 'circle') {
+                selectedShape.height = parseFloat(wallHeightInput.value) || 50;
+            } else {
+                selectedShape.wallHeight = parseFloat(wallHeightInput.value) || 50;
+            }
+            update3DScene();
+        });
+        
+        wallThicknessInput.addEventListener('change', () => {
+            if (selectedShape && (selectedShape.type === 'rectangle' || selectedShape.type === 'curve')) {
+                selectedShape.thickness = parseFloat(wallThicknessInput.value) || 10;
+                drawAllShapes();
+                update3DScene();
+            }
+        });
+        
+        pillarRadiusInput.addEventListener('change', () => {
+            if (selectedShape && selectedShape.type === 'circle') {
+                selectedShape.radius = parseFloat(pillarRadiusInput.value) || 20;
+                drawAllShapes();
+                update3DScene();
+            }
+        });
+
+        pillarSegmentsInput.addEventListener('change', () => {
+            if (selectedShape && selectedShape.type === 'circle') {
+                selectedShape.segments = parseInt(pillarSegmentsInput.value, 10) || 32;
+                if (selectedShape.segments < 3) selectedShape.segments = 3;
+                drawAllShapes();
+                update3DScene();
+            }
+        });
+
+        document.getElementById('add-layer-btn').addEventListener('click', () => {
+            let maxZ = 0;
+            canvases.forEach(c => {
+                c.shapes.forEach(s => {
+                    // *** FIX: Correctly determine the shape's 3D height for new layer positioning ***
+                    const shapeHeight = s.type === 'circle' ? s.height : s.wallHeight;
+                    const top = c.height + (shapeHeight || 0);
+                    if (top > maxZ) {
+                        maxZ = top;
+                    }
+                });
+            });
+            
+            newCanvasData.height = maxZ > 0 ? maxZ : 50;
+            createCanvasModal.style.display = 'flex';
+            newCanvasNameInput.focus();
+        });
+
+
+        document.getElementById('cancel-create-canvas').addEventListener('click', () => {
+            createCanvasModal.style.display = 'none';
+        });
+        document.getElementById('confirm-create-canvas').addEventListener('click', () => {
+            const name = newCanvasNameInput.value.trim();
+            if (name) {
+                const newCanvas = {
+                    id: Date.now(),
+                    name: name,
+                    height: newCanvasData.height || 0,
+                    shapes: []
+                };
+                canvases.push(newCanvas);
+                currentCanvasId = newCanvas.id;
+                renderFileTree();
+                drawAllShapes();
+                createCanvasModal.style.display = 'none';
+                newCanvasNameInput.value = '';
+            }
+        });
+        
+        // --- Tool selection ---
+        const toolButtons = {
+            rectangle: document.getElementById('tool-rectangle'),
+            curve: document.getElementById('tool-curve'),
+            circle: document.getElementById('tool-circle'),
+        };
+        
+        function setTool(toolName) {
+            activeTool = toolName;
+            
+            if(toolName !== 'curve' && curvePoints.length > 0) {
+                curvePoints = [];
+                isDrawing = false;
+                drawAllShapes();
+            }
+
+            Object.values(toolButtons).forEach(button => button.classList.remove('active'));
+            if(toolButtons[toolName]) {
+                toolButtons[toolName].classList.add('active');
+            }
+            
+            curveOptions.style.display = toolName === 'curve' ? 'flex' : 'none';
+            canvas.style.cursor = 'crosshair';
+        }
+        
+        toolButtons.rectangle.addEventListener('click', () => setTool('rectangle'));
+        toolButtons.curve.addEventListener('click', () => setTool('curve'));
+        toolButtons.circle.addEventListener('click', () => setTool('circle'));
+        
+        curveThicknessInput.addEventListener('change', (e) => {
+            currentWallThickness = parseFloat(e.target.value) || 10;
+        });
+        
+
+        // --- Resizer Logic ---
+        function initResizer() {
+            let isResizing = false;
+
+            resizer.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing) return;
+                
+                const editorArea = document.getElementById('editor-area');
+                const containerRect = editorArea.getBoundingClientRect();
+                const leftPanelWidth = e.clientX - containerRect.left;
+                const rightPanelWidth = containerRect.width - leftPanelWidth - resizer.offsetWidth;
+                
+                if (leftPanelWidth > 200 && rightPanelWidth > 200) {
+                    panel2dContainer.style.flex = `0 0 ${leftPanelWidth}px`;
+                    panel3d.style.flex = `1 1 ${rightPanelWidth}px`;
+                    handleResize();
+                }
+            });
+
+            document.addEventListener('mouseup', function(e) {
+                isResizing = false;
+                document.body.style.cursor = 'default';
+                document.body.style.userSelect = 'auto';
+            });
+        }
+
+
+        // --- MAIN EXECUTION ---
+        init2D();
+        init3D();
+        initResizer();
+        renderFileTree();
+        update3DScene();
+        setTool('rectangle'); // Set default tool
+    </script>
+</body>
+</html>

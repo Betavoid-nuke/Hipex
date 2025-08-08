@@ -19,6 +19,8 @@ import {
     MapPin, Link as LinkIcon, LucideProps
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, Bar } from 'recharts';
+import DashboardCore from '@/twinx/pages/Dashboard';
+import ProjectCardCore from '@/twinx/components/ProjectCard';
 
 
 // --- Type Declarations for Global Variables & Third-Party Libraries ---
@@ -952,144 +954,54 @@ export default function App() {
 
     //               PAGES                 ------------------------------------
 
-
-
-
-
-
     const Dashboard = () => {
         return (
-            <div className="p-4 sm:p-6 lg:p-8">
-                <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-                    <h2 className="text-2xl font-bold text-white mb-4 sm:mb-0 flex items-center gap-3"><Briefcase size={28}/> Digital Twins</h2>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
-                        <div className="relative w-full sm:w-auto">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0A0A5]" size={20} />
-                            <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                                   className="bg-[#262629] border border-[#3A3A3C] rounded-md pl-10 pr-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1] w-full sm:w-48" />
-                        </div>
-                        <div className="flex gap-2">
-                            <select value={filter} onChange={e => setFilter(e.target.value)} className="bg-[#262629] border border-[#3A3A3C] rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]">
-                                <option value="All">All</option>
-                                <option value="Favorites">Favorites</option>
-                            </select>
-                            <select value={sort} onChange={e => setSort(e.target.value)} className="bg-[#262629] border border-[#3A3A3C] rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]">
-                                <option value="date_desc">Newest</option>
-                                <option value="date_asc">Oldest</option>
-                                <option value="name_asc">Name (A-Z)</option>
-                                <option value="name_desc">Name (Z-A)</option>
-                            </select>
-                        </div>
-                        <button onClick={() => setIsModalOpen(true)} className="bg-[#6366F1] text-white font-semibold py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors flex items-center gap-2 w-full sm:w-auto justify-center">
-                            <Plus size={20} /> New Digital Twin
-                        </button>
-                    </div>
-                </header>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredAndSortedProjects.map(project => (
-                        <ProjectCard 
-                            key={project.id} 
-                            project={project} 
-                            setDraggingProject={setDraggingProject}
-                            isDragging={draggingProject?.id === project.id}
-                        />
-                    ))}
-                </div>
-                 {filteredAndSortedProjects.length === 0 && (
-                    <div className="text-center py-20 text-[#A0A0A5] col-span-full">
-                        <p>No Digital Twins found.</p>
-                        <p>Click "New Digital Twin" to get started.</p>
-                    </div>
-                )}
-            </div>
+            <DashboardCore
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              filter={filter}
+              setFilter={setFilter}
+              sort={sort}
+              setSort={setSort}
+              filteredAndSortedProjects={filteredAndSortedProjects}
+              setDraggingProject={setDraggingProject}
+              draggingProject={draggingProject}
+              setIsModalOpen={setIsModalOpen}
+              handleSelectProject={handleSelectProject}
+              activeDropdown={activeDropdown}
+              setActiveDropdown={setActiveDropdown}
+              handleDeleteClick={handleDeleteClick}
+              toggleFavorite={toggleFavorite}
+              togglePublish={togglePublish}
+              copyToClipboard={copyToClipboard}
+            />
         );
-    };
+    }
 
-    const ProjectCard = ({ project, setDraggingProject, isDragging }: {project: Project, setDraggingProject: (p: DraggingProject | null) => void, isDragging: boolean}) => {
-        const progress = (project.currentStep / TOTAL_STEPS) * 100;
-        const isDropdownOpen = activeDropdown === project.id;
-        const cardRef = useRef<HTMLDivElement>(null);
-
-        const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-            if (e.button !== 0 || activeDropdown) return;
-            let startPos = { x: e.clientX, y: e.clientY };
-            let dragStarted = false;
-            
-            const onMove = (moveEvent: MouseEvent) => {
-                const dx = Math.abs(moveEvent.clientX - startPos.x);
-                const dy = Math.abs(moveEvent.clientY - startPos.y);
-
-                if (!dragStarted && (dx > 5 || dy > 5) && cardRef.current) {
-                    dragStarted = true;
-                    const rect = cardRef.current.getBoundingClientRect();
-                    setDraggingProject({
-                        ...project,
-                        offsetX: moveEvent.clientX - rect.left,
-                        offsetY: moveEvent.clientY - rect.top,
-                        width: rect.width,
-                        height: rect.height,
-                    });
-                }
-            };
-
-            const onUp = (upEvent: MouseEvent) => {
-                if (!dragStarted) {
-                     if (!(upEvent.target as Element).closest('.more-options-button')) {
-                        handleSelectProject(project);
-                    }
-                }
-                window.removeEventListener('mousemove', onMove);
-                window.removeEventListener('mouseup', onUp);
-            };
-
-            window.addEventListener('mousemove', onMove);
-            window.addEventListener('mouseup', onUp, { once: true });
-        };
-        
+    const ProjectCard = () => {
         return (
-             <div 
-                ref={cardRef}
-                onMouseDown={handleMouseDown}
-                className={`bg-[#262629] rounded-lg overflow-hidden shadow-lg border border-[#3A3A3C] flex flex-col transition-all duration-200 h-full cursor-pointer hover:-translate-y-1 hover:shadow-2xl hover:border-[#4A4A4C] ${isDragging ? 'opacity-0' : 'opacity-100'}`}
-             >
-                <div className="relative">
-                    <img src={project.thumbnail || 'https://placehold.co/400x225/262629/3A3A3C?text=No+Preview'} alt={project.title} className="w-full h-40 object-cover" />
-                    <div className="absolute top-2 right-2">
-                        <button onClick={(e) => { e.stopPropagation(); toggleFavorite(project.id, project.isFavorite); }}
-                                className={`p-1.5 rounded-full transition-colors ${project.isFavorite ? 'text-yellow-400 bg-black/50' : 'text-[#A0A0A5] bg-black/50 hover:text-yellow-400'}`}>
-                            <Star size={18} fill={project.isFavorite ? 'currentColor' : 'none'} />
-                        </button>
-                    </div>
-                </div>
-                <div className="p-4 flex-grow flex flex-col">
-                    <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-white pr-2 flex-1">{project.title}</h3>
-                        <div className="relative more-options-button" ref={isDropdownOpen ? dropdownRef : null}>
-                            <button onClick={(e) => { e.stopPropagation(); setActiveDropdown(isDropdownOpen ? null : project.id)}} className="text-[#A0A0A5] hover:text-white p-1">
-                                <MoreVertical size={20} />
-                            </button>
-                            {isDropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-48 bg-[#3A3A3C] border border-[#4A4A4C] rounded-md shadow-xl z-20">
-                                    <a href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); togglePublish(project.id, project.isPublished); }} className="flex items-center gap-3 px-4 py-2 text-sm text-white hover:bg-[#4A4A4C]">{project.isPublished ? <EyeOff size={16}/> : <Eye size={16}/>} {project.isPublished ? 'Unpublish' : 'Publish'}</a>
-                                    <a href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteClick(project); }} className="flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-[#4A4A4C]"><Trash2 size={16}/> Delete</a>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-[#A0A0A5] font-mono mb-3">
-                        <span className="truncate">{project.twinxid}</span>
-                        <Copy size={14} className="hover:text-white shrink-0 cursor-pointer" onClick={(e) => { e.stopPropagation(); copyToClipboard(project.twinxid, 'Twinx ID copied!'); }}/>
-                    </div>
-                    <div className="mt-auto">
-                        <div className="w-full bg-[#3A3A3C] rounded-full h-2 mb-1">
-                            <div className="bg-[#6366F1] h-2 rounded-full" style={{ width: `${progress}%` }}></div>
-                        </div>
-                        <p className="text-xs text-[#A0A0A5] text-right">{project.currentStep}/{TOTAL_STEPS} Steps</p>
-                    </div>
-                </div>
-            </div>
+            <ProjectCardCore
+                handleSelectProject={handleSelectProject}
+                setDraggingProject={setDraggingProject}
+                activeDropdown={activeDropdown}
+                setActiveDropdown={setActiveDropdown}
+                handleDeleteClick={handleDeleteClick}
+                toggleFavorite={toggleFavorite}
+                togglePublish={togglePublish}
+                copyToClipboard={copyToClipboard}
+                isDragging={draggingProject !== null}
+            />
         );
     };
+
+
+
+
+
+
+
+
+    //continue to seperate the pages and components ++++++++++++++++++++++++++++++++++++++++
 
     const ProjectView = () => {
         if (!selectedProject) return null;
@@ -2385,14 +2297,6 @@ export default function App() {
                         </div>
                         <div className="lg:col-span-2">
                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                {projects.map(project => (
-                                    <ProjectCard 
-                                        key={project.id} 
-                                        project={project} 
-                                        setDraggingProject={() => {}}
-                                        isDragging={false}
-                                    />
-                                ))}
                            </div>
                            {projects.length === 0 && (
                                 <div className="text-center py-20 text-[#A0A0A5] bg-[#262629] rounded-lg border-2 border-dashed border-[#3A3A3C]">
@@ -2499,23 +2403,6 @@ export default function App() {
                 <main className={`transition-all duration-300 ease-in-out bg-[#1C1C1E] min-h-screen ${isSidebarExpanded ? 'pl-72' : 'pl-20'}`}>
                     {renderCurrentView()}
                 </main>
-
-                {draggingProject && (
-                    <div 
-                        ref={draggedCardRef}
-                        className={`fixed z-30 transform-gpu transition-opacity duration-300 ${isCardOverZone ? 'opacity-30' : ''}`}
-                        style={{ 
-                            left: dragPosition.x, 
-                            top: dragPosition.y, 
-                            width: draggingProject.width, 
-                            height: draggingProject.height,
-                        }}
-                    >
-                        <div className="rotate-3 shadow-2xl">
-                            <ProjectCard project={draggingProject} setDraggingProject={()=>{}} isDragging={false} />
-                        </div>
-                    </div>
-                )}
 
                 <div className={`fixed bottom-10 left-1/2 -translate-x-1/2 flex items-end gap-4 transition-opacity duration-300 z-50 ${draggingProject ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                     <div 

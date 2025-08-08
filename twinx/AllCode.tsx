@@ -1,3 +1,6 @@
+"use client"
+
+
 import React, { useState, useEffect, useRef, useCallback, useMemo, FC, ReactNode } from 'react';
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, Auth, User as FirebaseUser } from 'firebase/auth';
@@ -16,6 +19,7 @@ import {
     MapPin, Link as LinkIcon, LucideProps
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, Bar } from 'recharts';
+import ProjectCard from '@/twinx/components/ProjectCard';
 
 
 // --- Type Declarations for Global Variables & Third-Party Libraries ---
@@ -31,16 +35,34 @@ declare global {
 }
 
 // --- Firebase Configuration ---
-const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : {};
-const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-twinx-app';
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
+const appId = firebaseConfig.appId || 'default_app_id'; // Fallback to a default app ID if not set
 
 // --- Firebase Initialization ---
 const app: FirebaseApp = initializeApp(firebaseConfig);
 const auth: Auth = getAuth(app);
 const db: Firestore = getFirestore(app);
 
-// --- Data Model Interfaces ---
 
+
+
+
+
+
+
+
+
+
+
+
+// --- Data Model Interfaces ---
 interface BaseItem {
     id: string;
     title: string;
@@ -93,6 +115,17 @@ interface ApiKey {
     createdBy: string;
     permissions: string;
 }
+
+
+
+
+
+
+
+
+
+
+
 
 // --- Mock Data and Configuration ---
 const FAKE_USERS: AppUser[] = [
@@ -224,6 +257,18 @@ const PIPELINE_CONFIG = [
 ];
 
 const TOTAL_STEPS = PIPELINE_CONFIG.length;
+
+
+
+
+
+
+
+
+
+
+
+
 
 // --- Helper Functions ---
 const generateTwinxId = (): string => {
@@ -431,6 +476,15 @@ const ThreeViewport: FC = () => {
 };
 
 
+
+
+
+
+
+
+
+
+
 const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId, showNotification }) => {
     const [title, setTitle] = useState<string>('');
     const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -612,6 +666,12 @@ const EditKeyModal: FC<EditKeyModalProps> = ({ isOpen, onClose, onSave, apiKey }
         </div>
     );
 };
+
+
+
+
+
+
 
 
 // --- Main App Component ---
@@ -885,6 +945,18 @@ export default function App() {
             {notification.message}
         </div>
     );
+
+
+
+
+
+
+    //               PAGES                 ------------------------------------
+
+
+
+
+
 
     const Dashboard = () => {
         return (
@@ -2337,6 +2409,13 @@ export default function App() {
     };
 
 
+
+
+
+
+
+    //     prints the pages
+
     const renderCurrentView = () => {
         const views: {[key: string]: React.ReactNode} = {
             'project': <ProjectView />,
@@ -2358,6 +2437,10 @@ export default function App() {
         };
         return views[currentView] || <Dashboard />;
     };
+
+
+
+
 
     return (
         <>
@@ -2450,6 +2533,7 @@ export default function App() {
                     userId={userId}
                     showNotification={showNotification}
                 />
+
                 <DeleteConfirmationModal 
                     isOpen={isDeleteModalOpen}
                     onClose={() => setIsDeleteModalOpen(false)}
@@ -2457,7 +2541,9 @@ export default function App() {
                     title="Delete Digital Twin"
                     text={`Are you sure you want to delete the Digital Twin "${projectToDelete?.title}"? This action cannot be undone.`}
                 />
+
                 <AppNotification />
+                
             </div>
         </>
     );
