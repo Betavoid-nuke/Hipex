@@ -486,8 +486,78 @@ export async function fetchCountdownByPublishedName(PublishedName: string | Prom
 }
 
 
+export async function getCurrentUser(){
+  const user = await currentUser();
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+  return user;
+}
 
 
+export async function updateUserOnDB(): Promise<void> {
+  try {
+    // 1. Connect to the database
+    await connectToDB();
+
+    // 2. Get the currently signed-in Clerk user
+    const clerkUser = await currentUser();
+
+    // 3. Handle case where no user is found
+    if (!clerkUser) {
+      console.log(clerkUser);
+      console.log("no clerk user found");
+      return 
+    }
+
+    // 4. Extract Clerk ID (required)
+    const clerkId = clerkUser.id;
+
+    console.log("CID: " + clerkId);
+    
+    // 5. Generate a username if one doesn't exist
+    let username = clerkUser.username;
+    if (!username) {
+      const emailUsername = clerkUser.emailAddresses[0]?.emailAddress.split("@")[0];
+      const base = clerkUser.firstName || emailUsername || "user";
+      // Ensure the username is unique by appending a short hash of the clerkId
+      username = `${base.toLowerCase()}_${clerkId.slice(-6)}`;
+    }
+
+    console.log("username: " + username);
+
+    // 6. Check if the user already exists in the MongoDB database
+    let user = await User.findOne({ id: clerkId });
+
+    console.log("userfound : ", user, " clerkId: ", clerkId);
+    
+    // 7. If the user doesn't exist, create a new user entry
+    if (!user) {
+      const newuser = await User.create({
+        id: clerkUser.id,
+        username: username,
+        name: `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim(),
+        image: clerkUser.imageUrl,
+        bio: "",
+        onboarded: false,
+        Countdowns: [],
+        friendsid: [],
+        communities: [],
+      });
+      await newuser.save();
+    }
+
+    console.log("User updated or created successfully: ", user);
+    
+    // 8. Return a success response with the user data
+    return
+
+  } catch (error: any) {
+    // 9. Handle any unexpected errors
+    console.error("Error in user synchronization:", error);
+    return
+  }
+}
 
 
 

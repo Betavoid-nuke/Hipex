@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema({
   id: {
     type: String,
     required: true,
+    unique: true,
   },
   username: {
     type: String,
@@ -26,6 +27,11 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  friendsid: [
+    {
+      type: String, // Array of Clerk userIds
+    },
+  ],
   communities: [
     {
       type: mongoose.Schema.Types.ObjectId,

@@ -1,81 +1,83 @@
-import { auth, clerkClient } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 
 // Import database models and the connection utility
-import dbConnect from '@/lib/cuetrack/mongodb';
-import User from '@/lib/cuetrack/models/user';
-import Frame from '@/lib/cuetrack/models/frame';
-import Venue from '@/lib/cuetrack/models/venue';
+import User from '@/lib/models/user.model';
+import Frame from '@/lib/models/Frame.model';
 
 // Import the Client Component and shared types
 import AppClient from '../AppClient';
-import { IUser } from '@/lib/cuetrack/types';
+import { clerkClient } from "@clerk/nextjs/server";
+import { connectToDB } from '@/lib/mongoose';
 
-import { currentUser } from "@clerk/nextjs/server"; // to fetch user info from Clerk
-import { currentUser as getClerkUser } from "@clerk/nextjs/server"; // server-side Clerk helper
 
 /**
  * A helper function to safely convert Mongoose documents into plain objects
  * that can be passed from Server to Client Components. It crucially converts
  * MongoDB's _id: ObjectId to a plain _id: string.
  */
-const toPlainObject = <T extends { _id: any }>(doc: T): Omit<T, '_id'> & { _id: string } => {
+function toPlainObject<T>(doc: T): T {
   return JSON.parse(JSON.stringify(doc));
-};
+}
 
 /**
  * Fetches all data required by the application from the server-side.
  * This function is robust and handles the case where a user has logged in
  * but their record is not yet in the database (due to webhook delay).
  */
-async function fetchAllData(userId: string) {
-    await dbConnect();
+export async function fetchAllData(userId: string) {
+  await connectToDB();
 
-    let currentUserDoc = await User.findOne({ clerkId: userId }).lean();
-    const client = await clerkClient(); // now it's the actual ClerkClient object
-    
+  // find by `id` (your schema), not clerkId
+  let currentUserDoc: any = await User.findOne({ id: userId }).lean();
 
-    // If the user isn't in our DB yet, create them from Clerk
-    if (!currentUserDoc) {
-        const clerkUser = await client.users.getUser(userId);
+  if (!currentUserDoc) {
+    const clerk = await clerkClient();                    // ✅
+    const clerkUser = await clerk.users.getUser(userId);  // ✅
 
-        // Create user in DB
-        await User.create({
-            clerkId: clerkUser.id,
-            name: `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim(),
-            email: clerkUser.emailAddresses[0]?.emailAddress || "",
-            image: clerkUser.imageUrl || "",
-            avatar: clerkUser.imageUrl,
-            friends: []
-        });
+    await User.create({
+      id: clerkUser.id,
+      username: clerkUser.username || clerkUser.id,
+      name: `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim(),
+      image: clerkUser.imageUrl || "",
+      bio: "",
+      friendsid: [],              // required by your schema
+      onboarded: false,
+      Countdowns: [],
+      communities: [],
+    });
 
-        // Fetch newly created user as plain object
-        currentUserDoc = await User.findOne({ clerkId: userId }).lean();
-    }
+    currentUserDoc = await User.findOne({ id: userId }).lean();
+  }
 
-    const currentUser = toPlainObject(currentUserDoc!);
+  const currentUser = toPlainObject(currentUserDoc!);
 
-    // Fetch other data concurrently
-    const framesPromise = Frame.find({ 'players.clerkId': userId }).sort({ date: -1 }).lean();
-    const friendsPromise = currentUser.friends?.length > 0
-        ? User.find({ clerkId: { $in: currentUser.friends } }).lean()
-        : Promise.resolve([]);
-    const allUsersPromise = User.find({ clerkId: { $ne: userId } }).lean();
-    const venuesPromise = Venue.find({}).lean();
-    const leaderboardPromise = User.find({}).limit(10).lean();
+  const framesPromise = Frame.find({ "players.id": userId })
+    .sort({ date: -1 })
+    .lean();
 
-    const [framesDocs, friendsDocs, allUsersDocs, venuesDocs, leaderboardDocs] = await Promise.all([
-        framesPromise, friendsPromise, allUsersPromise, venuesPromise, leaderboardPromise
+  const friendsPromise = currentUser.friendsid
+    ? User.find({ id: currentUser.friendsid }).lean()
+    : Promise.resolve([]);
+
+  const allUsersPromise = User.find({ id: { $ne: userId } }).lean();
+  const leaderboardPromise = User.find({}).limit(10).lean();
+
+  const [framesDocs, friendsDocs, allUsersDocs, leaderboardDocs] =
+    await Promise.all([
+      framesPromise,
+      friendsPromise,
+      allUsersPromise,
+      leaderboardPromise,
     ]);
 
-    return {
-        currentUser,
-        frames: framesDocs.map(toPlainObject),
-        friends: friendsDocs.map(toPlainObject),
-        allUsers: allUsersDocs.map(toPlainObject),
-        venues: venuesDocs.map(toPlainObject),
-        leaderboard: leaderboardDocs.map(toPlainObject)
-    };
+  return {
+    currentUser,
+    frames: framesDocs.map(toPlainObject),
+    friends: friendsDocs.map(toPlainObject),
+    allUsers: allUsersDocs.map(toPlainObject),
+    leaderboard: leaderboardDocs.map(toPlainObject),
+  };
 }
 
 
