@@ -27,7 +27,7 @@ class Item(BaseModel):
 
 @app.get("/info")
 async def get_info():
-    return {"status": "ok", "message": "Hello from FastAPI", "source": "backend/main.py"}
+    return {"status": "ok", "message": "Hello from Hipex echosystem", "source": "Hipx"}
 
 @app.post("/item")
 async def create_item(item: Item):
@@ -38,3 +38,14 @@ async def create_item(item: Item):
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
+
+
+
+# to start -
+
+# 0. cd backend
+# 1. if you are on Windows, run the following command to activate the virtual environment:
+#    - For PowerShell: `.venv\Scripts\Activate.ps1`
+#    - For Command Prompt: `.venv\Scripts\activate.bat`
+# 2. install dependencies: `pip install -r requirements.txt`
+# 3. run the server: `uvicorn main:app --reload`
