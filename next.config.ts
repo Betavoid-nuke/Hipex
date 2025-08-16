@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverActions: {},
-    serverExternalPackages: ['mongoose'],
+    serverActions: true, // ✅ keep serverActions, remove serverExternalPackages
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -39,8 +38,9 @@ const nextConfig = {
     ],
   },
   env: {
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-  }
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
+      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+  },
 };
 
 module.exports = nextConfig;
