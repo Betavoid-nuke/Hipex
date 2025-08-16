@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
-import User from '@/lib/models/user';
-import Frame from '@/lib/models/frame';
+import dbConnect from '@/lib/cuetrack/mongodb';
+import User from '@/lib/cuetrack/models/user';
+import Frame from '@/lib/cuetrack/models/frame';
 // Note: In a real app, you might use the Leaderboard model to store pre-calculated results.
 // For simplicity, we calculate this on the fly here.
 

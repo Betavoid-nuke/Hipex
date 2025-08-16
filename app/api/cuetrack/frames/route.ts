@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import dbConnect from '@/lib/mongodb';
-import Frame from '@/lib/models/frame';
-import User from '@/lib/models/user';
+import dbConnect from '@/lib/cuetrack/mongodb';
+import Frame from '@/lib/cuetrack/models/frame';
+import User from '@/lib/cuetrack/models/user';
 
 // POST: Create a new frame
 export async function POST(request: Request) {

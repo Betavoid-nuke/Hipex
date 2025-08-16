@@ -1,8 +1,8 @@
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
-import dbConnect from '@/lib/mongodb';
-import User from '@/lib/models/user';
+import dbConnect from '@/lib/cuetrack/mongodb';
+import User from '@/lib/cuetrack/models/user';
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;

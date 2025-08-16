@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import dbConnect from '@/lib/mongodb';
-import User from '@/lib/models/user';
+import dbConnect from '@/lib/cuetrack/mongodb';
+import User from '@/lib/cuetrack/models/user';
 
 // POST: Add a new friend
 export async function POST(request: Request) {

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
-import User from '@/lib/models/user';
-import Frame from '@/lib/models/frame';
+import dbConnect from '@/lib/cuetrack/mongodb';
+import User from '@/lib/cuetrack/models/user';
+import Frame from '@/lib/cuetrack/models/frame';
 
 // GET all users OR a single user with stats
 export async function GET(request: Request) {

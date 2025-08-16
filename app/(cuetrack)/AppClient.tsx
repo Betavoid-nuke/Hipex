@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { User, Trophy, MapPin, Search, ChevronLeft, PlusCircle, Users, Shuffle, ListChecks, UserSearch, Target, PlayCircle, StopCircle, Edit, CheckCircle, UserPlus, X, Shield } from 'lucide-react';
-import { IUser, IFrame, IVenue } from '@/lib/types'; // Import types from our central file
+import { IUser, IFrame, IVenue } from '@/lib/cuetrack/types'; // Import types from our central file
 
 // --- Main Client Component ---
 export default function AppClient({ initialData }: { initialData: any }) {

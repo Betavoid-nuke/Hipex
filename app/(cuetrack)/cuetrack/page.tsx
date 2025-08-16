@@ -2,14 +2,14 @@ import { auth, clerkClient } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 
 // Import database models and the connection utility
-import dbConnect from '@/lib/mongodb';
-import User from '@/lib/models/user';
-import Frame from '@/lib/models/frame';
-import Venue from '@/lib/models/venue';
+import dbConnect from '@/lib/cuetrack/mongodb';
+import User from '@/lib/cuetrack/models/user';
+import Frame from '@/lib/cuetrack/models/frame';
+import Venue from '@/lib/cuetrack/models/venue';
 
 // Import the Client Component and shared types
-import AppClient from './AppClient';
-import { IUser } from '@/lib/types';
+import AppClient from '../AppClient';
+import { IUser } from '@/lib/cuetrack/types';
 
 import { currentUser } from "@clerk/nextjs/server"; // to fetch user info from Clerk
 import { currentUser as getClerkUser } from "@clerk/nextjs/server"; // server-side Clerk helper

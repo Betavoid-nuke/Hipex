@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import dbConnect from '@/lib/mongodb';
-import Venue from '@/lib/models/venue';
+import dbConnect from '@/lib/cuetrack/mongodb';
+import Venue from '@/lib/cuetrack/models/venue';
 
 // ✅ GET all venues
 export async function GET() {
