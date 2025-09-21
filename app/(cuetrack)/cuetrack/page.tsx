@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import AppClient from '../AppClient';
+// import AppClient from '../AppClient';
 import { fetchAllData } from '@/cuetrack/Utils/fecthdata';
 
 export default async function Home() {
@@ -13,10 +13,10 @@ export default async function Home() {
     }
     
     const initialData = await fetchAllData(userId);
-    console.log(initialData);
 
     // Serialize the data before passing to the client
     return (
-        <AppClient initialData={JSON.parse(JSON.stringify(initialData))} />
+      // <AppClient initialData={JSON.parse(JSON.stringify(initialData))} />
+      <div>Cuetrack Page</div>
     );
 }
