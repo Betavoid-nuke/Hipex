@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "../globals.css";
+import "../(playground)/globals.css";
 import projectInfo from "../../CustomizingPlatform/information.json";
 import NextTopLoader from 'nextjs-toploader';
 import { Toaster } from "@/components/toast/sonner";
