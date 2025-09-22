@@ -56,9 +56,9 @@ const MarketplacePage = () => {
     return (
         <section id="marketplace" className="pt-32 pb-24">
             <div className="container" style={{maxWidth: '80rem'}}>
-                <div className="flex flex-col lg:flex-row gap-12">
-                    <div className="filter-sidebar">
-                        <div className="filter-card">
+                <div className="flex lg:flex-row gap-12" style={{flexDirection: 'row'}}>
+                    <div className="filter-sidebar" style={{position: 'fixed', marginTop:'-180px', height:'100%'}}>
+                        <div className="filter-card" style={{height:'600px', overflow:'overlay', scrollbarWidth:'thin'}}>
                             <h3 className="text-2xl font-extrabold text-white mb-6">Filters</h3>
                             <div className="space-y-6">
                                 <details open>
@@ -101,7 +101,7 @@ const MarketplacePage = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="listings-container">
+                    <div className="listings-container" style={{marginLeft:'400px', marginTop:'-160px'}}>
                         <div className="flex justify-between items-center mb-6">
                             <p className="text-sm text-gray-400">Showing 1-6 of <span id="total-results">38</span> results</p>
                             <div className="flex items-center space-x-2">
