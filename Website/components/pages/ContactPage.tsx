@@ -1,6 +1,6 @@
 const ContactPage = () => {
     return (
-        <section id="contact" className="page">
+        <section id="contact" className="page" style={{ display: 'block' }}>
              <div className="container mx-auto px-4 max-w-4xl text-center">
                  <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
                      Get in <span className="gradient-text">Touch</span>

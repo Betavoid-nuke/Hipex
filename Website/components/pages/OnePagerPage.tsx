@@ -4,7 +4,7 @@ interface OnePagerPageProps {
 
 const OnePagerPage = ({ onContactClick }: OnePagerPageProps) => {
     return (
-        <section id="one-pager" className="page pt-32 pb-24 bg-gray-950">
+        <section id="one-pager" className="page pt-32 pb-24 bg-gray-950" style={{ display: 'block' }}>
             <div className="container mx-auto px-4 max-w-5xl">
                 <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold text-white text-center mb-6">
                     The Future is Here.

@@ -4,7 +4,7 @@ interface SubscriptionsPageProps {
 
 const SubscriptionsPage = ({ onContactClick }: SubscriptionsPageProps) => {
     return (
-        <section id="subscriptions" className="page pt-32 pb-24">
+        <section id="subscriptions" className="page pt-32 pb-24" style={{ display: 'block' }}>
             <div className="container mx-auto px-4 max-w-6xl text-center">
                 <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
                     Flexible Pricing for Every <span className="gradient-text">Creator</span>

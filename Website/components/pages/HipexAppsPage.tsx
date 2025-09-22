@@ -8,7 +8,7 @@ const HipexAppsPage = () => {
     // ... shareApp function from previous example ...
 
     return (
-        <section id="hipex-apps" className="page">
+        <section id="hipex-apps" className="page" style={{ display: 'block' }}>
             <div className="hipex-apps-container">
                 <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
                     Explore Our <span className="gradient-text">Apps</span>
