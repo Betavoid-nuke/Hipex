@@ -38,7 +38,7 @@ export default function App() {
         onNavClick={showPage}
         onWaitlistClick={() => setWaitlistModalOpen(true)}
       />
-      <main style={{background:'rgb(10 21 55)'}}>
+      <main style={{background:'rgb(9 10 20)'}}>
         {/* We add 'page' class to all, and 'active' to the one that should be visible */}
         <div className={`page ${activePage === 'home' ? 'active' : ''}`}><HomePage onWaitlistClick={() => setWaitlistModalOpen(true)} onContactClick={() => setContactModalOpen(true)} /></div>
         <div className={`page ${activePage === 'marketplace' ? 'active' : ''}`}><MarketplacePage /></div>

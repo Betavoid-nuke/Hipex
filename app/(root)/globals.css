@@ -465,6 +465,26 @@ a {
             -webkit-text-fill-color: transparent;
         }
 
+        .animated-gradient-border2 {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            z-index: 0;
+        }
+        .animated-gradient-border2::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #726593, #3c2057, #18436e);
+            background-size: 400% 400%;
+            animation: pulse-border 4s linear infinite;
+            z-index: -1;
+            border-radius: 0.5rem;
+        }
+
         .animated-gradient-border {
             position: relative;
             overflow: hidden;
@@ -931,3 +951,55 @@ a {
             outline: none;
             border-color: var(--color-accent-indigo);
         }
+
+
+
+
+
+
+        .video-iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9; /* For a 16:9 aspect ratio */
+  height: auto;
+}
+
+
+
+
+
+
+
+body {
+    background-color: #fee440;
+}
+svg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+}
+.links {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 18px;
+    font-family: sans-serif;
+}
+a {
+    text-decoration: none;
+    color: black;
+    margin-left: 1em;
+}
+a:hover {
+    text-decoration: underline;
+}
+a img.icon {
+    display: inline-block;
+    height: 1em;
+    margin: 0 0 -0.1em 0.3em;
+}
+
+
+
+.backdropblur { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background-color: rgba(45, 12, 71, 0.603); backdrop-filter: blur(5px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); }
