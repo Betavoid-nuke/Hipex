@@ -38,11 +38,11 @@ export default function App() {
         onNavClick={showPage}
         onWaitlistClick={() => setWaitlistModalOpen(true)}
       />
-      <main>
+      <main style={{background:'rgb(10 21 55)'}}>
         {/* We add 'page' class to all, and 'active' to the one that should be visible */}
         <div className={`page ${activePage === 'home' ? 'active' : ''}`}><HomePage onWaitlistClick={() => setWaitlistModalOpen(true)} onContactClick={() => setContactModalOpen(true)} /></div>
         <div className={`page ${activePage === 'marketplace' ? 'active' : ''}`}><MarketplacePage /></div>
-        <div className={`page ${activePage === 'one-pager' ? 'active' : ''}`}><OnePagerPage onContactClick={() => setContactModalOpen(true)} /></div>
+        <div className={`page ${activePage === 'one-pager' ? 'active' : ''}`} style={{padding:'0px'}}><OnePagerPage onContactClick={() => setContactModalOpen(true)} /></div>
         <div className={`page ${activePage === 'hipex-apps' ? 'active' : ''}`}><HipexAppsPage /></div>
         <div className={`page ${activePage === 'subscriptions' ? 'active' : ''}`}><SubscriptionsPage onContactClick={() => setContactModalOpen(true)} /></div>
         <div className={`page ${activePage === 'contact' ? 'active' : ''}`}><ContactPage /></div>

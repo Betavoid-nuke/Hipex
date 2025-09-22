@@ -23,6 +23,9 @@ const MarketplacePage = () => {
                     return stars;
                 };
 
+                card.style.background = "rgb(15, 22, 41)";
+                card.style.border = "none";
+
                 card.innerHTML = `
                     <div class="rounded-lg overflow-hidden relative mb-4">
                         <img src="${item.image}" alt="${item.title}" style="width:100%; height:12rem; object-fit:cover;" class="rounded-md">
@@ -39,7 +42,7 @@ const MarketplacePage = () => {
                             <span class="text-gray-500">(${item.reviews})</span>
                         </div>
                         <div class="flex justify-between items-center mt-4">
-                            <span class="text-2xl font-extrabold gradient-text">$${item.price}</span>
+                            <span class="text-2xl font-bold gradient-text">$${item.price}</span>
                             <button style="background-image:linear-gradient(to right, var(--color-accent-purple), var(--color-accent-blue))" class="px-5 py-2 rounded-full text-sm font-semibold text-white transition-all">
                                 Buy Now
                             </button>
@@ -55,93 +58,93 @@ const MarketplacePage = () => {
 
     return (
         <section id="marketplace" className="pt-32 pb-24">
-    <div className="container" style={{maxWidth: '80rem'}}>
-        <div>
-            <div className="filter-sidebar" style={{
-                position: 'fixed',
-                width: '350px', 
-                height: '100vh', 
-                top: '0',
-                left: '0',
-                paddingTop: '8rem',
-                paddingBottom: '2rem',
-                marginLeft: '80px'
-            }}>
-                <div className="filter-card" style={{
-                    height: '100%',
-                    overflowY: 'auto',
-                    scrollbarWidth: 'thin',
-                    padding: '1.5rem',
-                    backgroundColor: 'transparent',
-                    border:'none'
-                }}>
-                    <div className="space-y-6">
-                        <details open>
-                            <summary className="text-xl font-semibold text-white cursor-pointer py-2 flex justify-between">
-                                Category
-                                <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                            </summary>
-                            <div className="pt-4 space-y-3 text-gray-400">
-                                <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Urban</span></label>
-                                <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Nature</span></label>
-                                <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Sci-Fi</span></label>
-                                <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Fantasy</span></label>
-                                <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Abstract</span></label>
-                                <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Cyberpunk</span></label>
+            <div className="container" style={{maxWidth: '80rem'}}>
+                <div>
+                    <div className="filter-sidebar" style={{
+                        position: 'fixed',
+                        width: '350px', 
+                        height: '100vh', 
+                        top: '0',
+                        left: '0',
+                        paddingTop: '8rem',
+                        paddingBottom: '2rem',
+                        marginLeft: '80px'
+                    }}>
+                        <div className="filter-card" style={{
+                            height: '100%',
+                            overflowY: 'auto',
+                            scrollbarWidth: 'thin',
+                            padding: '1.5rem',
+                            backgroundColor: 'transparent',
+                            border:'none'
+                        }}>
+                            <div className="space-y-6">
+                                <details open>
+                                    <summary className="text-xl font-semibold text-white cursor-pointer py-2 flex justify-between">
+                                        Category
+                                        <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    </summary>
+                                    <div className="pt-4 space-y-3 text-gray-400">
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Urban</span></label>
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Nature</span></label>
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Sci-Fi</span></label>
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Fantasy</span></label>
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Abstract</span></label>
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Cyberpunk</span></label>
+                                    </div>
+                                </details>
+                                <div className="w-full h-px bg-gray-700"></div>
+                                <details open>
+                                    <summary className="text-xl font-semibold text-white cursor-pointer py-2 flex justify-between">
+                                        Price
+                                        <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    </summary>
+                                    <div className="pt-4 flex items-center space-x-4">
+                                        <input type="number" placeholder="Min" className="w-1/2 px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"/>
+                                        <span className="text-gray-500">-</span>
+                                        <input type="number" placeholder="Max" className="w-1/2 px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"/>
+                                    </div>
+                                </details>
+                                <div className="w-full h-px bg-gray-700"></div>
+                                <details open>
+                                    <summary className="text-xl font-semibold text-white cursor-pointer py-2 flex justify-between">
+                                        Features
+                                        <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    </summary>
+                                    <div className="pt-4 space-y-3 text-gray-400">
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>HDR Lighting</span></label>
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Dynamic Weather</span></label>
+                                        <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Interactive Objects</span></label>
+                                    </div>
+                                </details>
+                                <button className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors">Apply Filters</button>
                             </div>
-                        </details>
-                        <div className="w-full h-px bg-gray-700"></div>
-                        <details open>
-                            <summary className="text-xl font-semibold text-white cursor-pointer py-2 flex justify-between">
-                                Price
-                                <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                            </summary>
-                            <div className="pt-4 flex items-center space-x-4">
-                                <input type="number" placeholder="Min" className="w-1/2 px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"/>
-                                <span className="text-gray-500">-</span>
-                                <input type="number" placeholder="Max" className="w-1/2 px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"/>
-                            </div>
-                        </details>
-                        <div className="w-full h-px bg-gray-700"></div>
-                        <details open>
-                            <summary className="text-xl font-semibold text-white cursor-pointer py-2 flex justify-between">
-                                Features
-                                <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                            </summary>
-                            <div className="pt-4 space-y-3 text-gray-400">
-                                <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>HDR Lighting</span></label>
-                                <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Dynamic Weather</span></label>
-                                <label className="flex items-center space-x-3 cursor-pointer"><input type="checkbox" className="form-checkbox text-purple-600 bg-gray-700 border-gray-600 rounded-lg"/><span>Interactive Objects</span></label>
-                            </div>
-                        </details>
-                        <button className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-colors">Apply Filters</button>
+                        </div>
                     </div>
+                    
+                    <div className="listings-container" style={{
+                        marginLeft: '370px',
+                        marginTop: '-120px',
+                    }}>
+                        <div className="flex justify-between items-center mb-6">
+                            <p className="text-sm text-gray-400">Showing 1-6 of <span id="total-results">38</span> results</p>
+                            <div className="flex items-center space-x-2">
+                                <span className="text-sm text-gray-400">Sort by:</span>
+                                <select className="px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white text-sm appearance-none pr-8">
+                                    <option>Popular</option>
+                                    <option>Newest</option>
+                                    <option>Price: Low to High</option>
+                                    <option>Price: High to Low</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="marketplace-listings" className="listings-grid">
+                        </div>
+                    </div>
+                
                 </div>
             </div>
-
-            <div className="listings-container" style={{
-                marginLeft: '370px',
-                marginTop: '-120px',
-            }}>
-                <div className="flex justify-between items-center mb-6">
-                    <p className="text-sm text-gray-400">Showing 1-6 of <span id="total-results">38</span> results</p>
-                    <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-400">Sort by:</span>
-                        <select className="px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white text-sm appearance-none pr-8">
-                            <option>Popular</option>
-                            <option>Newest</option>
-                            <option>Price: Low to High</option>
-                            <option>Price: High to Low</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="marketplace-listings" className="listings-grid">
-                </div>
-            </div>
-
-        </div>
-    </div>
-</section>
+        </section>
     );
 };
 export default MarketplacePage;
