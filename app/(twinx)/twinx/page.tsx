@@ -952,7 +952,7 @@ export default function App() {
 
 
 
-    //               PAGES                 ------------------------------------
+    // PAGES ------------------------------------
 
     const Dashboard = () => {
         return (
@@ -2318,7 +2318,6 @@ export default function App() {
 
 
     //     prints the pages
-
     const renderCurrentView = () => {
         const views: {[key: string]: React.ReactNode} = {
             'project': <ProjectView />,
@@ -2339,6 +2338,9 @@ export default function App() {
             'templates': <PlaceholderView title="Templates" icon={LayoutTemplate}/>,
         };
         return views[currentView] || <Dashboard />;
+
+        //use the marketplace UI and functionalities from here for the marketplace page on the website
+
     };
 
 

@@ -9,8 +9,8 @@ export default function PriceCards() {
             <div className="container">
                 <div className="apps-grid">
                   {/* Hobbyist */}
-                  <div className="app-card" style={{background:'rgb(92 32 103 / 44%)', border:'none', justifyContent:'space-between'}}>
-                        <h3 className="gradient-text" style={{fontSize:'32px'}}>Hobbyist</h3>
+                  <div className="app-card" style={{background:'rgb(92 32 103 / 44%)', border:'none', justifyContent:'space-between', height:'600px'}}>
+                        <h3 className="gradient-text" style={{fontSize:'32px', marginTop:'40px'}}>Hobbyist</h3>
                         <p>For individual creators and enthusiasts.</p>
                         <div className="price-block">
                           <span className="price" style={{fontSize:'32px', fontWeight:'bold'}}>$499</span>
@@ -28,9 +28,9 @@ export default function PriceCards() {
                         <button className="primary-button" style={{marginBottom:'40px'}}>Get Started</button>
                   </div>
                   {/* Professional */}
-                  <div className="app-card animated-gradient-border2" style={{background:'rgba(46 32 69)', border:'none', overflow:'visible', justifyContent:'space-between'}}>
+                  <div className="app-card animated-gradient-border2" style={{background:'rgba(46 32 69)', border:'none', overflow:'visible', justifyContent:'space-between', height:'600px'}}>
                         <div
-                          className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-2 rounded-full text-white text-xxs font-semibold"
+                          className="absolute inset-1/2 px-4 py-2 rounded-full text-white text-xxs font-semibold"
                           style={{
                             backgroundColor: "#4b7736ff",
                             marginTop: '-20px',
@@ -42,7 +42,7 @@ export default function PriceCards() {
                         >
                           Most Popular
                         </div>
-                        <h3 className="gradient-text" style={{fontSize:'32px'}}>Professional</h3>
+                        <h3 className="gradient-text" style={{fontSize:'32px', marginTop:'40px'}}>Professional</h3>
                         <p>For professionals and small studios.</p>
                         <div className="price-block">
                           <span className="price " style={{fontSize:'32px', fontWeight:'bold'}}>$1499</span>
@@ -61,8 +61,8 @@ export default function PriceCards() {
                         <button className="primary-button" style={{marginBottom:'40px'}}>Get Started</button>
                   </div>
                   {/* Enterprise */}
-                  <div className="app-card" style={{background:'rgb(92 32 103 / 44%)', border:'none', justifyContent:'space-between'}}>
-                        <h3 className="gradient-text" style={{fontSize:'32px'}}>Enterprise</h3>
+                  <div className="app-card" style={{background:'rgb(92 32 103 / 44%)', border:'none', justifyContent:'space-between', height:'600px'}}>
+                        <h3 className="gradient-text" style={{fontSize:'32px', marginTop:'40px'}}>Enterprise</h3>
                         <p>For large-scale projects and custom needs.</p>
                         <div className="price-block">
                           <span className="price" style={{fontSize:'32px', fontWeight:'bold'}}>Custom</span>

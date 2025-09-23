@@ -9,6 +9,7 @@ import ContactPage from '@/Website/components/pages/ContactPage';
 import HipexAppsPage from '@/Website/components/pages/HipexAppsPage';
 import HomePage from '@/Website/components/pages/HomePage';
 import MarketplacePage from '@/Website/components/pages/MarketplacePage';
+import MarketplacePageTwinx from '@/Website/components/pages/MarketplacePage_twinx';
 import OnePagerPage from '@/Website/components/pages/OnePagerPage';
 import SubscriptionsPage from '@/Website/components/pages/SubscriptionsPage';
 import { useEffect, useState } from 'react';
@@ -41,7 +42,7 @@ export default function App() {
       />
         <main style={{background:'rgb(9 10 20)'}}>
           <div className={`page ${activePage === 'home' ? 'active' : ''}`}><HomePage onWaitlistClick={() => setWaitlistModalOpen(true)} onContactClick={() => setContactModalOpen(true)} /></div>
-          <div className={`page ${activePage === 'marketplace' ? 'active' : ''}`}><MarketplacePage /></div>
+          <div className={`page ${activePage === 'marketplace' ? 'active' : ''}`}><MarketplacePageTwinx /></div>
           <div className={`page ${activePage === 'one-pager' ? 'active' : ''}`} style={{padding:'0px'}}><OnePagerPage onContactClick={() => setContactModalOpen(true)} /></div>
           <div className={`page ${activePage === 'hipex-apps' ? 'active' : ''}`}><HipexAppsPage /></div>
           <div className={`page ${activePage === 'subscriptions' ? 'active' : ''}`}><SubscriptionsPage onContactClick={() => setContactModalOpen(true)} /></div>
