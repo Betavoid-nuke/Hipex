@@ -37,20 +37,19 @@ export default function App() {
         activePage={activePage}
         onNavClick={showPage}
         onWaitlistClick={() => setWaitlistModalOpen(true)}
+        onLoginClick={() => setWaitlistModalOpen(true)}
       />
-      <main style={{background:'rgb(9 10 20)'}}>
-        {/* We add 'page' class to all, and 'active' to the one that should be visible */}
-        <div className={`page ${activePage === 'home' ? 'active' : ''}`}><HomePage onWaitlistClick={() => setWaitlistModalOpen(true)} onContactClick={() => setContactModalOpen(true)} /></div>
-        <div className={`page ${activePage === 'marketplace' ? 'active' : ''}`}><MarketplacePage /></div>
-        <div className={`page ${activePage === 'one-pager' ? 'active' : ''}`} style={{padding:'0px'}}><OnePagerPage onContactClick={() => setContactModalOpen(true)} /></div>
-        <div className={`page ${activePage === 'hipex-apps' ? 'active' : ''}`}><HipexAppsPage /></div>
-        <div className={`page ${activePage === 'subscriptions' ? 'active' : ''}`}><SubscriptionsPage onContactClick={() => setContactModalOpen(true)} /></div>
-        <div className={`page ${activePage === 'contact' ? 'active' : ''}`}><ContactPage /></div>
-      </main>
+        <main style={{background:'rgb(9 10 20)'}}>
+          <div className={`page ${activePage === 'home' ? 'active' : ''}`}><HomePage onWaitlistClick={() => setWaitlistModalOpen(true)} onContactClick={() => setContactModalOpen(true)} /></div>
+          <div className={`page ${activePage === 'marketplace' ? 'active' : ''}`}><MarketplacePage /></div>
+          <div className={`page ${activePage === 'one-pager' ? 'active' : ''}`} style={{padding:'0px'}}><OnePagerPage onContactClick={() => setContactModalOpen(true)} /></div>
+          <div className={`page ${activePage === 'hipex-apps' ? 'active' : ''}`}><HipexAppsPage /></div>
+          <div className={`page ${activePage === 'subscriptions' ? 'active' : ''}`}><SubscriptionsPage onContactClick={() => setContactModalOpen(true)} /></div>
+          <div className={`page ${activePage === 'contact' ? 'active' : ''}`}><ContactPage /></div>
+        </main>
       <Footer />
       <WaitlistModal isOpen={isWaitlistModalOpen} onClose={() => setWaitlistModalOpen(false)} onSuccess={showSuccessMessage} />
       <ContactModal isOpen={isContactModalOpen} onClose={() => setContactModalOpen(false)} />
-      <SuccessModal isVisible={isSuccessVisible} message="Thank you for joining the waitlist!" />
     </>
   );
 }

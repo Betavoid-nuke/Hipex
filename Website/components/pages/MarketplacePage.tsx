@@ -1,6 +1,8 @@
 
 import { marketplaceData } from '@/Website/data/marketplaceData';
 import { useEffect } from 'react';
+import BackgroundMain2 from '../Components/Background2';
+import BackgroundMain3 from '../Components/Background3';
 
 const MarketplacePage = () => {
 
@@ -58,7 +60,7 @@ const MarketplacePage = () => {
 
     return (
         <section id="marketplace" className="pt-32 pb-24">
-            <div className="container" style={{maxWidth: '80rem'}}>
+            <div className="container" style={{maxWidth: '80rem', zIndex:'2', position:'relative'}}>
                 <div>
                     <div className="filter-sidebar" style={{
                         position: 'fixed',

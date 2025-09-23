@@ -1,9 +1,12 @@
 import { PageName } from '@/app/(root)/page';
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
+import ClerkSignInOutButtons from '../Components/ClerkSignInOutButtons';
 
 interface HeaderProps {
     activePage: PageName;
     onNavClick: (page: PageName) => void;
     onWaitlistClick: () => void;
+    onLoginClick: () => void;
 }
 
 const navLinks: { name: string, page: PageName }[] = [
@@ -15,7 +18,7 @@ const navLinks: { name: string, page: PageName }[] = [
     { name: 'Get in Touch', page: 'contact' },
 ];
 
-const Header = ({ activePage, onNavClick, onWaitlistClick }: HeaderProps) => {
+const Header = ({ activePage, onNavClick, onWaitlistClick, onLoginClick }: HeaderProps) => {
     return (
         <header className="header">
             <nav className="navbar-container">
@@ -35,8 +38,11 @@ const Header = ({ activePage, onNavClick, onWaitlistClick }: HeaderProps) => {
                         </a>
                     ))}
                 </div>
-                <div style={{display: 'flex'}} className="space-x-4">
+                <div style={{display: 'flex'}}>
                     <button onClick={onWaitlistClick} className="waitlist-button">Join Waitlist</button>
+                    <a href="/twinx" className="secondary-button" style={{marginLeft:'10px', fontSize:'12px', paddingTop:'10px', paddingBottom:'10px'}}>
+                        Login
+                    </a>
                 </div>
             </nav>
         </header>

@@ -8,6 +8,7 @@ interface app {
     youtubeLink: string;
     activeUsers: string;
     info: string[];
+    href: string;
 }
 
 
@@ -20,7 +21,7 @@ export default function AppCards({app, index, shareApp}: {app: app, index: numbe
             <div className="app-info" style={{padding:'2rem', marginTop:'-60px'}}>
                 <h3 className="app-title">{app.name}</h3>
                 <p className="app-description" style={{marginBottom:'30px'}}>{app.description}</p>
-                <a href="#" onClick={(e) => e.preventDefault()} className="app-launch-button" style={{fontSize:'16px'}}>
+                <a href={app.href} className="app-launch-button" style={{fontSize:'16px'}}>
                     Launch App
                 </a>
             </div>

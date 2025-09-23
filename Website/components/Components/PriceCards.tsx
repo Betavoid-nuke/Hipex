@@ -9,22 +9,26 @@ export default function PriceCards() {
             <div className="container">
                 <div className="apps-grid">
                   {/* Hobbyist */}
-                  <div className="app-card" style={{background:'rgb(92 32 103 / 44%)', border:'none'}}>
+                  <div className="app-card" style={{background:'rgb(92 32 103 / 44%)', border:'none', justifyContent:'space-between'}}>
                         <h3 className="gradient-text" style={{fontSize:'32px'}}>Hobbyist</h3>
                         <p>For individual creators and enthusiasts.</p>
                         <div className="price-block">
-                          <span className="price" style={{fontSize:'32px', fontWeight:'bold'}}>$999</span>
+                          <span className="price" style={{fontSize:'32px', fontWeight:'bold'}}>$499</span>
                           <span className="per">/month</span>
                         </div>
+                        <div style={{marginTop:'-30px', fontSize:'14px'}}>
+                          <span className="price" style={{fontSize:'18px'}}>10 Credit </span>
+                          <span className="per">/ 1 dollar</span>
+                        </div>
                         <ul>
-                          <p>✔ 5 digital twins per month</p>
+                          <p>✔ 5,000 Credits</p>
                           <p>✔ Standard generation speed</p>
                           <p>✔ Basic support</p>
                         </ul>
-                        <button className="primary-button">Get Started</button>
+                        <button className="primary-button" style={{marginBottom:'40px'}}>Get Started</button>
                   </div>
                   {/* Professional */}
-                  <div className="app-card animated-gradient-border2" style={{background:'rgba(46 32 69)', border:'none', overflow:'visible'}}>
+                  <div className="app-card animated-gradient-border2" style={{background:'rgba(46 32 69)', border:'none', overflow:'visible', justifyContent:'space-between'}}>
                         <div
                           className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-2 rounded-full text-white text-xxs font-semibold"
                           style={{
@@ -41,26 +45,30 @@ export default function PriceCards() {
                         <h3 className="gradient-text" style={{fontSize:'32px'}}>Professional</h3>
                         <p>For professionals and small studios.</p>
                         <div className="price-block">
-                          <span className="price " style={{fontSize:'32px', fontWeight:'bold'}}>$2500</span>
+                          <span className="price " style={{fontSize:'32px', fontWeight:'bold'}}>$1499</span>
                           <span className="per">/month</span>
                         </div>
+                        <div className="price-block" style={{marginTop:'-30px', fontSize:'14px'}}>
+                          <span className="price ">14 Credit </span>
+                          <span className="per">/ 1 dollar</span>
+                        </div>
                         <ul>
-                          <p>✔ 20 digital twins per month</p>
+                          <p>✔ 20,000 Credits</p>
                           <p>✔ High-priority generation</p>
                           <p>✔ Premium support</p>
                           <p>✔ API access</p>
                         </ul>
-                        <button className="primary-button">Get Started</button>
+                        <button className="primary-button" style={{marginBottom:'40px'}}>Get Started</button>
                   </div>
                   {/* Enterprise */}
-                  <div className="app-card" style={{background:'rgb(92 32 103 / 44%)', border:'none'}}>
+                  <div className="app-card" style={{background:'rgb(92 32 103 / 44%)', border:'none', justifyContent:'space-between'}}>
                         <h3 className="gradient-text" style={{fontSize:'32px'}}>Enterprise</h3>
                         <p>For large-scale projects and custom needs.</p>
                         <div className="price-block">
                           <span className="price" style={{fontSize:'32px', fontWeight:'bold'}}>Custom</span>
                         </div>
                         <ul>
-                          <p>✔ Custom volume of digital twins</p>
+                          <p>✔ Custom volume of credits</p>
                           <p>✔ Dedicated account manager</p>
                           <p>✔ On-site support & training</p>
                           <p>✔ Custom integrations</p>
@@ -70,6 +78,7 @@ export default function PriceCards() {
                           onClick={() =>
                             document.getElementById("contact-modal")?.classList.remove("hidden")
                           }
+                          style={{marginBottom:'40px'}}
                         >
                           Contact Us
                         </button>

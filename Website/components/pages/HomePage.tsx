@@ -25,7 +25,7 @@ const HomePage = ({ onWaitlistClick, onContactClick }: HomePageProps) => {
                     <button onClick={onWaitlistClick} className="primary-button">
                         Join Waitlist
                     </button>
-                    <a href="#" onClick={(e) => e.preventDefault()} className="secondary-button">
+                    <a href="/twinx" className="secondary-button">
                         Try Twinx
                     </a>
               </div>

@@ -3,6 +3,7 @@
 import { hipexAppsData } from '@/Website/data/hipexAppsData';
 import Image from 'next/image';
 import AppCards from '../Components/AppCards';
+import BackgroundMain2 from '../Components/Background2';
 
 const HipexAppsPage = () => {
 
@@ -23,7 +24,8 @@ const HipexAppsPage = () => {
 
     return (
         <section id="hipex-apps" className="page pt-32 pb-24" style={{display:'block', marginTop:'-120px'}}>
-            <div className="hipex-apps-container">
+            <BackgroundMain2 />
+            <div className="hipex-apps-container" style={{zIndex:'2', position:'relative'}}>
                 <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
                     Explore Our <span className="gradient-text">Apps</span>
                 </h2>
