@@ -1,17 +1,10 @@
-import { FC, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import React, { useState, useMemo } from 'react';
-import { addDoc, collection, deleteDoc, doc, Firestore, getFirestore, Timestamp
-} from 'firebase/firestore';
-import { 
-    UploadCloud, Briefcase, User, Settings, Download, Users, CreditCard, Puzzle, LayoutTemplate, BookOpen, BarChart2, KeyRound, Store, LucideProps, X
-} from 'lucide-react';
-import { FirebaseApp, initializeApp } from 'firebase/app';
-import { Auth, getAuth } from 'firebase/auth';
 import "../../../app/(twinx)/globals.css";
+import NewProjectModal from '../../Marketplace/Components/NewProjectModelMarketPlace';
+import MarketplaceCard from '../../Marketplace/Components/MarketplaceCard';
+import NetworkUserCard from '../../Marketplace/Components/MarketplaceNetworkCard';
 
-
-
-// --- Type Declarations for Global Variables & Third-Party Libraries ---
 
 // Extend the Window interface to include properties from external scripts
 declare global {
@@ -23,36 +16,29 @@ declare global {
     }
 }
 
-// --- Firebase Configuration ---
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
-const appId = firebaseConfig.appId || 'default_app_id'; // Fallback to a default app ID if not set
-
-// --- Firebase Initialization ---
-const app: FirebaseApp = initializeApp(firebaseConfig);
-const auth: Auth = getAuth(app);
-const db: Firestore = getFirestore(app);
 
 // --- Data Model Interfaces ---
 interface BaseItem {
     id: string;
     title: string;
+    description: string;
     author: string;
     price: number;
-    thumbnail: string;
+    image: string;
     category: string;
-    tags: string[];
+    tags?: string[];
     isAnimated: boolean;
     isDownloadable: boolean;
     date: Date;
     likes: number;
     isFavorite: boolean;
+    rating?: number;
+    reviews?: number;
+    technicalInfo?: { label: string; value: string }[];
+    downloadFormats?: { format: string; size: string; downloadUrl: string }[];
+    comments?: { user: string; comment: string; date: Date }[];
+    photos?: string[];
+    
 }
 
 interface AppUser {
@@ -63,468 +49,317 @@ interface AppUser {
     id?: string; // id is sometimes used interchangeably with uid
 }
 
-interface Project {
-    id: string;
-    title: string;
-    twinxid: string;
-    thumbnail: string;
-    videoUrl: string;
-    isFavorite: boolean;
-    isPublished: boolean;
-    currentStep: number;
-    createdAt: Timestamp | Date;
-    updatedAt: Timestamp | Date;
-}
 
-interface DraggingProject extends Project {
-    offsetX: number;
-    offsetY: number;
-    width: number;
-    height: number;
-}
-
-interface ApiKey {
-    id: number;
-    name: string;
-    secret: string;
-    created: string;
-    lastUsed: string;
-    createdBy: string;
-    permissions: string;
-}
-
-
-
-// --- Mock Data and Configuration ---
-const FAKE_USERS: AppUser[] = [
-    { uid: 'friend1_uid', name: 'Alex Doe', email: 'alex@example.com', avatar: 'https://placehold.co/40x40/FFC107/000000?text=A' },
-    { uid: 'friend2_uid', name: 'Brenda Smith', email: 'brenda@example.com', avatar: 'https://placehold.co/40x40/4CAF50/FFFFFF?text=B' },
-    { uid: 'friend3_uid', name: 'Charlie Brown', email: 'charlie@example.com', avatar: 'https://placehold.co/40x40/F44336/FFFFFF?text=C' },
-];
-
+// --- Sample Data ---
 const marketplaceListingsJson: BaseItem[] = [
-    { id: 'm1', title: 'Cyberpunk Megatower', author: 'Alex Doe', price: 89.99, thumbnail: 'https://placehold.co/400x225/FF5722/FFFFFF?text=Tower', category: 'Building', tags: ['sci-fi', 'cyberpunk', 'skyscraper'], isAnimated: false, isDownloadable: true, date: new Date('2025-06-15'), likes: 1200, isFavorite: false },
-    { id: 'm2', title: 'Medieval Castle', author: 'Brenda Smith', price: 79.99, thumbnail: 'https://placehold.co/400x225/795548/FFFFFF?text=Castle', category: 'Building', tags: ['fantasy', 'building', 'medieval'], isAnimated: false, isDownloadable: true, date: new Date('2025-07-01'), likes: 3400, isFavorite: true },
-    { id: 'm3', title: 'Luxury Penthouse', author: 'Charlie Brown', price: 120.00, thumbnail: 'https://placehold.co/400x225/4CAF50/FFFFFF?text=Penthouse', category: 'Penthouse', tags: ['modern', 'luxury', 'interior'], isAnimated: false, isDownloadable: true, date: new Date('2025-05-20'), likes: 850, isFavorite: false },
-    { id: 'm4', title: 'Modern Office Space', author: 'Alex Doe', price: 99.99, thumbnail: 'https://placehold.co/400x225/607D8B/FFFFFF?text=Office', category: 'Office', tags: ['corporate', 'interior', 'modern'], isAnimated: false, isDownloadable: true, date: new Date('2025-07-10'), likes: 5600, isFavorite: false },
-    { id: 'm5', title: 'Grand Hotel Lobby', author: 'Jane Doe', price: 150.00, thumbnail: 'https://placehold.co/400x225/03A9F4/FFFFFF?text=Lobby', category: 'Hotel', tags: ['luxury', 'hotel', 'lobby', 'interior'], isAnimated: false, isDownloadable: true, date: new Date('2024-11-30'), likes: 2100, isFavorite: false },
-    { id: 'm6', title: 'Industrial Warehouse', author: 'Brenda Smith', price: 45.99, thumbnail: 'https://placehold.co/400x225/8BC34A/FFFFFF?text=Warehouse', category: 'Warehouse', tags: ['industrial', 'storage', 'factory'], isAnimated: false, isDownloadable: false, date: new Date('2025-03-22'), likes: 950, isFavorite: false },
-    { id: 'm7', title: 'Concert Hall Venue', author: 'Charlie Brown', price: 110.00, thumbnail: 'https://placehold.co/400x225/E91E63/FFFFFF?text=Venue', category: 'Venues', tags: ['music', 'concert', 'hall'], isAnimated: false, isDownloadable: true, date: new Date('2025-07-20'), likes: 1800, isFavorite: false },
-    { id: 'm8', title: 'Football Stadium', author: 'Alex Doe', price: 250.00, thumbnail: 'https://placehold.co/400x225/FFC107/000000?text=Stadium', category: 'Stadium', tags: ['sports', 'arena', 'football'], isAnimated: false, isDownloadable: true, date: new Date('2025-07-22'), likes: 7200, isFavorite: false },
-    { id: 'm9', title: 'Free Voxel Tree Pack', author: 'Community', price: 0, thumbnail: 'https://placehold.co/400x225/4CAF50/FFFFFF?text=Free+Trees', category: 'Home', tags: ['free', 'voxel', 'nature'], isAnimated: false, isDownloadable: true, date: new Date('2025-07-15'), likes: 8900, isFavorite: false },
-    { id: 'm10', title: 'Animated Fire Particle', author: 'Community', price: 0, thumbnail: 'https://placehold.co/400x225/F44336/FFFFFF?text=Free+Fire', category: 'Venues', tags: ['free', 'vfx', 'animated'], isAnimated: true, isDownloadable: true, date: new Date('2025-07-18'), likes: 12500, isFavorite: false },
+    {
+        id: '1',
+        title: 'Lakeside Cabin',
+        author: 'John Doe',
+        category: 'Home',
+        rating: 4.8,
+        reviews: 583,
+        price: 249,
+        isFavorite: false,
+        isDownloadable: true,
+        isAnimated: false,
+        likes: 1200,
+        date: new Date('2023-01-15T10:00:00Z'),
+        image: "https://placehold.co/600x400/1f2937/d1d5db?text=Lakeside+Cabin",
+        description: "A cozy lakeside cabin perfect for a tranquil metaverse escape.",
+        technicalInfo: [
+            { label: 'File Format', value: 'FBX, OBJ' },
+            { label: 'Polygons', value: '50,000' },
+            { label: 'Vertices', value: '65,000' },
+            { label: 'Textures', value: '4K PBR' },
+            { label: 'License', value: 'Standard Royalty-Free' }
+        ],
+        downloadFormats: [
+            { format: 'FBX', size: '125 MB', downloadUrl: '#' },
+            { format: 'OBJ', size: '110 MB', downloadUrl: '#' },
+            { format: 'GLTF', size: '95 MB', downloadUrl: '#' }
+        ],
+        comments: [],
+        photos: [
+            "https://placehold.co/1200x800/1f2937/d1d5db?text=Lakeside+Cabin+01",
+            "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Lakeside+Cabin+02",
+            "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Lakeside+Cabin+03"
+        ]
+    },
+    {
+        id: '2',
+        title: 'Cyberpunk Alley',
+        author: 'Jane Smith',
+        category: 'Sci-Fi',
+        rating: 4.9,
+        reviews: 875,
+        price: 499,
+        isFavorite: false,
+        isDownloadable: true,
+        isAnimated: true,
+        likes: 1500,
+        date: new Date('2023-02-20T10:00:00Z'),
+        image: "https://placehold.co/600x400/1f2937/d1d5db?text=Cyberpunk+Alley",
+        description: "A neon-soaked cyberpunk street scene with dynamic animations.",
+        technicalInfo: [
+            { label: 'File Format', value: 'FBX, GLB' },
+            { label: 'Polygons', value: '150,000' },
+            { label: 'Vertices', value: '180,000' },
+            { label: 'Textures', value: '8K PBR' },
+            { label: 'License', value: 'Extended Commercial' }
+        ],
+        downloadFormats: [
+            { format: 'FBX', size: '345 MB', downloadUrl: '#' },
+            { format: 'GLB', size: '280 MB', downloadUrl: '#' },
+            { format: 'UnityPackage', size: '410 MB', downloadUrl: '#' }
+        ],
+        comments: [],
+        photos: [
+            "https://placehold.co/1200x800/1f2937/d1d5db?text=Cyberpunk+Alley+01",
+            "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Cyberpunk+Alley+02",
+            "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Cyberpunk+Alley+03"
+        ]
+    },
+    {
+        id: '3',
+        title: 'Medieval Castle',
+        author: 'Alice Johnson',
+        category: 'Fantasy',
+        rating: 4.7,
+        reviews: 312,
+        price: 349,
+        isFavorite: false,
+        isDownloadable: false,
+        isAnimated: false,
+        likes: 900,
+        date: new Date('2023-03-10T10:00:00Z'),
+        image: "https://placehold.co/600x400/1f2937/d1d5db?text=Medieval+Castle",
+        description: "An intricate medieval castle with full interior and exterior details.",
+        technicalInfo: [
+            { label: 'File Format', value: 'OBJ, DAE' },
+            { label: 'Polygons', value: '85,000' },
+            { label: 'Vertices', value: '95,000' },
+            { label: 'Textures', value: '4K PBR' },
+            { label: 'License', value: 'Standard Royalty-Free' }
+        ],
+        downloadFormats: [
+            { format: 'OBJ', size: '215 MB', downloadUrl: '#' },
+            { format: 'DAE', size: '190 MB', downloadUrl: '#' }
+        ],
+        comments: [],
+        photos: [
+            "https://placehold.co/1200x800/1f2937/d1d5db?text=Medieval+Castle+01",
+            "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Medieval+Castle+02",
+            "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Medieval+Castle+03"
+        ]
+    },
+    {
+        id: '4',
+        title: 'Urban Office',
+        author: 'Bob Williams',
+        category: 'Office',
+        rating: 4.5,
+        reviews: 450,
+        price: 199,
+        isFavorite: false,
+        isDownloadable: true,
+        isAnimated: false,
+        likes: 750,
+        date: new Date('2023-04-05T10:00:00Z'),
+        image: "https://placehold.co/600x400/1f2937/d1d5db?text=Urban+Office",
+        description: "A modern, open-plan office space with custom props.",
+        technicalInfo: [
+            { label: 'File Format', value: 'FBX, GLB' },
+            { label: 'Polygons', value: '60,000' },
+            { label: 'Vertices', value: '72,000' },
+            { label: 'Textures', value: '2K PBR' },
+            { label: 'License', value: 'Standard Royalty-Free' }
+        ],
+        downloadFormats: [
+            { format: 'FBX', size: '98 MB', downloadUrl: '#' },
+            { format: 'GLB', size: '75 MB', downloadUrl: '#' }
+        ],
+        comments: [],
+        photos: [
+            "https://placehold.co/1200x800/1f2937/d1d5db?text=Urban+Office+01",
+            "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Urban+Office+02",
+            "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Urban+Office+03"
+        ]
+    },
+    {
+        id: '5',
+        title: 'Industrial Warehouse',
+        author: 'Charlie Brown',
+        category: 'Warehouse',
+        rating: 4.6,
+        reviews: 210,
+        price: 299,
+        isFavorite: false,
+        isDownloadable: true,
+        isAnimated: false,
+        likes: 600,
+        date: new Date('2023-05-12T10:00:00Z'),
+        image: "https://placehold.co/600x400/1f2937/d1d5db?text=Industrial+Warehouse",
+        description: "A large, detailed warehouse with industrial machinery and props.",
+        technicalInfo: [
+            { label: 'File Format', value: 'FBX, OBJ' },
+            { label: 'Polygons', value: '110,000' },
+            { label: 'Vertices', value: '135,000' },
+            { label: 'Textures', value: '4K PBR' },
+            { label: 'License', value: 'Standard Royalty-Free' }
+        ],
+        downloadFormats: [
+            { format: 'FBX', size: '205 MB', downloadUrl: '#' },
+            { format: 'OBJ', size: '188 MB', downloadUrl: '#' }
+        ],
+        comments: [],
+        photos: [
+            "https://placehold.co/1200x800/1f2937/d1d5db?text=Industrial+Warehouse+01",
+            "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Industrial+Warehouse+02",
+            "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Industrial+Warehouse+03"
+        ]
+    },
+    {
+        id: '6',
+        title: 'Tropical Beach',
+        author: 'Diana Prince',
+        category: 'Nature',
+        rating: 4.9,
+        reviews: 1100,
+        price: 599,
+        isFavorite: true,
+        isDownloadable: true,
+        isAnimated: true,
+        likes: 2100,
+        date: new Date('2023-06-30T10:00:00Z'),
+        image: "https://placehold.co/600x400/1f2937/d1d5db?text=Tropical+Beach",
+        description: "A stunning tropical beach environment with realistic water and foliage.",
+        technicalInfo: [
+            { label: 'File Format', value: 'GLB' },
+            { label: 'Polygons', value: '175,000' },
+            { label: 'Vertices', value: '200,000' },
+            { label: 'Textures', value: '8K PBR' },
+            { label: 'License', value: 'Extended Commercial' }
+        ],
+        downloadFormats: [
+            { format: 'GLB', size: '315 MB', downloadUrl: '#' }
+        ],
+        comments: [],
+        photos: [
+            "https://placehold.co/1200x800/1f2937/d1d5db?text=Tropical+Beach+01",
+            "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Tropical+Beach+02",
+            "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Tropical+Beach+03"
+        ]
+    },
 ];
 
 const myListedTwinsJson: BaseItem[] = [
-    { id: 't1', title: 'Modern Mansion Exterior', author: 'Simon Prusin', price: 135.00, thumbnail: 'https://placehold.co/400x225/9C27B0/FFFFFF?text=Mansion', category: 'Mansion', tags: ['modern', 'luxury', 'exterior'], isAnimated: false, isDownloadable: true, date: new Date('2025-07-18'), likes: 980, isFavorite: false },
-    { id: 't2', title: 'Ancient Temple Ruins', author: 'Simon Prusin', price: 75.00, thumbnail: 'https://placehold.co/400x225/CDDC39/000000?text=Ruins', category: 'Building', tags: ['ancient', 'ruins', 'jungle'], isAnimated: false, isDownloadable: true, date: new Date('2025-06-30'), likes: 1500, isFavorite: true },
-    { id: 't3', title: 'Smart Factory Floor', author: 'Simon Prusin', price: 165.00, thumbnail: 'https://placehold.co/400x225/009688/FFFFFF?text=Factory', category: 'Factory', tags: ['iot', 'industrial', 'automation'], isAnimated: true, isDownloadable: true, date: new Date('2024-11-30'), likes: 2100, isFavorite: false },
+    {
+        id: 'ml1',
+        title: 'My First Home',
+        author: 'You',
+        category: 'Home',
+        rating: 0,
+        reviews: 0,
+        price: 0,
+        isFavorite: false,
+        isDownloadable: true,
+        isAnimated: false,
+        likes: 0,
+        date: new Date('2023-09-01T10:00:00Z'),
+        image: "https://placehold.co/600x400/1f2937/d1d5db?text=My+First+Home",
+        description: "A digital twin of my own home, ready for sharing.",
+        technicalInfo: [
+            { label: 'File Format', value: 'FBX, GLB' },
+            { label: 'Polygons', value: '30,000' },
+            { label: 'Vertices', value: '35,000' },
+            { label: 'Textures', value: '2K PBR' },
+            { label: 'License', value: 'Personal Use' }
+        ],
+        downloadFormats: [
+            { format: 'FBX', size: '60 MB', downloadUrl: '#' },
+            { format: 'GLB', size: '52 MB', downloadUrl: '#' }
+        ],
+        comments: [],
+        photos: [
+            "https://placehold.co/1200x800/1f2937/d1d5db?text=My+First+Home+01",
+            "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=My+First+Home+02",
+            "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=My+First+Home+03"
+        ]
+    }
 ];
 
 const assetsJson: BaseItem[] = [
-    { id: 'a1', title: 'Sci-Fi Crate Set', author: 'Alex Doe', price: 15.00, thumbnail: 'https://placehold.co/400x225/9E9E9E/FFFFFF?text=Crates', category: 'Props', tags: ['sci-fi', 'props', 'crate'], isAnimated: false, isDownloadable: true, date: new Date('2025-07-02'), likes: 450, isFavorite: false },
-    { id: 'a2', title: 'PBR Rock Collection', author: 'Brenda Smith', price: 25.00, thumbnail: 'https://placehold.co/400x225/BDBDBD/000000?text=Rocks', category: 'Nature', tags: ['pbr', 'rock', 'nature'], isAnimated: false, isDownloadable: true, date: new Date('2025-07-05'), likes: 1100, isFavorite: false },
-    { id: 'a3', title: 'Free Low-Poly Sword', author: 'Community', price: 0, thumbnail: 'https://placehold.co/400x225/FF9800/FFFFFF?text=Sword', category: 'Weapons', tags: ['free', 'low-poly', 'weapon'], isAnimated: false, isDownloadable: true, date: new Date('2025-07-10'), likes: 5200, isFavorite: false },
-];
-
-const analyticsData = {
-  summary: {
-    totalRevenue: { value: '$4,823', trend: '+12.5%' },
-    totalSales: { value: '345', trend: '+8.1%' },
-    totalClicks: { value: '1.2M', trend: '+21.2%' },
-    avgTimeSpent: { value: '2m 45s', trend: '-2.3%' }
-  },
-  salesRevenueChart: [
-    { name: 'Jan', sales: 4000, revenue: 2400 },
-    { name: 'Feb', sales: 3000, revenue: 1398 },
-    { name: 'Mar', sales: 2000, revenue: 9800 },
-    { name: 'Apr', sales: 2780, revenue: 3908 },
-    { name: 'May', sales: 1890, revenue: 4800 },
-    { name: 'Jun', sales: 2390, revenue: 3800 },
-    { name: 'Jul', sales: 3490, revenue: 4300 },
-  ]
-};
-
-const apiUsageData = {
-    summary: {
-        totalRequests: { value: "1.4M", trend: "+5.2%" },
-        dataProcessed: { value: "25.6 GB", trend: "+3.8%" },
-        successfulRequests: { value: "99.8%", trend: null },
-        errorRate: { value: "0.2%", trend: null }
-    },
-    callsPerDayChart: (() => {
-        const data = [];
-        for (let i = 29; i >= 0; i--) {
-            data.push({
-                day: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                requests: Math.floor(Math.random() * 50000) + 10000,
-            });
-        }
-        return data;
-    })()
-};
-
-
-const SIDEBAR_CONFIG = [
     {
-        title: null,
-        items: [
-            { view: 'updates', text: 'Pending updates', icon: Download, badgeCount: 2 },
+        id: 'a1',
+        title: 'Vintage Chair',
+        author: 'Eve Davis',
+        category: 'Props',
+        rating: 4.7,
+        reviews: 150,
+        price: 25,
+        isFavorite: false,
+        isDownloadable: true,
+        isAnimated: false,
+        likes: 400,
+        date: new Date('2023-07-01T10:00:00Z'),
+        image: "https://placehold.co/600x400/1f2937/d1d5db?text=Vintage+Chair",
+        description: "A detailed 3D model of a vintage wooden chair.",
+        technicalInfo: [
+            { label: 'File Format', value: 'OBJ, GLB' },
+            { label: 'Polygons', value: '2,500' },
+            { label: 'Vertices', value: '3,000' },
+            { label: 'Textures', value: '2K PBR' },
+            { label: 'License', value: 'Standard Royalty-Free' }
+        ],
+        downloadFormats: [
+            { format: 'OBJ', size: '15 MB', downloadUrl: '#' },
+            { format: 'GLB', size: '10 MB', downloadUrl: '#' }
+        ],
+        comments: [],
+        photos: [
+            "https://placehold.co/1200x800/1f2937/d1d5db?text=Vintage+Chair+01",
+            "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Vintage+Chair+02",
+            "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Vintage+Chair+03"
         ]
     },
     {
-        title: 'Workspace',
-        items: [
-            { view: 'dashboard', text: 'Digital Twins', icon: Briefcase },
-            { view: 'templates', text: 'Templates', icon: LayoutTemplate },
-            { view: 'members', text: 'Members', icon: Users },
-            { view: 'integrations', text: 'Integrations', icon: Puzzle },
-        ]
-    },
-    {
-        title: 'Marketplace',
-        items: [
-            { view: 'marketplace', text: 'Marketplace', icon: Store },
-            { view: 'yourtwins', text: 'Your Twins', icon: Briefcase },
-            { view: 'analytics', text: 'Analytics', icon: BarChart2 },
-        ]
-    },
-    {
-        title: 'API',
-        items: [
-            { view: 'api', text: 'Keys', icon: KeyRound },
-            { view: 'apiguide', text: 'Guide', icon: BookOpen },
-            { view: 'apiusage', text: 'Usage', icon: BarChart2 },
-        ]
-    },
-    {
-        title: 'Account',
-        items: [
-            { view: 'profile', text: 'Profile', icon: User },
-            { view: 'settings', text: 'Settings', icon: Settings },
-            { view: 'plans', text: 'Plans', icon: CreditCard },
+        id: 'a2',
+        title: 'Assault Rifle',
+        author: 'Frank Miller',
+        category: 'Weapons',
+        rating: 4.9,
+        reviews: 300,
+        price: 75,
+        isFavorite: true,
+        isDownloadable: true,
+        isAnimated: true,
+        likes: 800,
+        date: new Date('2023-08-01T10:00:00Z'),
+        image: "https://placehold.co/600x400/1f2937/d1d5db?text=Assault+Rifle",
+        description: "A highly detailed and animated 3D model of an assault rifle.",
+        technicalInfo: [
+            { label: 'File Format', value: 'FBX, GLB' },
+            { label: 'Polygons', value: '15,000' },
+            { label: 'Vertices', value: '18,000' },
+            { label: 'Textures', value: '4K PBR' },
+            { label: 'License', value: 'Extended Commercial' }
+        ],
+        downloadFormats: [
+            { format: 'FBX', size: '45 MB', downloadUrl: '#' },
+            { format: 'GLB', size: '38 MB', downloadUrl: '#' }
+        ],
+        comments: [],
+        photos: [
+            "https://placehold.co/1200x800/1f2937/d1d5db?text=Assault+Rifle+01",
+            "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Assault+Rifle+02",
+            "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Assault+Rifle+03"
         ]
     }
 ];
 
 
-
-
-
-// --- Helper Functions ---
-const generateTwinxId = (): string => {
-    const randomPart = [...Array(16)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-    return `twinx_${randomPart}`;
-};
-
-// --- Component Prop Interfaces ---
-
-interface NavHeaderProps {
-    text: string;
-    isSidebarExpanded: boolean;
-}
-
-interface NavItemProps {
-    icon: React.ComponentType<LucideProps>;
-    text: string;
-    view: string;
-    badgeCount?: number;
-    isSidebarExpanded: boolean;
-    currentView: string;
-    handleNavigate: (view: string) => void;
-}
-
-interface NewProjectModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    userId: string | null;
-    showNotification: (message: string) => void;
-}
-
-interface DeleteConfirmationModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    title: string;
-    text: string;
-}
-
-interface EditKeyModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSave: (id: number, name: string) => void;
-    apiKey: ApiKey | null;
-}
-
-
-// --- 3D Viewport Component ---
-const ThreeViewport: FC = () => {
-    const mountRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        let animationFrameId: number;
-        const currentMount = mountRef.current;
-        let renderer: any, gimbalRenderer: any, controls: any;
-
-        const init = (): (() => void) | void => {
-            if (typeof window.THREE === 'undefined' || !currentMount) {
-                console.error("THREE.js or mount point not available.");
-                return;
-            }
-
-            const setupScene = (): (() => void) => {
-                if (typeof window.THREE.OrbitControls === 'undefined') {
-                    console.error("OrbitControls not loaded correctly.");
-                    return () => {};
-                }
-
-                const scene = new window.THREE.Scene();
-                scene.background = new window.THREE.Color(0x1C1C1E);
-                const camera = new window.THREE.PerspectiveCamera(75, currentMount.clientWidth / currentMount.clientHeight, 0.1, 1000);
-                renderer = new window.THREE.WebGLRenderer({ antialias: true });
-                
-                renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
-                currentMount.appendChild(renderer.domElement);
-
-                controls = new window.THREE.OrbitControls(camera, renderer.domElement);
-                controls.enableDamping = true;
-                controls.dampingFactor = 0.05;
-                controls.screenSpacePanning = false;
-                controls.minDistance = 3;
-                controls.maxDistance = 10;
-
-                const geometry = new window.THREE.BoxGeometry(1, 1, 1);
-                const material = new window.THREE.MeshStandardMaterial({ color: 0x6366F1 });
-                const cube = new window.THREE.Mesh(geometry, material);
-                scene.add(cube);
-                
-                const gridHelper = new window.THREE.GridHelper(10, 10, 0x444444, 0x444444);
-                scene.add(gridHelper);
-
-                const ambientLight = new window.THREE.AmbientLight(0xffffff, 0.5);
-                scene.add(ambientLight);
-                const pointLight = new window.THREE.PointLight(0xffffff, 0.8);
-                pointLight.position.set(5, 5, 5);
-                scene.add(pointLight);
-
-                camera.position.z = 5;
-
-                const gimbalScene = new window.THREE.Scene();
-                const gimbalCamera = new window.THREE.PerspectiveCamera(50, 1, 0.1, 10);
-                gimbalRenderer = new window.THREE.WebGLRenderer({ alpha: true, antialias: true });
-                gimbalRenderer.setSize(80, 80);
-                gimbalRenderer.domElement.style.position = 'absolute';
-                gimbalRenderer.domElement.style.top = '10px';
-                gimbalRenderer.domElement.style.right = '10px';
-                currentMount.appendChild(gimbalRenderer.domElement);
-
-                const axesHelper = new window.THREE.AxesHelper(2);
-                gimbalScene.add(axesHelper);
-
-                const animate = () => {
-                    animationFrameId = requestAnimationFrame(animate);
-                    cube.rotation.x += 0.005;
-                    cube.rotation.y += 0.005;
-                    if (controls) controls.update();
-                    
-                    gimbalCamera.position.copy(camera.position);
-                    gimbalCamera.position.sub(controls.target);
-                    gimbalCamera.position.setLength(3);
-                    gimbalCamera.lookAt(gimbalScene.position);
-
-                    if (renderer) renderer.render(scene, camera);
-                    if (gimbalRenderer) gimbalRenderer.render(gimbalScene, gimbalCamera);
-                };
-                animate();
-
-                const handleResize = () => {
-                    if (!currentMount || !renderer) return;
-                    camera.aspect = currentMount.clientWidth / currentMount.clientHeight;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
-                };
-                window.addEventListener('resize', handleResize);
-                
-                return () => {
-                    window.removeEventListener('resize', handleResize);
-                };
-            };
-
-            if (window.THREE && window.THREE.OrbitControls) {
-                return setupScene();
-            } else {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';
-                script.id = 'orbit-controls-script';
-                script.onload = setupScene;
-                script.onerror = () => console.error("Failed to load OrbitControls script.");
-
-                if (!document.getElementById(script.id)) {
-                    document.body.appendChild(script);
-                }
-
-                return () => {
-                    const existingScript = document.getElementById(script.id);
-                    if (existingScript) {
-                        document.body.removeChild(existingScript);
-                    }
-                };
-            }
-        };
-
-        const cleanupScene = init();
-
-        return () => {
-            cancelAnimationFrame(animationFrameId);
-            if (controls) controls.dispose();
-            if (renderer) renderer.dispose();
-            if (gimbalRenderer) gimbalRenderer.dispose();
-            if (currentMount) {
-                while (currentMount.firstChild) {
-                    currentMount.removeChild(currentMount.firstChild);
-                }
-            }
-            if (typeof cleanupScene === 'function') {
-                cleanupScene();
-            }
-        };
-    }, []);
-
-    return <div ref={mountRef} className="w-full h-full relative" />;
-};
-
-
-
-
-
-const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId, showNotification }) => {
-    const [title, setTitle] = useState<string>('');
-    const [videoFile, setVideoFile] = useState<File | null>(null);
-    const [thumbnail, setThumbnail] = useState<string>('');
-    const [videoUrl, setVideoUrl] = useState<string>('');
-    const [twinxid, setTwinxid] = useState<string>('');
-    const [isGenerating, setIsGenerating] = useState<boolean>(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    useEffect(() => {
-        if (isOpen) {
-            setTwinxid(generateTwinxId());
-        } else {
-            setTitle(''); setVideoFile(null); setThumbnail(''); setTwinxid(''); setVideoUrl('');
-        }
-    }, [isOpen]);
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file && file.type.startsWith('video/')) {
-            setVideoFile(file);
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                setVideoUrl(event.target?.result as string);
-            };
-            reader.readAsDataURL(file);
-            generateThumbnail(file);
-        } else {
-            showNotification("Please select a valid video file.");
-        }
-    };
-
-    const generateThumbnail = (file: File) => {
-        setIsGenerating(true);
-        const video = document.createElement('video');
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        video.src = URL.createObjectURL(file);
-        video.muted = true;
-        video.onloadedmetadata = () => { video.currentTime = video.duration / 2; };
-        video.onseeked = () => {
-            if (context) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                setThumbnail(canvas.toDataURL('image/jpeg', 0.8));
-            }
-            setIsGenerating(false);
-            URL.revokeObjectURL(video.src);
-        };
-        video.onerror = () => {
-            setIsGenerating(false); setThumbnail('');
-            showNotification("Could not generate thumbnail from this video.");
-            URL.revokeObjectURL(video.src);
-        };
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!title || !videoFile || !userId) {
-            showNotification("Please provide a title and a video file."); return;
-        }
-        
-        onClose();
-
-        const newProject = {
-            title, twinxid, thumbnail, videoUrl, isFavorite: false, isPublished: false, currentStep: 0,
-            createdAt: new Date(), updatedAt: new Date(),
-        };
-        try {
-            const projectsCollectionPath = `/artifacts/${appId}/users/${userId}/projects`;
-            await addDoc(collection(db, projectsCollectionPath), newProject);
-            showNotification("Digital Twin created successfully!");
-        } catch (error) {
-            console.error("Error creating Digital Twin:", error);
-            showNotification("Failed to create Digital Twin.");
-        }
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div className="bg-[#262629] rounded-lg shadow-xl w-full max-w-lg border border-[#3A3A3C] transform transition-all scale-95 animate-scale-in">
-                <div className="flex justify-between items-center p-4 border-b border-[#3A3A3C]">
-                    <h3 className="text-xl font-bold text-white">Create New Digital Twin</h3>
-                    <button onClick={onClose} className="text-[#A0A0A5] hover:text-white"><X size={24} /></button>
-                </div>
-                <form onSubmit={handleSubmit}>
-                    <div className="p-6 space-y-4">
-                        <div>
-                            <label htmlFor="title" className="block text-sm font-medium text-white mb-1">Digital Twin Title</label>
-                            <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} required
-                                   className="w-full bg-[#1C1C1E] border border-[#3A3A3C] rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-white mb-1">Upload Video</label>
-                            <div onClick={() => fileInputRef.current?.click()}
-                                 className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-[#3A3A3C] border-dashed rounded-md cursor-pointer hover:border-[#6366F1]">
-                                <div className="space-y-1 text-center">
-                                    {thumbnail ? <img src={thumbnail} alt="Video preview" className="mx-auto h-24 rounded-md" /> : isGenerating ? <p className="text-[#A0A0A5]">Generating preview...</p> : <UploadCloud className="mx-auto h-12 w-12 text-[#A0A0A5]" />}
-                                    <div className="flex text-sm text-[#A0A0A5]"><p className="pl-1">{videoFile ? videoFile.name : 'Click to upload or drag and drop'}</p></div>
-                                    <p className="text-xs text-[#A0A0A5]">MP4, MOV, AVI up to 5GB</p>
-                                </div>
-                            </div>
-                            <input ref={fileInputRef} id="file-upload" name="file-upload" type="file" accept="video/*" className="sr-only" onChange={handleFileChange} />
-                        </div>
-                        <div>
-                            <label htmlFor="twinxid" className="block text-sm font-medium text-white mb-1">Twinx ID</label>
-                            <input type="text" id="twinxid" value={twinxid} readOnly className="w-full bg-[#1C1C1E] border border-[#3A3A3C] rounded-md px-3 py-2 text-[#A0A0A5] font-mono" />
-                        </div>
-                    </div>
-                    <div className="p-4 bg-[#1C1C1E] border-t border-[#3A3A3C] flex justify-end gap-3">
-                        <button type="button" onClick={onClose} className="bg-[#3A3A3C] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#4A4A4C] transition-colors">Cancel</button>
-                        <button type="submit" disabled={isGenerating || !thumbnail} className="bg-[#6366F1] text-white font-semibold py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors disabled:bg-opacity-50 disabled:cursor-not-allowed">
-                            {isGenerating ? 'Processing...' : 'Create Digital Twin'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
-
-
-
 const MarketplacePageTwinx = () => {
-
 
     // --- State Management ---
     const [userId, setUserId] = useState<string | null>(null);
@@ -544,29 +379,7 @@ const MarketplacePageTwinx = () => {
         setCurrentView('twinDetail');
     };
 
-    const MarketplaceCard = ({ item, onFavoriteToggle, onSelect }: {item: BaseItem, onFavoriteToggle: (id: string) => void, onSelect: (item: BaseItem) => void}) => (
-            <div className="bg-[#262629] rounded-lg overflow-hidden shadow-lg border border-[#3A3A3C] flex flex-col transition-all duration-200 h-full group cursor-pointer" onClick={() => onSelect(item)}>
-                <div className="relative">
-                    <img src={item.thumbnail} alt={item.title} className="w-full h-48 object-cover" />
-                </div>
-                <div className="p-4 flex-grow flex flex-col">
-                    <h3 className="font-bold text-white pr-2 flex-1">{item.title}</h3>
-                    <div className="flex items-center justify-between text-sm text-[#A0A0A5] mt-2">
-                        <span>by {item.author}</span>
-                        <span>{item.price === 0 ? 'Free' : `$${item.price.toFixed(2)}`}</span>
-                    </div>
-                </div>
-            </div>
-    );
-
-    const NetworkUserCard = ({ user }: { user: AppUser }) => (
-            <div className="bg-[#262629] rounded-lg p-4 text-center border border-[#3A3A3C] hover:border-[#4A4A4C] transition-colors">
-                <img src={user.avatar} alt={user.name} className="w-20 h-20 rounded-full mx-auto mb-4" />
-                <h3 className="font-bold text-white">{user.name}</h3>
-                <p className="text-sm text-[#A0A0A5]">{user.email}</p>
-            </div>
-    );
-
+    // --- marketplace main page ---
     const MarketplacePage = ({ friends, onSelectTwin }: { friends: AppUser[], onSelectTwin: (twin: BaseItem) => void }) => {
         const [listings, setListings] = useState<BaseItem[]>(marketplaceListingsJson);
         const [assets, setAssets] = useState<BaseItem[]>(assetsJson);
@@ -789,7 +602,6 @@ const MarketplacePageTwinx = () => {
         </div>
     );
 
-
     //     prints the pages
     const renderCurrentView = () => {
         const views: {[key: string]: React.ReactNode} = {
@@ -797,7 +609,6 @@ const MarketplacePageTwinx = () => {
         };
         return views['marketplace'];
     };
-
 
     return (
         <section id="marketplace" className="pt-32 pb-24" style={{display:'block', marginTop:'-180px', background:'rgb(9 10 20)'}}>
@@ -829,5 +640,6 @@ const MarketplacePageTwinx = () => {
             </div>
         </section>
     );
+
 };
 export default MarketplacePageTwinx;

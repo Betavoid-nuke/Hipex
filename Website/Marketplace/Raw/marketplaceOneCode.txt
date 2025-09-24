@@ -1,0 +1,1304 @@
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+
+// Mock data to make the app self-contained
+const allData = {
+    marketplaceListings: [
+        {
+            id: '1',
+            title: 'Lakeside Cabin',
+            author: 'John Doe',
+            category: 'Home',
+            rating: 4.8,
+            reviews: 583,
+            price: 249,
+            isFavorite: false,
+            isDownloadable: true,
+            isAnimated: false,
+            likes: 1200,
+            date: new Date('2023-01-15T10:00:00Z'),
+            image: "https://placehold.co/600x400/1f2937/d1d5db?text=Lakeside+Cabin",
+            description: "A cozy lakeside cabin perfect for a tranquil metaverse escape.",
+            technicalInfo: [
+                { label: 'File Format', value: 'FBX, OBJ' },
+                { label: 'Polygons', value: '50,000' },
+                { label: 'Vertices', value: '65,000' },
+                { label: 'Textures', value: '4K PBR' },
+                { label: 'License', value: 'Standard Royalty-Free' }
+            ],
+            downloadFormats: [
+                { format: 'FBX', size: '125 MB', downloadUrl: '#' },
+                { format: 'OBJ', size: '110 MB', downloadUrl: '#' },
+                { format: 'GLTF', size: '95 MB', downloadUrl: '#' }
+            ],
+            comments: [],
+            photos: [
+                "https://placehold.co/1200x800/1f2937/d1d5db?text=Lakeside+Cabin+01",
+                "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Lakeside+Cabin+02",
+                "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Lakeside+Cabin+03"
+            ]
+        },
+        {
+            id: '2',
+            title: 'Cyberpunk Alley',
+            author: 'Jane Smith',
+            category: 'Sci-Fi',
+            rating: 4.9,
+            reviews: 875,
+            price: 499,
+            isFavorite: false,
+            isDownloadable: true,
+            isAnimated: true,
+            likes: 1500,
+            date: new Date('2023-02-20T10:00:00Z'),
+            image: "https://placehold.co/600x400/1f2937/d1d5db?text=Cyberpunk+Alley",
+            description: "A neon-soaked cyberpunk street scene with dynamic animations.",
+            technicalInfo: [
+                { label: 'File Format', value: 'FBX, GLB' },
+                { label: 'Polygons', value: '150,000' },
+                { label: 'Vertices', value: '180,000' },
+                { label: 'Textures', value: '8K PBR' },
+                { label: 'License', value: 'Extended Commercial' }
+            ],
+            downloadFormats: [
+                { format: 'FBX', size: '345 MB', downloadUrl: '#' },
+                { format: 'GLB', size: '280 MB', downloadUrl: '#' },
+                { format: 'UnityPackage', size: '410 MB', downloadUrl: '#' }
+            ],
+            comments: [],
+            photos: [
+                "https://placehold.co/1200x800/1f2937/d1d5db?text=Cyberpunk+Alley+01",
+                "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Cyberpunk+Alley+02",
+                "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Cyberpunk+Alley+03"
+            ]
+        },
+        {
+            id: '3',
+            title: 'Medieval Castle',
+            author: 'Alice Johnson',
+            category: 'Fantasy',
+            rating: 4.7,
+            reviews: 312,
+            price: 349,
+            isFavorite: false,
+            isDownloadable: false,
+            isAnimated: false,
+            likes: 900,
+            date: new Date('2023-03-10T10:00:00Z'),
+            image: "https://placehold.co/600x400/1f2937/d1d5db?text=Medieval+Castle",
+            description: "An intricate medieval castle with full interior and exterior details.",
+            technicalInfo: [
+                { label: 'File Format', value: 'OBJ, DAE' },
+                { label: 'Polygons', value: '85,000' },
+                { label: 'Vertices', value: '95,000' },
+                { label: 'Textures', value: '4K PBR' },
+                { label: 'License', value: 'Standard Royalty-Free' }
+            ],
+            downloadFormats: [
+                { format: 'OBJ', size: '215 MB', downloadUrl: '#' },
+                { format: 'DAE', size: '190 MB', downloadUrl: '#' }
+            ],
+            comments: [],
+            photos: [
+                "https://placehold.co/1200x800/1f2937/d1d5db?text=Medieval+Castle+01",
+                "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Medieval+Castle+02",
+                "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Medieval+Castle+03"
+            ]
+        },
+        {
+            id: '4',
+            title: 'Urban Office',
+            author: 'Bob Williams',
+            category: 'Office',
+            rating: 4.5,
+            reviews: 450,
+            price: 199,
+            isFavorite: false,
+            isDownloadable: true,
+            isAnimated: false,
+            likes: 750,
+            date: new Date('2023-04-05T10:00:00Z'),
+            image: "https://placehold.co/600x400/1f2937/d1d5db?text=Urban+Office",
+            description: "A modern, open-plan office space with custom props.",
+            technicalInfo: [
+                { label: 'File Format', value: 'FBX, GLB' },
+                { label: 'Polygons', value: '60,000' },
+                { label: 'Vertices', value: '72,000' },
+                { label: 'Textures', value: '2K PBR' },
+                { label: 'License', value: 'Standard Royalty-Free' }
+            ],
+            downloadFormats: [
+                { format: 'FBX', size: '98 MB', downloadUrl: '#' },
+                { format: 'GLB', size: '75 MB', downloadUrl: '#' }
+            ],
+            comments: [],
+            photos: [
+                "https://placehold.co/1200x800/1f2937/d1d5db?text=Urban+Office+01",
+                "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Urban+Office+02",
+                "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Urban+Office+03"
+            ]
+        },
+        {
+            id: '5',
+            title: 'Industrial Warehouse',
+            author: 'Charlie Brown',
+            category: 'Warehouse',
+            rating: 4.6,
+            reviews: 210,
+            price: 299,
+            isFavorite: false,
+            isDownloadable: true,
+            isAnimated: false,
+            likes: 600,
+            date: new Date('2023-05-12T10:00:00Z'),
+            image: "https://placehold.co/600x400/1f2937/d1d5db?text=Industrial+Warehouse",
+            description: "A large, detailed warehouse with industrial machinery and props.",
+            technicalInfo: [
+                { label: 'File Format', value: 'FBX, OBJ' },
+                { label: 'Polygons', value: '110,000' },
+                { label: 'Vertices', value: '135,000' },
+                { label: 'Textures', value: '4K PBR' },
+                { label: 'License', value: 'Standard Royalty-Free' }
+            ],
+            downloadFormats: [
+                { format: 'FBX', size: '205 MB', downloadUrl: '#' },
+                { format: 'OBJ', size: '188 MB', downloadUrl: '#' }
+            ],
+            comments: [],
+            photos: [
+                "https://placehold.co/1200x800/1f2937/d1d5db?text=Industrial+Warehouse+01",
+                "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Industrial+Warehouse+02",
+                "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Industrial+Warehouse+03"
+            ]
+        },
+        {
+            id: '6',
+            title: 'Tropical Beach',
+            author: 'Diana Prince',
+            category: 'Nature',
+            rating: 4.9,
+            reviews: 1100,
+            price: 599,
+            isFavorite: true,
+            isDownloadable: true,
+            isAnimated: true,
+            likes: 2100,
+            date: new Date('2023-06-30T10:00:00Z'),
+            image: "https://placehold.co/600x400/1f2937/d1d5db?text=Tropical+Beach",
+            description: "A stunning tropical beach environment with realistic water and foliage.",
+            technicalInfo: [
+                { label: 'File Format', value: 'GLB' },
+                { label: 'Polygons', value: '175,000' },
+                { label: 'Vertices', value: '200,000' },
+                { label: 'Textures', value: '8K PBR' },
+                { label: 'License', value: 'Extended Commercial' }
+            ],
+            downloadFormats: [
+                { format: 'GLB', size: '315 MB', downloadUrl: '#' }
+            ],
+            comments: [],
+            photos: [
+                "https://placehold.co/1200x800/1f2937/d1d5db?text=Tropical+Beach+01",
+                "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Tropical+Beach+02",
+                "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Tropical+Beach+03"
+            ]
+        },
+    ],
+    assets: [
+        {
+            id: 'a1',
+            title: 'Vintage Chair',
+            author: 'Eve Davis',
+            category: 'Props',
+            rating: 4.7,
+            reviews: 150,
+            price: 25,
+            isFavorite: false,
+            isDownloadable: true,
+            isAnimated: false,
+            likes: 400,
+            date: new Date('2023-07-01T10:00:00Z'),
+            image: "https://placehold.co/600x400/1f2937/d1d5db?text=Vintage+Chair",
+            description: "A detailed 3D model of a vintage wooden chair.",
+            technicalInfo: [
+                { label: 'File Format', value: 'OBJ, GLB' },
+                { label: 'Polygons', value: '2,500' },
+                { label: 'Vertices', value: '3,000' },
+                { label: 'Textures', value: '2K PBR' },
+                { label: 'License', value: 'Standard Royalty-Free' }
+            ],
+            downloadFormats: [
+                { format: 'OBJ', size: '15 MB', downloadUrl: '#' },
+                { format: 'GLB', size: '10 MB', downloadUrl: '#' }
+            ],
+            comments: [],
+            photos: [
+                "https://placehold.co/1200x800/1f2937/d1d5db?text=Vintage+Chair+01",
+                "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Vintage+Chair+02",
+                "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Vintage+Chair+03"
+            ]
+        },
+        {
+            id: 'a2',
+            title: 'Assault Rifle',
+            author: 'Frank Miller',
+            category: 'Weapons',
+            rating: 4.9,
+            reviews: 300,
+            price: 75,
+            isFavorite: true,
+            isDownloadable: true,
+            isAnimated: true,
+            likes: 800,
+            date: new Date('2023-08-01T10:00:00Z'),
+            image: "https://placehold.co/600x400/1f2937/d1d5db?text=Assault+Rifle",
+            description: "A highly detailed and animated 3D model of an assault rifle.",
+            technicalInfo: [
+                { label: 'File Format', value: 'FBX, GLB' },
+                { label: 'Polygons', value: '15,000' },
+                { label: 'Vertices', value: '18,000' },
+                { label: 'Textures', value: '4K PBR' },
+                { label: 'License', value: 'Extended Commercial' }
+            ],
+            downloadFormats: [
+                { format: 'FBX', size: '45 MB', downloadUrl: '#' },
+                { format: 'GLB', size: '38 MB', downloadUrl: '#' }
+            ],
+            comments: [],
+            photos: [
+                "https://placehold.co/1200x800/1f2937/d1d5db?text=Assault+Rifle+01",
+                "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=Assault+Rifle+02",
+                "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=Assault+Rifle+03"
+            ]
+        }
+    ],
+    myListedTwins: [
+        {
+            id: 'ml1',
+            title: 'My First Home',
+            author: 'You',
+            category: 'Home',
+            rating: 0,
+            reviews: 0,
+            price: 0,
+            isFavorite: false,
+            isDownloadable: true,
+            isAnimated: false,
+            likes: 0,
+            date: new Date('2023-09-01T10:00:00Z'),
+            image: "https://placehold.co/600x400/1f2937/d1d5db?text=My+First+Home",
+            description: "A digital twin of my own home, ready for sharing.",
+            technicalInfo: [
+                { label: 'File Format', value: 'FBX, GLB' },
+                { label: 'Polygons', value: '30,000' },
+                { label: 'Vertices', value: '35,000' },
+                { label: 'Textures', value: '2K PBR' },
+                { label: 'License', value: 'Personal Use' }
+            ],
+            downloadFormats: [
+                { format: 'FBX', size: '60 MB', downloadUrl: '#' },
+                { format: 'GLB', size: '52 MB', downloadUrl: '#' }
+            ],
+            comments: [],
+            photos: [
+                "https://placehold.co/1200x800/1f2937/d1d5db?text=My+First+Home+01",
+                "https://placehold.co/1200x800/2f3a4b/a1b2c3?text=My+First+Home+02",
+                "https://placehold.co/1200x800/3f4b5c/b1c3d4?text=My+First+Home+03"
+            ]
+        }
+    ],
+    users: [
+        { uid: 'u1', username: 'Alex', profileImage: 'https://placehold.co/100x100/1f2937/d1d5db?text=A' },
+        { uid: 'u2', username: 'Sarah', profileImage: 'https://placehold.co/100x100/1f2937/d1d5db?text=S' },
+        { uid: 'u3', username: 'Mike', profileImage: 'https://placehold.co/100x100/1f2937/d1d5db?text=M' }
+    ]
+};
+
+
+// Helper components
+const MarketplaceCard = ({ item, onFavoriteToggle, onSelect }) => {
+    return (
+        <div className="marketplace-card" onClick={() => onSelect(item)}>
+            <div className="marketplace-image-container">
+                <img src={item.image} alt={item.title} className="marketplace-image" />
+                <button
+                    className="marketplace-favorite-btn"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onFavoriteToggle(item.id);
+                    }}
+                >
+                    <svg className={`w-5 h-5 transition-transform duration-300 ${item.isFavorite ? 'text-red-500' : 'text-white'}`} fill="currentColor" viewBox="0 0 24 24">
+                        {item.isFavorite ? (
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5A5.48 5.48 0 017.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3A5.48 5.48 0 0122 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        ) : (
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5A5.48 5.48 0 017.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3A5.48 5.48 0 0122 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" strokeWidth="2" fill="none" />
+                        )}
+                    </svg>
+                </button>
+            </div>
+            <div className="p-4">
+                <h3 className="marketplace-title">{item.title}</h3>
+                <p className="marketplace-author">{item.author}</p>
+                <div className="flex items-center gap-1 my-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <svg key={i} className={`w-4 h-4 ${i < Math.floor(item.rating) ? 'text-yellow-400' : 'text-gray-600'}`} fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                        </svg>
+                    ))}
+                    <span className="text-sm text-gray-400 ml-1">{item.rating}</span>
+                    <span className="text-sm text-gray-500 ml-1">({item.reviews})</span>
+                </div>
+                <div className="flex justify-between items-center mt-4">
+                    <p className="text-lg font-bold text-white">${item.price}</p>
+                    <button className="marketplace-buy-btn">
+                        Buy Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const NetworkUserCard = ({ user }) => {
+    return (
+        <div className="network-card">
+            <img src={user.profileImage} alt={user.username} className="network-avatar" />
+            <h3 className="network-username">{user.username}</h3>
+        </div>
+    );
+};
+
+const DownloadModal = ({ twin, onClose }) => {
+    return (
+        <div className="modal-backdrop">
+            <div className="download-modal">
+                <div className="modal-header">
+                    <h3 className="text-2xl font-bold">Download "{twin.title}"</h3>
+                    <button onClick={onClose} className="modal-close-btn">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <p className="text-gray-400 mb-6">Choose from the available file formats to download your digital twin.</p>
+                
+                <table className="download-table">
+                    <thead>
+                        <tr>
+                            <th className="download-table-header">Format</th>
+                            <th className="download-table-header text-right">File Size</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {twin.downloadFormats.map((item, i) => (
+                            <tr key={i} className="download-table-row">
+                                <td className="download-table-cell">{item.format}</td>
+                                <td className="download-table-cell text-right text-gray-400">{item.size}</td>
+                                <td className="download-table-cell text-right">
+                                    <a href={item.downloadUrl} download className="download-btn" onClick={onClose}>
+                                        Download
+                                    </a>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+const PhotoViewer = ({ photos }) => {
+    const [mainPhotoIndex, setMainPhotoIndex] = useState(0);
+
+    const handleNext = () => {
+        setMainPhotoIndex(prevIndex => (prevIndex + 1) % photos.length);
+    };
+
+    const handlePrev = () => {
+        setMainPhotoIndex(prevIndex => (prevIndex - 1 + photos.length) % photos.length);
+    };
+    
+    // Fallback if no photos are available
+    if (!photos || photos.length === 0) {
+        return (
+            <div className="photo-viewer-container bg-[#262629] text-gray-500 flex items-center justify-center">
+                <span>No photos available</span>
+            </div>
+        );
+    }
+
+    return (
+        <div className="photo-viewer-container">
+            <div className="main-photo-wrapper">
+                <img src={photos[mainPhotoIndex]} alt="3D asset preview" className="main-photo" />
+                {photos.length > 1 && (
+                    <>
+                        <button onClick={handlePrev} className="photo-nav-btn left-0">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <button onClick={handleNext} className="photo-nav-btn right-0">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </>
+                )}
+            </div>
+            {photos.length > 1 && (
+                <div className="dots-container">
+                    {photos.map((_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => setMainPhotoIndex(index)}
+                            className={`nav-dot ${mainPhotoIndex === index ? 'active-dot' : ''}`}
+                        ></button>
+                    ))}
+                </div>
+            )}
+            
+        </div>
+    );
+};
+
+const UploadPage = ({ onBack, onUpload }) => {
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [photos, setPhotos] = useState([]);
+    const [technicalInfo, setTechnicalInfo] = useState([{ label: '', value: '' }]);
+    const [downloadFormats, setDownloadFormats] = useState([{ format: '', size: '', downloadUrl: '' }]);
+    const [modelFile, setModelFile] = useState(null);
+
+    const handleAddPhoto = () => setPhotos(prev => [...prev, '']);
+    const handlePhotoChange = (index, value) => {
+        const newPhotos = [...photos];
+        newPhotos[index] = value;
+        setPhotos(newPhotos);
+    };
+
+    const handleAddTechInfo = () => setTechnicalInfo(prev => [...prev, { label: '', value: '' }]);
+    const handleTechInfoChange = (index, field, value) => {
+        const newInfo = [...technicalInfo];
+        newInfo[index][field] = value;
+        setTechnicalInfo(newInfo);
+    };
+
+    const handleAddDownloadFormat = () => setDownloadFormats(prev => [...prev, { format: '', size: '', downloadUrl: '' }]);
+    const handleDownloadFormatChange = (index, field, value) => {
+        const newFormats = [...downloadFormats];
+        newFormats[index][field] = value;
+        setDownloadFormats(newFormats);
+    };
+
+    const handleFileChange = (e) => {
+        setModelFile(e.target.files[0]);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const newAsset = {
+            id: Date.now().toString(),
+            title,
+            description,
+            photos,
+            technicalInfo,
+            downloadFormats,
+            modelFile, // This would be a File object, not a URL
+            // Add other fields like author, etc.
+        };
+        onUpload(newAsset);
+        onBack();
+    };
+
+    return (
+        <div className="p-4 sm:p-6 lg:p-8 text-white bg-[#1C1C1E]">
+            <div className="max-w-7xl mx-auto">
+                <button onClick={onBack} className="flex items-center gap-2 text-[#A0A0A5] hover:text-white mb-6">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Back to Marketplace
+                </button>
+                <h1 className="text-3xl sm:text-4xl font-bold text-white mb-8">Upload New Digital Twin</h1>
+                <form onSubmit={handleSubmit} className="space-y-8">
+                    <div>
+                        <label className="block text-sm font-semibold mb-2">Title</label>
+                        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full bg-[#262629] border border-[#3A3A3C] rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-semibold mb-2">Description</label>
+                        <textarea value={description} onChange={(e) => setDescription(e.target.value)} required className="w-full bg-[#262629] border border-[#3A3A3C] rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]" rows="4"></textarea>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-semibold mb-2">Photos (URLs)</label>
+                        <div className="space-y-2">
+                            {photos.map((photo, index) => (
+                                <input key={index} type="url" value={photo} onChange={(e) => handlePhotoChange(index, e.target.value)} placeholder="Image URL" className="w-full bg-[#262629] border border-[#3A3A3C] rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                            ))}
+                        </div>
+                        <button type="button" onClick={handleAddPhoto} className="mt-2 text-indigo-400 hover:underline">Add another photo URL</button>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-semibold mb-2">3D Model File</label>
+                        <input type="file" onChange={handleFileChange} className="w-full text-white" />
+                        {modelFile && <p className="text-gray-400 mt-2">File selected: {modelFile.name}</p>}
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold mb-4">Technical Details</h3>
+                        <div className="space-y-4">
+                            {technicalInfo.map((info, index) => (
+                                <div key={index} className="flex gap-4">
+                                    <input type="text" value={info.label} onChange={(e) => handleTechInfoChange(index, 'label', e.target.value)} placeholder="Label (e.g., Polygons)" className="w-1/2 bg-[#262629] border border-[#3A3A3C] rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                                    <input type="text" value={info.value} onChange={(e) => handleTechInfoChange(index, 'value', e.target.value)} placeholder="Value (e.g., 50,000)" className="w-1/2 bg-[#262629] border border-[#3A3A3C] rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                                </div>
+                            ))}
+                        </div>
+                        <button type="button" onClick={handleAddTechInfo} className="mt-2 text-indigo-400 hover:underline">Add another detail</button>
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold mb-4">Download Formats</h3>
+                        <div className="space-y-4">
+                            {downloadFormats.map((format, index) => (
+                                <div key={index} className="grid grid-cols-3 gap-4">
+                                    <input type="text" value={format.format} onChange={(e) => handleDownloadFormatChange(index, 'format', e.target.value)} placeholder="Format (e.g., FBX)" className="bg-[#262629] border border-[#3A3A3C] rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                                    <input type="text" value={format.size} onChange={(e) => handleDownloadFormatChange(index, 'size', e.target.value)} placeholder="Size (e.g., 125 MB)" className="bg-[#262629] border border-[#3A3A3C] rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                                    <input type="url" value={format.downloadUrl} onChange={(e) => handleDownloadFormatChange(index, 'downloadUrl', e.target.value)} placeholder="Download URL" className="bg-[#262629] border border-[#3A3A3C] rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
+                                </div>
+                            ))}
+                        </div>
+                        <button type="button" onClick={handleAddDownloadFormat} className="mt-2 text-indigo-400 hover:underline">Add another format</button>
+                    </div>
+                    <button type="submit" className="w-full py-3 rounded-full bg-[#6366F1] hover:bg-[#4f46e5] text-white font-semibold transition-colors duration-300">
+                        Upload Asset
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+
+// Main Marketplace Page Component
+const MarketplacePage = ({ friends, onSelectTwin, onFavoriteToggle, initialListings, initialAssets, initialListed, onNavigateToUpload }) => {
+    const [listings, setListings] = useState(initialListings);
+    const [assets, setAssets] = useState(initialAssets);
+    const [filteredListings, setFilteredListings] = useState([]);
+    const [marketSearchTerm, setMarketSearchTerm] = useState('');
+    const [category, setCategory] = useState('All');
+    const [date, setDate] = useState('All');
+    const [licenses, setLicenses] = useState({ downloadable: false, animated: false, free: false });
+    const [sortBy, setSortBy] = useState('relevance');
+    const [activeTab, setActiveTab] = useState('Store');
+    const [favoriteSubTab, setFavoriteSubTab] = useState('Digital Twins');
+
+    const myListedModels = useMemo(() => initialListed, [initialListed]);
+
+    const handleResetFilters = () => {
+        setMarketSearchTerm('');
+        setCategory('All');
+        setDate('All');
+        setLicenses({ downloadable: false, animated: false, free: false });
+        setSortBy('relevance');
+    };
+
+    useEffect(() => {
+        let sourceData;
+        if (activeTab === 'My Listed Twins') sourceData = myListedModels;
+        else if (activeTab === '3D Assets') sourceData = assets;
+        else if (activeTab === 'Store') sourceData = listings;
+        else if (activeTab === 'Favorites') {
+            const allItems = [...listings, ...assets, ...myListedModels];
+            sourceData = allItems.filter(item => item.isFavorite);
+        } else {
+            setFilteredListings([]);
+            return;
+        }
+
+        let result = sourceData.filter(item =>
+            item.title.toLowerCase().includes(marketSearchTerm.toLowerCase()) ||
+            item.author.toLowerCase().includes(marketSearchTerm.toLowerCase())
+        );
+
+        if (category !== 'All') result = result.filter(item => item.category === category);
+        if (licenses.downloadable) result = result.filter(item => item.isDownloadable);
+        if (licenses.animated) result = result.filter(item => item.isAnimated);
+        if (licenses.free) result = result.filter(item => item.price === 0);
+
+        result.sort((a, b) => {
+            switch (sortBy) {
+                case 'likes': return b.likes - a.likes;
+                case 'date': return b.date.getTime() - a.date.getTime();
+                case 'price_asc': return a.price - b.price;
+                case 'price_desc': return b.price - a.price;
+                default: return b.likes - a.likes;
+            }
+        });
+
+        setFilteredListings(result);
+    }, [marketSearchTerm, category, licenses, sortBy, listings, assets, activeTab, myListedModels]);
+
+    const categories = useMemo(() => [
+        'All', 'Home', 'Office', 'Warehouse', 'Factory', 'Hall', 'Hotel',
+        'Lobby', 'Stadium', 'Building', 'Venues', 'Penthouse', 'Mansion',
+        'Props', 'Nature', 'Weapons'
+    ], []);
+
+    const renderContent = () => {
+        switch (activeTab) {
+            case 'My Network':
+                return (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                        {friends.map(friend => <NetworkUserCard key={friend.uid} user={friend} />)}
+                    </div>
+                );
+            case 'Favorites':
+                const favoriteTwins = [...listings, ...assets, ...myListedModels].filter(item => item.isFavorite);
+                const itemsToShow = favoriteSubTab === 'Digital Twins' ? favoriteTwins : assets.filter(item => item.isFavorite);
+                return (
+                    <div>
+                        <div className="flex items-center gap-4 mb-6 border-b border-[#3A3A3C]">
+                            <button onClick={() => setFavoriteSubTab('Digital Twins')} className={`py-2 px-1 ${favoriteSubTab === 'Digital Twins' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>Digital Twins</button>
+                            <button onClick={() => setFavoriteSubTab('Assets')} className={`py-2 px-1 ${favoriteSubTab === 'Assets' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>Assets</button>
+                        </div>
+                        {itemsToShow.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {itemsToShow.map(item => <MarketplaceCard key={item.id} item={item} onFavoriteToggle={onFavoriteToggle} onSelect={onSelectTwin} />)}
+                            </div>
+                        ) : (
+                            <div className="text-center py-20 text-[#A0A0A5] border-2 border-dashed border-[#3A3A3C] rounded-lg">
+                                <h3 className="mt-4 text-xl font-bold text-white">No Favorites Yet</h3>
+                                <p>Click the heart icon on any item to add it to your favorites.</p>
+                            </div>
+                        )}
+                    </div>
+                );
+            case 'Store':
+            case '3D Assets':
+            case 'My Listed Twins':
+            default:
+                return (
+                    <>
+                        {filteredListings.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {filteredListings.map(item => <MarketplaceCard key={item.id} item={item} onFavoriteToggle={onFavoriteToggle} onSelect={onSelectTwin} />)}
+                            </div>
+                        ) : (
+                            <div className="text-center py-20 text-[#A0A0A5] col-span-full">
+                                <h3 className="mt-4 text-xl font-bold text-white">No results found</h3>
+                                <p>Try adjusting your search or filters to find what you're looking for.</p>
+                            </div>
+                        )}
+                    </>
+                );
+        }
+    };
+
+    return (
+        <div className="p-4 sm:p-6 lg:p-8 text-white bg-[#1C1C1E]">
+            <div className="max-w-7xl mx-auto">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-4 mb-8">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-white">TwinX Marketplace</h1>
+                </div>
+
+                <div className="border-b border-[#3A3A3C] flex items-center justify-between gap-6 overflow-x-auto whitespace-nowrap mb-6">
+                    <div className="flex items-center gap-6">
+                        <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('Store'); handleResetFilters(); }} className={`py-3 ${activeTab === 'Store' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>Store</a>
+                        <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('3D Assets'); handleResetFilters(); }} className={`py-3 ${activeTab === '3D Assets' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>3D Assets</a>
+                        <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('My Listed Twins'); handleResetFilters(); }} className={`py-3 ${activeTab === 'My Listed Twins' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>My Listed Twins</a>
+                        <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('Favorites'); handleResetFilters(); }} className={`py-3 ${activeTab === 'Favorites' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>Favorites</a>
+                        <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('My Network'); handleResetFilters(); }} className={`py-3 ${activeTab === 'My Network' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>My Network</a>
+                    </div>
+                    <div className="flex items-center gap-4 ml-auto">
+                      <form className="flex-shrink-0 flex gap-2 w-full max-w-xs" onSubmit={(e) => e.preventDefault()}>
+                        <div className="relative flex-grow">
+                            <input
+                                type="text"
+                                placeholder="Search"
+                                value={marketSearchTerm}
+                                onChange={e => setMarketSearchTerm(e.target.value)}
+                                className="w-full bg-[#262629] border border-[#3A3A3C] rounded-full pl-10 pr-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
+                            />
+                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                        </div>
+                      </form>
+                      <button onClick={onNavigateToUpload} className="bg-[#6366F1] text-white px-4 py-2 rounded-full font-semibold text-sm hover:bg-[#4f46e5] transition-colors duration-300 flex items-center gap-2">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"></path></svg>
+                        Upload
+                      </button>
+                    </div>
+                </div>
+
+                {(activeTab === 'Store' || activeTab === 'My Listed Twins' || activeTab === '3D Assets' || activeTab === 'Favorites') && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 text-sm flex-wrap">
+                        <div className="flex items-center gap-4 flex-wrap">
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs uppercase text-[#8A8A8E]">Category</span>
+                                <div className="relative">
+                                    <select value={category} onChange={e => setCategory(e.target.value)} className="bg-[#262629] border border-[#3A3A3C] rounded-md pl-3 pr-8 py-1 text-white focus:outline-none focus:ring-1 focus:ring-[#6366F1] appearance-none">
+                                        {categories.map(c => <option key={c} value={c} className="bg-[#262629] text-white">{c}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs uppercase text-[#8A8A8E]">Date</span>
+                                <div className="relative">
+                                    <select value={date} onChange={e => setDate(e.target.value)} className="bg-[#262629] border border-[#3A3A3C] rounded-md pl-3 pr-8 py-1 text-white focus:outline-none focus:ring-1 focus:ring-[#6366F1] appearance-none">
+                                        <option value="All" className="bg-[#262629] text-white">All time</option>
+                                        <option value="week" className="bg-[#262629] text-white">This week</option>
+                                        <option value="month" className="bg-[#262629] text-white">This month</option>
+                                        <option value="year" className="bg-[#262629] text-white">This year</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" checked={licenses.downloadable} onChange={e => setLicenses({ ...licenses, downloadable: e.target.checked })} className="form-checkbox bg-[#3A3A3C] border-[#8A8A8E] rounded text-indigo-500 focus:ring-indigo-500" />
+                                    <span>Downloadable</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" checked={licenses.animated} onChange={e => setLicenses({ ...licenses, animated: e.target.checked })} className="form-checkbox bg-[#3A3A3C] border-[#8A8A8E] rounded text-indigo-500 focus:ring-indigo-500" />
+                                    <span>Animated</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" checked={licenses.free} onChange={e => setLicenses({ ...licenses, free: e.target.checked })} className="form-checkbox bg-[#3A3A3C] border-[#8A8A8E] rounded text-indigo-500 focus:ring-indigo-500" />
+                                    <span>Free</span>
+                                </label>
+                            </div>
+                            <button onClick={handleResetFilters} className="text-indigo-400 hover:underline">Reset</button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs uppercase text-[#8A8A8E]">Sort By</span>
+                            <div className="relative">
+                                <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="bg-[#262629] border border-[#3A3A3C] rounded-md pl-3 pr-8 py-1 text-white focus:outline-none focus:ring-1 focus:ring-[#6366F1] appearance-none">
+                                    <option value="relevance" className="bg-[#262629] text-white">Relevance</option>
+                                    <option value="likes" className="bg-[#262629] text-white">Most Liked</option>
+                                    <option value="date" className="bg-[#262629] text-white">Newest</option>
+                                    <option value="price_asc" className="bg-[#262629] text-white">Price: Low to High</option>
+                                    <option value="price_desc" className="bg-[#262629] text-white">Price: High to Low</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {renderContent()}
+            </div>
+        </div>
+    );
+};
+
+// Detailed View Component
+const DetailedView = ({ twin, onBack, onFavoriteToggle, onSelectTwin, userId, onCommentAdded }) => {
+    const [newComment, setNewComment] = useState('');
+    const [showDownloadModal, setShowDownloadModal] = useState(false);
+    
+    // Use a unique profile image for the user
+    const userProfileImage = "https://placehold.co/40x40/1f2937/d1d5db?text=You";
+    const user = { userId: "user-123", profileImage: userProfileImage };
+    
+    const allItems = useMemo(() => [...allData.marketplaceListings, ...allData.assets, ...allData.myListedTwins], []);
+    
+    // Logic for similar items
+    const similarItems = useMemo(() => {
+        let itemsByCat = allItems.filter(item => item.id !== twin.id && item.category === twin.category);
+        if (itemsByCat.length === 0) {
+            // Fallback: get any 4 other items if no similar ones are found
+            itemsByCat = allItems.filter(item => item.id !== twin.id).sort(() => 0.5 - Math.random());
+        }
+        return itemsByCat.slice(0, 4);
+    }, [twin, allItems]);
+
+    // Function to add a new comment to the local state
+    const handleAddComment = (e) => {
+        e.preventDefault();
+        if (!newComment.trim()) return;
+
+        const newCommentObject = {
+            id: Date.now().toString(),
+            userId: user.userId,
+            text: newComment,
+            timestamp: new Date().toISOString(),
+        };
+
+        onCommentAdded(twin.id, newCommentObject);
+        setNewComment('');
+    };
+
+    return (
+        <div className="p-4 sm:p-6 lg:p-8 text-white bg-[#1C1C1E]">
+            <div className="max-w-7xl mx-auto">
+                <button onClick={onBack} className="flex items-center gap-2 text-[#A0A0A5] hover:text-white mb-6">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Back to Marketplace
+                </button>
+                <div className="flex flex-col lg:flex-row gap-8">
+                    <div className="flex-grow">
+                        <div className="bg-[#262629] rounded-xl overflow-hidden aspect-video">
+                            <PhotoViewer photos={twin.photos} />
+                        </div>
+                        <div className="mt-6">
+                            <div className="flex justify-between items-center">
+                                <h1 className="text-3xl font-bold text-white mb-2">{twin.title}</h1>
+                                <button onClick={() => setShowDownloadModal(true)} className="download-asset-btn">
+                                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                    Download
+                                </button>
+                            </div>
+                            <p className="text-lg text-[#A0A0A5] mb-4">by {twin.author}</p>
+                            <div className="flex items-center gap-1 my-2">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                    <svg key={i} className={`w-4 h-4 ${i < Math.floor(twin.rating) ? 'text-yellow-400' : 'text-gray-600'}`} fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                    </svg>
+                                ))}
+                                <span className="text-sm text-gray-400 ml-1">{twin.rating}</span>
+                                <span className="text-sm text-gray-500 ml-1">({twin.reviews})</span>
+                            </div>
+                            <p className="text-[#A0A0A5] mt-4">{twin.description}</p>
+                            
+                            <div className="mt-6">
+                                <details className="technical-details">
+                                    <summary className="technical-details-summary">
+                                        Technical Information
+                                        <svg className="technical-details-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </summary>
+                                    <table className="technical-details-table">
+                                        <tbody>
+                                            {twin.technicalInfo.map((info, i) => (
+                                                <tr key={i}>
+                                                    <td className="technical-details-label">{info.label}</td>
+                                                    <td className="technical-details-value">{info.value}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </details>
+                            </div>
+
+                        </div>
+                        <div className="mt-8 border-t border-[#3A3A3C] pt-6">
+                            <h3 className="text-xl font-bold text-white mb-6">{twin.comments.length} Comments</h3>
+                            
+                            <form onSubmit={handleAddComment} className="flex items-start gap-4 mb-8">
+                                <img src={userProfileImage} alt="User" className="w-10 h-10 rounded-full flex-shrink-0" />
+                                <div className="flex-grow border-b border-[#3A3A3C] focus-within:border-white transition-colors duration-300">
+                                    <input
+                                        type="text"
+                                        value={newComment}
+                                        onChange={(e) => setNewComment(e.target.value)}
+                                        placeholder="Add a public comment..."
+                                        className="w-full bg-transparent border-none text-white focus:outline-none py-2"
+                                    />
+                                </div>
+                                <button type="submit" disabled={!newComment.trim()} className={`bg-[#6366F1] text-white font-semibold py-2 px-6 rounded-full transition-colors duration-300 ${!newComment.trim() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-opacity-90'}`}>
+                                    Comment
+                                </button>
+                            </form>
+
+                            <div className="space-y-6">
+                                {twin.comments.map((comment) => (
+                                    <div key={comment.id} className="flex items-start gap-4">
+                                        <img src="https://placehold.co/40x40/1f2937/d1d5db?text=U" alt="User" className="w-10 h-10 rounded-full flex-shrink-0" />
+                                        <div>
+                                            <p className="font-semibold text-sm text-white">{comment.userId} <span className="text-xs text-gray-500 ml-2">{new Date(comment.timestamp).toLocaleString()}</span></p>
+                                            <p className="text-gray-300 mt-1">{comment.text}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                                {twin.comments.length === 0 && (
+                                    <div className="text-center py-4 text-[#A0A0A5]">
+                                        <p>No comments yet. Be the first to comment!</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="w-full lg:w-1/4">
+                        <h3 className="text-2xl font-bold text-white mb-4">Similar Assets</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            {similarItems.length > 0 ? (
+                                similarItems.map(item => (
+                                    <MarketplaceCard key={item.id} item={item} onFavoriteToggle={onFavoriteToggle} onSelect={onSelectTwin} />
+                                ))
+                            ) : (
+                                <p className="text-[#A0A0A5]">No similar assets found.</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {showDownloadModal && (
+                <DownloadModal twin={twin} onClose={() => setShowDownloadModal(false)} />
+            )}
+        </div>
+    );
+};
+
+// Main App Component
+const App = () => {
+    const [selectedTwin, setSelectedTwin] = useState(null);
+    const [listings, setListings] = useState(allData.marketplaceListings);
+    const [assets, setAssets] = useState(allData.assets);
+    const [myListedTwins, setMyListedTwins] = useState(allData.myListedTwins);
+    const [userId, setUserId] = useState('user-' + crypto.randomUUID().slice(0, 8)); // Generate a unique ID for the session
+    const [isUploadPage, setIsUploadPage] = useState(false);
+
+    const handleSelectTwin = (twin) => {
+        setSelectedTwin(twin);
+    };
+
+    const handleBackToMarketplace = () => {
+        setSelectedTwin(null);
+        setIsUploadPage(false);
+    };
+
+    const handleFavoriteToggle = (id) => {
+        const updateList = (list) => {
+            return list.map(item => {
+                if (item.id === id) {
+                    return { ...item, isFavorite: !item.isFavorite };
+                }
+                return item;
+            });
+        };
+    
+        setListings(prevListings => updateList(prevListings));
+        setAssets(prevAssets => updateList(prevAssets));
+        setMyListedTwins(prevMyListedTwins => updateList(prevMyListedTwins));
+    
+        // Update the selected twin if it's currently being viewed
+        if (selectedTwin && selectedTwin.id === id) {
+            setSelectedTwin(prevTwin => ({ ...prevTwin, isFavorite: !prevTwin.isFavorite }));
+        }
+    };
+
+    const handleCommentAdded = (twinId, newComment) => {
+      const updateData = (dataArray) => 
+        dataArray.map(item => 
+          item.id === twinId ? { ...item, comments: [...(item.comments || []), newComment] } : item
+        );
+      
+      setListings(prev => updateData(prev));
+      setAssets(prev => updateData(prev));
+      setMyListedTwins(prev => updateData(prev));
+
+      // Also update the selectedTwin state to reflect the new comment
+      setSelectedTwin(prev => prev.id === twinId ? { ...prev, comments: [...(prev.comments || []), newComment] } : prev);
+    };
+
+    const handleNewAssetUpload = (newAsset) => {
+      // For now, we'll add the new asset to the myListedTwins list
+      setMyListedTwins(prev => [...prev, newAsset]);
+    };
+
+    return (
+        <div className="bg-[#1C1C1E] min-h-screen">
+            <style>{`
+                body {
+                    font-family: 'Inter', sans-serif;
+                    background-color: #1C1C1E;
+                    color: white;
+                }
+                .marketplace-card {
+                    background-color: #262629;
+                    border-radius: 0.75rem;
+                    overflow: hidden;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    transition: transform 0.2s, box-shadow 0.2s;
+                    cursor: pointer;
+                    border: 1px solid #3A3A3C;
+                }
+                .marketplace-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+                }
+                .marketplace-image-container {
+                    position: relative;
+                    width: 100%;
+                    padding-top: 66.66%; /* 3:2 Aspect Ratio */
+                    overflow: hidden;
+                }
+                .marketplace-image {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+                .marketplace-favorite-btn {
+                    position: absolute;
+                    top: 0.5rem;
+                    right: 0.5rem;
+                    background-color: rgba(0, 0, 0, 0.5);
+                    border-radius: 9999px;
+                    padding: 0.5rem;
+                }
+                .marketplace-title {
+                    font-size: 1.125rem;
+                    font-weight: 600;
+                    margin-bottom: 0.25rem;
+                }
+                .marketplace-author {
+                    font-size: 0.875rem;
+                    color: #A0A0A5;
+                }
+                .marketplace-buy-btn {
+                    background-color: #6366F1;
+                    color: white;
+                    padding: 0.5rem 1rem;
+                    border-radius: 9999px;
+                    font-weight: 600;
+                    transition: background-color 0.2s;
+                }
+                .marketplace-buy-btn:hover {
+                    background-color: #4f46e5;
+                }
+                .network-card {
+                    background-color: #262629;
+                    padding: 1.5rem;
+                    border-radius: 0.75rem;
+                    text-align: center;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 1rem;
+                    border: 1px solid #3A3A3C;
+                }
+                .network-avatar {
+                    width: 4rem;
+                    height: 4rem;
+                    border-radius: 9999px;
+                    object-fit: cover;
+                }
+                .network-username {
+                    font-size: 1.125rem;
+                    font-weight: 600;
+                }
+                .gradient-text {
+                    background-image: linear-gradient(to right, #6366F1, #A855F7);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                }
+                .technical-details {
+                    background-color: #262629;
+                    border: 1px solid #3A3A3C;
+                    border-radius: 0.75rem;
+                    padding: 1rem;
+                    margin-top: 1.5rem;
+                }
+                .technical-details-summary {
+                    font-weight: 600;
+                    cursor: pointer;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .technical-details-icon {
+                    width: 1.25rem;
+                    height: 1.25rem;
+                    transform: rotate(0deg);
+                    transition: transform 0.3s ease;
+                }
+                .technical-details[open] .technical-details-icon {
+                    transform: rotate(90deg);
+                }
+                .technical-details-table {
+                    width: 100%;
+                    margin-top: 1rem;
+                    border-collapse: collapse;
+                }
+                .technical-details-table tr:nth-child(even) {
+                    background-color: rgba(255, 255, 255, 0.05);
+                }
+                .technical-details-label {
+                    text-align: left;
+                    padding: 0.5rem 0.75rem;
+                    color: #A0A0A5;
+                    font-weight: 400;
+                    width: 40%;
+                }
+                .technical-details-value {
+                    text-align: left;
+                    padding: 0.5rem 0.75rem;
+                    color: #fff;
+                    font-weight: 500;
+                }
+                .download-asset-btn {
+                    display: flex;
+                    align-items: center;
+                    background-color: #6366F1;
+                    color: white;
+                    padding: 0.5rem 1rem;
+                    border-radius: 9999px;
+                    font-weight: 600;
+                    transition: background-color 0.2s;
+                }
+                .download-asset-btn:hover {
+                    background-color: #4f46e5;
+                }
+                .modal-backdrop {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.7);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 100;
+                }
+                .download-modal {
+                    background-color: #1f2024;
+                    padding: 2rem;
+                    border-radius: 1rem;
+                    max-width: 40rem;
+                    width: 100%;
+                    position: relative;
+                    color: white;
+                    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+                }
+                .modal-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1.5rem;
+                }
+                .modal-close-btn {
+                    background: none;
+                    border: none;
+                    color: #A0A0A5;
+                    cursor: pointer;
+                    transition: color 0.2s;
+                }
+                .modal-close-btn:hover {
+                    color: white;
+                }
+                .download-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                .download-table-header {
+                    text-align: left;
+                    padding: 0.75rem 0;
+                    color: #A0A0A5;
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    border-bottom: 1px solid #3A3A3C;
+                }
+                .download-table-row {
+                    border-bottom: 1px solid #3A3A3C;
+                }
+                .download-table-row:last-child {
+                    border-bottom: none;
+                }
+                .download-table-cell {
+                    padding: 1rem 0;
+                }
+                .download-btn {
+                    background-color: #6366F1;
+                    color: white;
+                    padding: 0.5rem 1rem;
+                    border-radius: 9999px;
+                    font-weight: 600;
+                    transition: background-color 0.2s;
+                }
+                .download-btn:hover {
+                    background-color: #4f46e5;
+                }
+                .photo-viewer-container {
+                    position: relative;
+                    width: 100%;
+                    aspect-ratio: 16/9;
+                    background-color: #000;
+                    border-radius: 0.75rem;
+                    overflow: hidden;
+                }
+                .main-photo-wrapper {
+                    position: absolute;
+                    inset: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .main-photo {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                }
+                .photo-nav-btn {
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background-color: rgba(0, 0, 0, 0.5);
+                    color: white;
+                    padding: 0.5rem;
+                    border-radius: 9999px;
+                    cursor: pointer;
+                    z-index: 10;
+                    transition: background-color 0.2s;
+                    border: none;
+                }
+                .photo-nav-btn:hover {
+                    background-color: rgba(0, 0, 0, 0.8);
+                }
+                .photo-nav-btn.left-0 {
+                    left: 1rem;
+                }
+                .photo-nav-btn.right-0 {
+                    right: 1rem;
+                }
+                .dots-container {
+                    position: absolute;
+                    bottom: 1rem;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    display: flex;
+                    gap: 0.5rem;
+                    z-index: 10;
+                }
+                .nav-dot {
+                    width: 8px;
+                    height: 8px;
+                    background-color: rgba(255, 255, 255, 0.5);
+                    border-radius: 9999px;
+                    cursor: pointer;
+                    transition: background-color 0.2s, transform 0.2s;
+                    border: none;
+                }
+                .nav-dot.active-dot {
+                    background-color: white;
+                    transform: scale(1.2);
+                }
+            `}</style>
+            <div className="p-4 bg-[#1C1C1E] text-white">
+                <div className="max-w-7xl mx-auto flex items-center justify-end text-sm text-[#A0A0A5] mb-4">
+                    <span className="font-semibold">Your User ID:</span> {userId}
+                </div>
+            </div>
+            {isUploadPage ? (
+                <UploadPage onBack={handleBackToMarketplace} onUpload={handleNewAssetUpload} />
+            ) : selectedTwin ? (
+                <DetailedView 
+                    twin={selectedTwin} 
+                    onBack={handleBackToMarketplace} 
+                    onFavoriteToggle={handleFavoriteToggle}
+                    onSelectTwin={handleSelectTwin}
+                    userId={userId}
+                    onCommentAdded={handleCommentAdded}
+                />
+            ) : (
+                <MarketplacePage 
+                    friends={allData.users} 
+                    onSelectTwin={handleSelectTwin} 
+                    onFavoriteToggle={handleFavoriteToggle}
+                    initialListings={listings}
+                    initialAssets={assets}
+                    initialListed={myListedTwins}
+                    onNavigateToUpload={() => setIsUploadPage(true)}
+                />
+            )}
+        </div>
+    );
+};
+
+export default App;

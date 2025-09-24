@@ -972,13 +972,6 @@ a {
 body {
     background-color: #fee440;
 }
-svg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-}
 .links {
     position: fixed;
     bottom: 20px;
@@ -1003,3 +996,152 @@ a img.icon {
 
 
 .backdropblur { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background-color: rgba(45, 12, 71, 0.603); backdrop-filter: blur(5px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.marketplace-buy-btn {
+    background-color: #6366F1;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+.marketplace-buy-btn:hover {
+    background-color: #4f46e5;
+}
+.marketplace-card {
+    background-color: #262629;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    border: 1px solid #3A3A3C;
+}
+.marketplace-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+.marketplace-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 66.66%; /* 3:2 Aspect Ratio */
+    overflow: hidden;
+}
+.marketplace-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.marketplace-favorite-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 9999px;
+    padding: 0.5rem;
+}
+.marketplace-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+.marketplace-author {
+    font-size: 0.875rem;
+    color: #A0A0A5;
+}
+.marketplace-buy-btn {
+    background-color: #6366F1;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+.marketplace-buy-btn:hover {
+    background-color: #4f46e5;
+}
+.network-card {
+    background-color: #262629;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid #3A3A3C;
+}
+.network-avatar {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 9999px;
+    object-fit: cover;
+}
+.network-username {
+                    font-size: 1.125rem;
+                    font-weight: 600;
+                }
