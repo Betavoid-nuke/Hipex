@@ -4,6 +4,8 @@ import "../../../app/(twinx)/globals.css";
 import NewProjectModal from '../../Marketplace/Components/NewProjectModelMarketPlace';
 import MarketplaceCard from '../../Marketplace/Components/MarketplaceCard';
 import NetworkUserCard from '../../Marketplace/Components/MarketplaceNetworkCard';
+import UploadPage from '@/Website/Marketplace/Pages/MarketplaceUploadPage';
+import DetailedView from '@/Website/Marketplace/Pages/MarketplaceDetailedPage';
 
 
 // Extend the Window interface to include properties from external scripts
@@ -46,7 +48,7 @@ interface AppUser {
     name: string;
     email: string;
     avatar: string;
-    id?: string; // id is sometimes used interchangeably with uid
+    id: string;
 }
 
 
@@ -358,16 +360,28 @@ const assetsJson: BaseItem[] = [
     }
 ];
 
+const users: AppUser[] = [
+    { uid: 'u1', name: 'Alex', avatar: 'https://placehold.co/100x100/1f2937/d1d5db?text=A', email: '', id: '' },
+    { uid: 'u2', name: 'Sarah', avatar: 'https://placehold.co/100x100/1f2937/d1d5db?text=S', email: '', id: ''  },
+    { uid: 'u3', name: 'Mike', avatar: 'https://placehold.co/100x100/1f2937/d1d5db?text=M', email: '', id: ''  }
+]
+
+
 
 const MarketplacePageTwinx = () => {
 
     // --- State Management ---
-    const [userId, setUserId] = useState<string | null>(null);
-    const [currentView, setCurrentView] = useState<string>('dashboard');
+    const [userId, setUserId] = useState<string>('');
     const [isSidebarExpanded, setIsSidebarExpanded] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [notification, setNotification] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
     const [friends, setFriends] = useState<AppUser[]>([]);
+
+    const [selectedTwin, setSelectedTwin] = useState(null as BaseItem | null);
+    const [isUploadPage, setIsUploadPage] = useState(false);
+    const [myListedTwins, setMyListedTwins] = useState(myListedTwinsJson);
+    const [listings, setListings] = useState(marketplaceListingsJson);
+    const [assets, setAssets] = useState(assetsJson);
 
 
     const showNotification = (message: string) => {
@@ -376,7 +390,7 @@ const MarketplacePageTwinx = () => {
     };
 
     const handleSelectTwin = (twin: BaseItem) => {
-        setCurrentView('twinDetail');
+        setSelectedTwin(twin);
     };
 
     // --- marketplace main page ---
@@ -602,12 +616,49 @@ const MarketplacePageTwinx = () => {
         </div>
     );
 
-    //     prints the pages
+    // --- prints the pages ---
     const renderCurrentView = () => {
         const views: {[key: string]: React.ReactNode} = {
             'marketplace': <MarketplacePage friends={friends} onSelectTwin={handleSelectTwin} />,
         };
         return views['marketplace'];
+    };
+
+    // --- hendlers ---
+    const handleBackToMarketplace = () => {
+        setSelectedTwin(null);
+        setIsUploadPage(false);
+    };
+    
+    const handleNewAssetUpload = (newAsset:any) => {
+      // For now, we'll add the new asset to the myListedTwins list
+      setMyListedTwins(prev => [...prev, newAsset]);
+    };
+
+    const handleFavoriteToggle = (id: string) => {
+      const updateList = (list: BaseItem[]): BaseItem[] => {
+        return list.map((item) =>
+          item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
+        );
+      };
+
+      setListings((prevListings: BaseItem[]) => updateList(prevListings));
+      setAssets((prevAssets: BaseItem[]) => updateList(prevAssets));
+      setMyListedTwins((prevMyListedTwins: BaseItem[]) => updateList(prevMyListedTwins));
+    };
+
+    const handleCommentAdded = (twinId: string, newComment: { user: string; comment: string; date: Date }) => {
+      const updateData = (dataArray: BaseItem[]): BaseItem[] =>
+        dataArray.map(item =>
+          item.id === twinId
+            ? { ...item, comments: [...(item.comments || []), newComment] }
+            : item
+        );
+    
+      setListings(prev => updateData(prev));
+      setAssets(prev => updateData(prev));
+      setMyListedTwins(prev => updateData(prev));
+
     };
 
     return (
@@ -622,10 +673,30 @@ const MarketplacePageTwinx = () => {
                 .form-checkbox:checked { background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e"); }
                 `}
             </style>
-            <div className="min-h-screen">
+            <div className="min-h-screen" style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'space-around'
+            }}>
            
-                <main className={`transition-all duration-300 ease-in-out min-h-screen ${isSidebarExpanded ? 'pl-72' : 'pl-20'}`}>
-                    {renderCurrentView()}
+                <main className={`transition-all duration-300 ease-in-out min-h-screen ${isSidebarExpanded ? 'pl-72' : 'pl-20'}`} style={{padding:'0px', width:'100%'}}>
+                    {isUploadPage ? (
+                        <UploadPage onBack={handleBackToMarketplace} onUpload={handleNewAssetUpload} />
+                    ) : selectedTwin ? (
+                        <DetailedView 
+                            twin={selectedTwin} 
+                            onBack={handleBackToMarketplace} 
+                            onFavoriteToggle={handleFavoriteToggle}
+                            onSelectTwin={handleSelectTwin}
+                            userId={userId}
+                            onCommentAdded={handleCommentAdded}
+                        />
+                    ) : (
+                        <MarketplacePage 
+                            friends={users} 
+                            onSelectTwin={handleSelectTwin}
+                        />
+                    )}
                 </main>
            
                 <NewProjectModal 

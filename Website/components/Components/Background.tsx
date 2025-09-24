@@ -1,8 +1,9 @@
+
 export default function BackgroundMain() {
     return (
         <>
             <div className="backdropblur" style={{zIndex:'1', height:'100%', widows:'100%'}}></div>
-            <div>
+            <div style={{position:'absolute', top:'0', left:'0', width:'100%', height:'100%', overflow:'hidden', zIndex:'0'}}>
 
               {/* Animated Background */}
               <svg preserveAspectRatio="xMidYMid slice" viewBox="10 10 80 80">

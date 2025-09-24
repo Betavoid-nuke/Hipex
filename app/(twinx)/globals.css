@@ -64,3 +64,299 @@
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.marketplace-card {
+    background-color: #262629;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    border: 1px solid #3A3A3C;
+}
+.marketplace-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+.marketplace-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 66.66%; /* 3:2 Aspect Ratio */
+    overflow: hidden;
+}
+.marketplace-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.marketplace-favorite-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 9999px;
+    padding: 0.5rem;
+}
+.marketplace-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+.marketplace-author {
+    font-size: 0.875rem;
+    color: #A0A0A5;
+}
+.marketplace-buy-btn {
+    background-color: #6366F1;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+.marketplace-buy-btn:hover {
+    background-color: #4f46e5;
+}
+.network-card {
+    background-color: #262629;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid #3A3A3C;
+}
+.network-avatar {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 9999px;
+    object-fit: cover;
+}
+.network-username {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+.gradient-text {
+    background-image: linear-gradient(to right, #6366F1, #A855F7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.technical-details {
+    background-color: #262629;
+    border: 1px solid #3A3A3C;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-top: 1.5rem;
+}
+.technical-details-summary {
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.technical-details-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+}
+.technical-details[open] .technical-details-icon {
+    transform: rotate(90deg);
+}
+.technical-details-table {
+    width: 100%;
+    margin-top: 1rem;
+    border-collapse: collapse;
+}
+.technical-details-table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+.technical-details-label {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    color: #A0A0A5;
+    font-weight: 400;
+    width: 40%;
+}
+.technical-details-value {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    color: #fff;
+    font-weight: 500;
+}
+.download-asset-btn {
+    display: flex;
+    align-items: center;
+    background-color: #6366F1;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+.download-asset-btn:hover {
+    background-color: #4f46e5;
+}
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+.download-modal {
+    background-color: #1f2024;
+    padding: 2rem;
+    border-radius: 1rem;
+    max-width: 40rem;
+    width: 100%;
+    position: relative;
+    color: white;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: #A0A0A5;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.modal-close-btn:hover {
+    color: white;
+}
+.download-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.download-table-header {
+    text-align: left;
+    padding: 0.75rem 0;
+    color: #A0A0A5;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-bottom: 1px solid #3A3A3C;
+}
+.download-table-row {
+    border-bottom: 1px solid #3A3A3C;
+}
+.download-table-row:last-child {
+    border-bottom: none;
+}
+.download-table-cell {
+    padding: 1rem 0;
+}
+.download-btn {
+    background-color: #6366F1;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+.download-btn:hover {
+    background-color: #4f46e5;
+}
+.photo-viewer-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background-color: #000;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+.main-photo-wrapper {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.main-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.photo-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    z-index: 10;
+    transition: background-color 0.2s;
+    border: none;
+}
+.photo-nav-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+.photo-nav-btn.left-0 {
+    left: 1rem;
+}
+.photo-nav-btn.right-0 {
+    right: 1rem;
+}
+.dots-container {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+}
+.nav-dot {
+    width: 8px;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    border: none;
+}
+.nav-dot.active-dot {
+    background-color: white;
+    transform: scale(1.2);
+}

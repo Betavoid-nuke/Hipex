@@ -583,14 +583,7 @@ a {
             padding-top: 8rem;
             padding-bottom: 6rem;
         }
-
-        .home-section {
-            text-align: center;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        
         .home-bg {
             position: absolute;
             inset: 0;

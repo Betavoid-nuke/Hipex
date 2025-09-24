@@ -1,5 +1,6 @@
 import BackgroundMain from "../Components/Background";
 import PriceCards from "../Components/PriceCards";
+import "../../../app/(root)/globals.css"
 
 interface HomePageProps {
     onWaitlistClick: () => void;
