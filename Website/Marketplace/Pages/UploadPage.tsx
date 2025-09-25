@@ -99,6 +99,8 @@ const UploadPage: React.FC<UploadPageProps> = ({ onBack, onUpload }) => {
   return (
     <div className="p-4 sm:p-6 lg:p-8 text-white" style={{backgroundColor:'transparent', display:'flex', justifyContent:'center', width:'100%', paddingTop:'20px'}}>
       <div className="max-w-7xl mx-auto" style={{padding:'0px'}}>
+
+        {/* Back to listing button */}
         <button
           onClick={onBack}
           type="button"
@@ -119,10 +121,14 @@ const UploadPage: React.FC<UploadPageProps> = ({ onBack, onUpload }) => {
           </svg>
           Back to Marketplace
         </button>
+
+        {/* heading */}
         <h1 className="text-3xl sm:text-4xl font-bold text-white mb-8">
           Upload New Digital Twin
         </h1>
+
         <form onSubmit={handleSubmit} className="space-y-8">
+          
           {/* Title */}
           <div>
             <label className="block text-sm font-semibold mb-2">Title</label>
@@ -289,6 +295,7 @@ const UploadPage: React.FC<UploadPageProps> = ({ onBack, onUpload }) => {
             Upload Asset
           </button>
         </form>
+
       </div>
     </div>
   );
