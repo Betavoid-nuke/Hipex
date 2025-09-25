@@ -9,7 +9,7 @@ import ContactPage from '@/Website/components/pages/ContactPage';
 import HipexAppsPage from '@/Website/components/pages/HipexAppsPage';
 import HomePage from '@/Website/components/pages/HomePage';
 import MarketplacePage from '@/Website/components/pages/MarketplacePage';
-import MarketplacePageTwinx from '@/Website/components/pages/MarketplacePage_twinx';
+import MarketplacePageTwinx from '@/Website/components/pages/Marketplace';
 import OnePagerPage from '@/Website/components/pages/OnePagerPage';
 import SubscriptionsPage from '@/Website/components/pages/SubscriptionsPage';
 import { useEffect, useState } from 'react';

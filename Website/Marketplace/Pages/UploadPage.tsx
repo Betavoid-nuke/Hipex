@@ -97,8 +97,8 @@ const UploadPage: React.FC<UploadPageProps> = ({ onBack, onUpload }) => {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 text-white bg-[#1C1C1E]">
-      <div className="max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 text-white" style={{backgroundColor:'transparent', display:'flex', justifyContent:'center', width:'100%', paddingTop:'20px'}}>
+      <div className="max-w-7xl mx-auto" style={{padding:'0px'}}>
         <button
           onClick={onBack}
           type="button"
