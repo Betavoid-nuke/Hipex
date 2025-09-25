@@ -448,7 +448,7 @@ const MarketplacePage = ({ friends, onSelectTwin, onNavigateToUpload }: { friend
         switch(activeTab) {
             case 'My Network':
                 return (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6" style={{display:'flex', flexWrap:'wrap', justifyContent:'center'}}>
                         {friends.map(friend => <NetworkUserCard key={friend.uid} user={friend} />)}
                     </div>
                 );
@@ -463,7 +463,7 @@ const MarketplacePage = ({ friends, onSelectTwin, onNavigateToUpload }: { friend
                             <button onClick={() => setFavoriteSubTab('Assets')} className={`py-2 px-1 ${favoriteSubTab === 'Assets' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>Assets</button>
                         </div>
                         {itemsToShow.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" style={{display:'flex', flexWrap:'wrap', justifyContent:'center'}}>
                                 {itemsToShow.map(item => <MarketplaceCard key={item.id} item={item} onFavoriteToggle={toggleListingFavorite} onSelect={onSelectTwin} />)}
                             </div>
                         ) : (
@@ -481,7 +481,7 @@ const MarketplacePage = ({ friends, onSelectTwin, onNavigateToUpload }: { friend
                 return (
                     <>
                         {filteredListings.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" style={{display:'flex', flexWrap:'wrap', justifyContent:'center'}}>
                                 {filteredListings.map(item => <MarketplaceCard key={item.id} item={item} onFavoriteToggle={toggleListingFavorite} onSelect={onSelectTwin} />)}
                             </div>
                         ) : (

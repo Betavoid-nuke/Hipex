@@ -37,7 +37,7 @@ const MarketplaceCard: FC<MarketplaceCardProps> = ({ item, onFavoriteToggle, onS
   console.log(rating, reviews);
 
   return (
-    <div className="marketplace-card" onClick={() => onSelect(item)}>
+    <div className="marketplace-card" onClick={() => onSelect(item)} style={{backgroundColor:'#10121f', border:'none'}}>
             <div className="marketplace-image-container">
                 <img src={item.image} alt={item.title} className="marketplace-image" />
                 <button

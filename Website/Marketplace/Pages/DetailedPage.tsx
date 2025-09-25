@@ -4,6 +4,13 @@ import { assetsJson, marketplaceListingsJson, myListedTwinsJson } from "../Data/
 import PhotoViewer from "../Components/PhotoViewer";
 import DownloadModal from "../Components/DownloadModel";
 import "../../../app/(twinx)/globals.css";
+import RatingStars from "../Components/RatingStarSystem";
+import { Product } from "../types";
+import { BsCart2 } from "react-icons/bs";
+import MarketplaceCart from "../Components/BuyCart";
+import CheckoutModal from "../Components/CheckoutModal";
+import "../Styling/buyandcart.css"
+import BuyCard from "../Components/BuyCard";
 
 // Types
 interface BaseItem {
@@ -74,12 +81,12 @@ const DetailedView: React.FC<DetailedViewProps> = ({
   userId,
   onCommentAdded,
 }) => {
+
   const [newComment, setNewComment] = useState("");
   const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   // Use a unique profile image for the current user
-  const userProfileImage =
-    "https://placehold.co/40x40/1f2937/d1d5db?text=You";
+  const userProfileImage ="https://placehold.co/40x40/1f2937/d1d5db?text=You";
   const user = { userId, profileImage: userProfileImage };
 
   const allItems = useMemo(
@@ -123,14 +130,79 @@ const DetailedView: React.FC<DetailedViewProps> = ({
   const rating = twin.rating || 0;
   const reviews = twin.reviews || 0;
 
+
+
+
+
+
+  // BUY AND CART FUNCTIONALITIES -----------------------------------------------
+  const [cart, setCart] = useState<Product[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // This is your product data. In a real app, this would likely come from an API.
+  const product: Product = {
+    id: 'prod_12345',
+    title: 'Awesome Product',
+    description: 'A digital download for an awesome product.',
+    author: 'AI Creator',
+    price: 29.99,
+    image: 'https://placehold.co/600x400/17151f/A0A0A5?text=Awesome+Product',
+    category: 'Digital',
+    thumbnail: 'https://placehold.co/100x100/17151f/A0A0A5?text=Product'
+  };
+
+  const handleAddToCart = (productToAdd: Product) => {
+    // Prevent adding the same product multiple times
+    if (!cart.find(item => item.id === productToAdd.id)) {
+      setCart(prevCart => [...prevCart, productToAdd]);
+    }
+  };
+
+  const handleRemoveFromCart = (productId: string) => {
+    setCart(prevCart => prevCart.filter(item => item.id !== productId));
+  };
+
+  const handleBuyNow = () => {
+    // If the item isn't in the cart, add it before opening the modal
+    if (!cart.find(item => item.id === product.id)) {
+      setCart([product]);
+    }
+    setIsCartOpen(false);
+    setIsModalOpen(true);
+  };
+  
+  const handleCheckout = () => {
+    setIsCartOpen(false);
+    setIsModalOpen(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    setIsModalOpen(false);
+    setCart([]); // Clear the cart after successful payment
+    alert('Payment successful! (Simulated)');
+  };
+  
+  const isProductInCart = cart.some(item => item.id === product.id);
+
+
+
+
+
   return ( 
     <div className="p-4 sm:p-6 lg:p-8 text-white" style={{backgroundColor:'transparent'}}>
       <div className="max-w-7xl mx-auto">
-        <button
-          onClick={onBack}
-          className="test flex items-center gap-2 text-[#A0A0A5] hover:text-white mb-6"
-        >
-          <svg
+
+        {/* Top section */}
+        <div style={{display:'flex', flexDirection:'row', marginBottom:'20px', justifyContent:'space-between'}}>
+
+          {/* Back Button */}
+          <button
+            onClick={onBack}
+            className="test flex items-center gap-2 text-[#A0A0A5] hover:text-white mb-6"
+            style={{margin:'0px'}}
+          >
+            <svg
             className="w-5 h-5"
             fill="none"
             stroke="currentColor"
@@ -142,17 +214,58 @@ const DetailedView: React.FC<DetailedViewProps> = ({
               strokeWidth="2"
               d="M10 19l-7-7m0 0l7-7m-7 7h18"
             ></path>
-          </svg>
-          Back to Marketplace
-        </button>
+            </svg>
+            Back to Marketplace
+          </button>
+
+
+
+
+
+
+
+
+
+
+
+
+
+          {/* move this to the marketplace page so the cart information is persistent */}
+
+
+          {/* Cart Icon */}
+          <button onClick={() => setIsCartOpen(true)} className="cart-icon" style={{backgroundColor:'#6366f1'}}>
+              {/* You can add your cart icon here, e.g., from a library like react-icons */}
+              <BsCart2 size={22} />
+              {cart.length > 0 && (
+                  <span className="cart-count">{cart.length}</span>
+              )}
+          </button>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Side (Details) */}
           <div className="flex-grow" style={{marginLeft:'50px', marginRight:'50px'}}>
+
             <div className="bg-[#262629] rounded-xl overflow-hidden aspect-video">
               <PhotoViewer photos={twin.photos} />
             </div>
 
+            {/* Technical details */}
             <div className="mt-6">
               <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-white mb-2">
@@ -161,6 +274,7 @@ const DetailedView: React.FC<DetailedViewProps> = ({
                 <button
                   onClick={() => setShowDownloadModal(true)}
                   className="download-asset-btn"
+                  disabled={true}
                 >
                   <svg
                     className="w-5 h-5 mr-2"
@@ -207,9 +321,10 @@ const DetailedView: React.FC<DetailedViewProps> = ({
               <p className="text-[#A0A0A5] mt-4">{twin.description}</p>
 
               {/* Technical Info */}
-              <div className="mt-6">
-                <details className="technical-details">
-                  <summary className="technical-details-summary">
+              <div className="mt-6" style={{backgroundColor:'#10121f'}}>
+                <details className="technical-details" style={{backgroundColor:'#10121f', border:'none'}} open>
+
+                  <summary className="technical-details-summary" style={{backgroundColor:'#10121f'}}>
                     Technical Information
                     <svg
                       className="technical-details-icon"
@@ -225,7 +340,8 @@ const DetailedView: React.FC<DetailedViewProps> = ({
                       ></path>
                     </svg>
                   </summary>
-                  <table className="technical-details-table">
+
+                  <table className="technical-details-table" style={{backgroundColor:'#10121f'}}>
                     <tbody>
                       {twin.technicalInfo?.map((info, i) => (
                         <tr key={i}>
@@ -239,6 +355,7 @@ const DetailedView: React.FC<DetailedViewProps> = ({
                       ))}
                     </tbody>
                   </table>
+
                 </details>
               </div>
             </div>
@@ -308,11 +425,23 @@ const DetailedView: React.FC<DetailedViewProps> = ({
             </div>
           </div>
 
-          {/* Right Side (Similar Items) */}
+          {/* Right Side (Similar Items and Buy now card) */}
           <div className="w-full lg:w-1/4" style={{width:'25%', marginRight:'20px'}}>
-            <h3 className="text-2xl font-bold text-white mb-4">
+
+            <BuyCard 
+              product={product} 
+              onAddToCart={handleAddToCart}
+              onBuyNow={handleBuyNow}
+              isProductInCart={isProductInCart}
+              rating={rating}
+              reviews={reviews.toString()}
+              twin={twin}
+            />
+
+            <h3 className="text-2xl font-bold text-white mb-4" style={{fontSize:'18px', fontWeight:'lighter'}}>
               Similar Assets
             </h3>
+
             <div className="grid grid-cols-1 gap-4">
               {similarItems.length > 0 ? (
                 similarItems.map((item) => (
@@ -327,6 +456,7 @@ const DetailedView: React.FC<DetailedViewProps> = ({
                 <p className="text-[#A0A0A5]">No similar assets found.</p>
               )}
             </div>
+
           </div>
         </div>
       </div>
@@ -337,6 +467,23 @@ const DetailedView: React.FC<DetailedViewProps> = ({
           onClose={() => setShowDownloadModal(false)}
         />
       )}
+
+
+      <MarketplaceCart 
+        isOpen={isCartOpen}
+        cartItems={cart}
+        onClose={() => setIsCartOpen(false)}
+        onRemoveItem={handleRemoveFromCart}
+        onCheckout={handleCheckout}
+      />
+      
+      <CheckoutModal 
+        isOpen={isModalOpen}
+        cartItems={cart}
+        onClose={() => setIsModalOpen(false)}
+        onPaymentSubmit={handlePaymentSuccess}
+      />
+
     </div>
   );
 };
