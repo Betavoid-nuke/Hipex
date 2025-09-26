@@ -30,7 +30,6 @@ import NavHeader from '@/twinx/components/sidebarNavHead';
 import NavItem from '@/twinx/components/SidebarNavIteam';
 import NewProjectModal from '@/twinx/components/NewProjectModel';
 import DeleteConfirmationModal from '@/twinx/components/DeleteConfirmationModal';
-import EditKeyModal from '@/twinx/components/EditKeyModal';
 import ProjectViewPage from '@/twinx/pages/ProjectView';
 import PlaceholderViewPage from '@/twinx/pages/PlaceholderView';
 import PlansPagePage from '@/twinx/pages/PlansPage';
