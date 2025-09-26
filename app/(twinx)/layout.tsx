@@ -1,7 +1,9 @@
 // /app/layout.tsx
 
+import NextTopLoader from 'nextjs-toploader';
 import './globals.css';
 import type { Metadata } from 'next';
+import { Toaster } from 'sonner';
 
 // Metadata for the application
 export const metadata: Metadata = {
@@ -26,7 +28,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <div className="flex gap-2 p-2">
+          <section className="h-full w-full" style={{width:'-webkit-fill-available'}}>
+            <div className="w-full h-full">
+              <NextTopLoader />
+              {children}
+            </div>
+            <Toaster />
+          </section>
+        </div>
       </body>
     </html>
   );

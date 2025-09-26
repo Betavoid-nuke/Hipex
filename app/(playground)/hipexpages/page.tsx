@@ -30,6 +30,7 @@ const SignedOut = dynamic(() => import('@clerk/nextjs').then(mod => mod.SignedOu
 
 // This is the new, robust component that handles the sync logic.
 function UserSyncAndContent() {
+  
   const { isLoaded, isSignedIn } = useUser();
   const { getToken } = useAuth(); // 1. Get the getToken function from the useAuth hook.
 
