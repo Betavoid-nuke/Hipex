@@ -34,3 +34,51 @@ export interface BaseItem {
 export interface cart{
   product: Product;
 }
+
+
+export interface TechnicalInfo {
+  label: string;
+  value: string;
+}
+
+export interface Comment {
+  user: string; comment: string; date: Date
+}
+
+export interface DownloadFormat {
+  format: string;
+  size: string;
+  downloadUrl: string;
+}
+
+export interface Twin {
+  id: string;
+  title: string;
+  description: string;
+  author: string;
+  rating: number;
+  reviews: number;
+  category: string;
+  photos: string[];
+  technicalInfo: TechnicalInfo[];
+  comments: Comment[];
+  downloadFormats?: DownloadFormat[];
+}
+
+export interface AppUser {
+  uid: string;
+  name: string;
+  email: string;
+  avatar: string;
+  id: string;
+}
+
+export type Asset = {
+  id: string;
+  title: string;
+  description: string;
+  photos: string[];
+  technicalInfo: TechnicalInfo[];
+  downloadFormats: DownloadFormat[];
+  modelFile: File | null;
+};

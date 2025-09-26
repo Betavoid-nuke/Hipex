@@ -7,6 +7,7 @@ import MarketplacePage from '@/Website/Marketplace/Pages/ListingPage';
 import MarketplaceCart from '@/Website/Marketplace/Components/BuyCart';
 import CheckoutModal from '@/Website/Marketplace/Components/CheckoutModal';
 import BuyAndCart from '@/Website/Marketplace/Components/buyandcart';
+import { AppUser, BaseItem } from '@/Website/Marketplace/types';
 
 
 // Extend the Window interface to include properties from external scripts
@@ -20,37 +21,6 @@ declare global {
 }
 
 
-// --- Data Model Interfaces ---
-interface BaseItem {
-    id: string;
-    title: string;
-    description: string;
-    author: string;
-    price: number;
-    image: string;
-    category: string;
-    tags?: string[];
-    isAnimated: boolean;
-    isDownloadable: boolean;
-    date: Date;
-    likes: number;
-    isFavorite: boolean;
-    rating?: number;
-    reviews?: number;
-    technicalInfo?: { label: string; value: string }[];
-    downloadFormats?: { format: string; size: string; downloadUrl: string }[];
-    comments?: { user: string; comment: string; date: Date }[];
-    photos?: string[];
-    
-}
-
-interface AppUser {
-    uid: string;
-    name: string;
-    email: string;
-    avatar: string;
-    id: string;
-}
 
 
 // --- Sample Data ---

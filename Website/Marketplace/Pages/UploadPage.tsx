@@ -1,25 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
-
-type TechnicalInfo = {
-  label: string;
-  value: string;
-};
-
-type DownloadFormat = {
-  format: string;
-  size: string;
-  downloadUrl: string;
-};
-
-type Asset = {
-  id: string;
-  title: string;
-  description: string;
-  photos: string[];
-  technicalInfo: TechnicalInfo[];
-  downloadFormats: DownloadFormat[];
-  modelFile: File | null;
-};
+import { Asset, DownloadFormat, TechnicalInfo } from "../types";
 
 interface UploadPageProps {
   onBack: () => void;

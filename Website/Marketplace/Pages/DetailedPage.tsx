@@ -5,7 +5,7 @@ import PhotoViewer from "../Components/PhotoViewer";
 import DownloadModal from "../Components/DownloadModel";
 import "../../../app/(twinx)/globals.css";
 import RatingStars from "../Components/RatingStarSystem";
-import { cart, Product } from "../types";
+import { BaseItem, cart, Comment, Product } from "../types";
 import { BsCart2 } from "react-icons/bs";
 import MarketplaceCart from "../Components/BuyCart";
 import CheckoutModal from "../Components/CheckoutModal";
@@ -13,57 +13,7 @@ import "../Styling/buyandcart.css"
 import BuyCard from "../Components/BuyCard";
 import { exthandleAddToCart, exthandleBuyNow } from "../Components/buyandcart";
 
-// Types
-interface BaseItem {
-  id: string;
-  title: string;
-  description: string;
-  author: string;
-  price: number;
-  image: string;
-  category: string;
-  tags?: string[];
-  isAnimated: boolean;
-  isDownloadable: boolean;
-  date: Date;
-  likes: number;
-  isFavorite: boolean;
-  rating?: number;
-  reviews?: number;
-  technicalInfo?: { label: string; value: string }[];
-  downloadFormats?: { format: string; size: string; downloadUrl: string }[];
-  comments?: { user: string; comment: string; date: Date }[];
-  photos?: string[];
-}
 
-interface TechnicalInfo {
-  label: string;
-  value: string;
-}
-
-interface Comment {
-  user: string; comment: string; date: Date
-}
-
-interface DownloadFormat {
-  format: string;
-  size: string;
-  downloadUrl: string;
-}
-
-interface Twin {
-  id: string;
-  title: string;
-  description: string;
-  author: string;
-  rating: number;
-  reviews: number;
-  category: string;
-  photos: string[];
-  technicalInfo: TechnicalInfo[];
-  comments: Comment[];
-  downloadFormats?: DownloadFormat[];
-}
 
 interface DetailedViewProps {
   twin: BaseItem;
