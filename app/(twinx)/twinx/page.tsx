@@ -6,8 +6,7 @@ import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, Auth, User as FirebaseUser } from 'firebase/auth';
 import { 
     getFirestore, collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc, setDoc, 
-    query, where, getDocs, serverTimestamp, getDoc, writeBatch, Firestore, Timestamp, 
-    Query, DocumentData, CollectionReference 
+    query, where, getDocs, serverTimestamp, getDoc, writeBatch, Firestore, Timestamp, DocumentData, CollectionReference 
 } from 'firebase/firestore';
 import { 
     Check, Copy, Star, MoreVertical, X, Plus, UploadCloud, Trash2, ChevronLeft, Menu, Search, 
@@ -16,7 +15,8 @@ import {
     Info, Edit, BookOpen, BarChart2, KeyRound, Calendar, ChevronDown, Upload, Store, Sliders, 
     ListFilter, Heart, MessageSquare, DollarSign, Clock, MousePointerClick, TrendingUp, Zap, Server, 
     AlertTriangle, CheckCircle, Linkedin, Instagram, Twitter, Sun, Moon, Laptop, Building, Mail, 
-    MapPin, Link as LinkIcon, LucideProps
+    MapPin, Link as LinkIcon, LucideProps,
+    SettingsIcon
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, Bar } from 'recharts';
 import DashboardCore from '@/twinx/pages/Dashboard';
@@ -24,9 +24,20 @@ import ProjectCardCore from '@/twinx/components/ProjectCard';
 import dynamic from 'next/dynamic';
 import { getCurrentUser, updateUserOnDB } from '@/lib/actions/user.action';
 import { ClerkProvider, useAuth, useUser } from '@clerk/nextjs';
+import { ApiKey, AppUser, BaseItem, DraggingProject, Project } from '@/twinx/types/TwinxTypes';
+import dataManager from '@/twinx/data/data';
+import NavHeader from '@/twinx/components/sidebarNavHead';
+import NavItem from '@/twinx/components/SidebarNavIteam';
+import NewProjectModal from '@/twinx/components/NewProjectModel';
+import DeleteConfirmationModal from '@/twinx/components/DeleteConfirmationModal';
+import EditKeyModal from '@/twinx/components/EditKeyModal';
+import ProjectViewPage from '@/twinx/pages/ProjectView';
+import PlaceholderViewPage from '@/twinx/pages/PlaceholderView';
+import PlansPagePage from '@/twinx/pages/PlansPage';
+import ApiPagePage from '@/twinx/pages/ApiPage';
+import ApiGuidePagePage from '@/twinx/pages/ApiGuidePage';
+import MembersPagePage from '@/twinx/pages/MembersPage';
 
-
-// --- Type Declarations for Global Variables & Third-Party Libraries ---
 
 // Extend the Window interface to include properties from external scripts
 declare global {
@@ -60,83 +71,8 @@ const db: Firestore = getFirestore(app);
 
 
 
-
-
-
-
-
-
-// --- Data Model Interfaces ---
-interface BaseItem {
-    id: string;
-    title: string;
-    author: string;
-    price: number;
-    thumbnail: string;
-    category: string;
-    tags: string[];
-    isAnimated: boolean;
-    isDownloadable: boolean;
-    date: Date;
-    likes: number;
-    isFavorite: boolean;
-}
-
-interface AppUser {
-    uid: string;
-    name: string;
-    email: string;
-    avatar: string;
-    id?: string; // id is sometimes used interchangeably with uid
-}
-
-interface Project {
-    id: string;
-    title: string;
-    twinxid: string;
-    thumbnail: string;
-    videoUrl: string;
-    isFavorite: boolean;
-    isPublished: boolean;
-    currentStep: number;
-    createdAt: Timestamp | Date;
-    updatedAt: Timestamp | Date;
-}
-
-interface DraggingProject extends Project {
-    offsetX: number;
-    offsetY: number;
-    width: number;
-    height: number;
-}
-
-interface ApiKey {
-    id: number;
-    name: string;
-    secret: string;
-    created: string;
-    lastUsed: string;
-    createdBy: string;
-    permissions: string;
-}
-
-
-
-
-
-
-
-
-
-
-
-
 // --- Mock Data and Configuration ---
-const FAKE_USERS: AppUser[] = [
-    { uid: 'friend1_uid', name: 'Alex Doe', email: 'alex@example.com', avatar: 'https://placehold.co/40x40/FFC107/000000?text=A' },
-    { uid: 'friend2_uid', name: 'Brenda Smith', email: 'brenda@example.com', avatar: 'https://placehold.co/40x40/4CAF50/FFFFFF?text=B' },
-    { uid: 'friend3_uid', name: 'Charlie Brown', email: 'charlie@example.com', avatar: 'https://placehold.co/40x40/F44336/FFFFFF?text=C' },
-];
+const FAKE_USERS: AppUser[] = dataManager().users;
 
 const marketplaceListingsJson: BaseItem[] = [
     { id: 'm1', title: 'Cyberpunk Megatower', author: 'Alex Doe', price: 89.99, thumbnail: 'https://placehold.co/400x225/FF5722/FFFFFF?text=Tower', category: 'Building', tags: ['sci-fi', 'cyberpunk', 'skyscraper'], isAnimated: false, isDownloadable: true, date: new Date('2025-06-15'), likes: 1200, isFavorite: false },
@@ -269,403 +205,6 @@ const TOTAL_STEPS = PIPELINE_CONFIG.length;
 
 
 
-
-
-
-
-
-// --- Helper Functions ---
-const generateTwinxId = (): string => {
-    const randomPart = [...Array(16)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-    return `twinx_${randomPart}`;
-};
-
-// --- Component Prop Interfaces ---
-interface NavHeaderProps {
-    text: string;
-    isSidebarExpanded: boolean;
-}
-
-interface NavItemProps {
-    icon: React.ComponentType<LucideProps>;
-    text: string;
-    view: string;
-    badgeCount?: number;
-    isSidebarExpanded: boolean;
-    currentView: string;
-    handleNavigate: (view: string) => void;
-}
-
-interface NewProjectModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    userId: string | null;
-    showNotification: (message: string) => void;
-}
-
-interface DeleteConfirmationModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    title: string;
-    text: string;
-}
-
-interface EditKeyModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSave: (id: number, name: string) => void;
-    apiKey: ApiKey | null;
-}
-
-// --- Reusable Sidebar Components ---
-const NavHeader: FC<NavHeaderProps> = ({ text, isSidebarExpanded }) => (
-    <h3 className={`text-xs uppercase text-[#8A8A8E] font-semibold tracking-wider px-3 mt-4 mb-2 transition-opacity duration-200 ease-in-out ${!isSidebarExpanded ? 'opacity-0' : 'opacity-100'}`}>
-        {text}
-    </h3>
-);
-
-const NavItem: FC<NavItemProps> = ({ icon: Icon, text, view, badgeCount = 0, isSidebarExpanded, currentView, handleNavigate }) => (
-    <li>
-        <a href="#" onClick={(e) => { e.preventDefault(); handleNavigate(view); }}
-           className={`flex items-center p-2.5 my-1 rounded-md transition-colors duration-200 ${currentView === view ? 'bg-[#3A3A3C] text-white' : 'hover:bg-[#3A3A3C] text-[#A0A0A5] hover:text-white'} ${!isSidebarExpanded ? 'justify-center' : ''}`}>
-            <Icon size={20} className="shrink-0" />
-            <div className={`flex items-center justify-between w-full overflow-hidden transition-all duration-200 ease-in-out ${!isSidebarExpanded ? 'max-w-0 ml-0 opacity-0' : 'max-w-full ml-4 opacity-100'}`}>
-                <span className="whitespace-nowrap">{text}</span>
-                {badgeCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                        {badgeCount}
-                    </span>
-                )}
-            </div>
-        </a>
-    </li>
-);
-
-// --- 3D Viewport Component ---
-const ThreeViewport: FC = () => {
-    const mountRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        let animationFrameId: number;
-        const currentMount = mountRef.current;
-        let renderer: any, gimbalRenderer: any, controls: any;
-
-        const init = (): (() => void) | void => {
-            if (typeof window.THREE === 'undefined' || !currentMount) {
-                console.error("THREE.js or mount point not available.");
-                return;
-            }
-
-            const setupScene = (): (() => void) => {
-                if (typeof window.THREE.OrbitControls === 'undefined') {
-                    console.error("OrbitControls not loaded correctly.");
-                    return () => {};
-                }
-
-                const scene = new window.THREE.Scene();
-                scene.background = new window.THREE.Color(0x1C1C1E);
-                const camera = new window.THREE.PerspectiveCamera(75, currentMount.clientWidth / currentMount.clientHeight, 0.1, 1000);
-                renderer = new window.THREE.WebGLRenderer({ antialias: true });
-                
-                renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
-                currentMount.appendChild(renderer.domElement);
-
-                controls = new window.THREE.OrbitControls(camera, renderer.domElement);
-                controls.enableDamping = true;
-                controls.dampingFactor = 0.05;
-                controls.screenSpacePanning = false;
-                controls.minDistance = 3;
-                controls.maxDistance = 10;
-
-                const geometry = new window.THREE.BoxGeometry(1, 1, 1);
-                const material = new window.THREE.MeshStandardMaterial({ color: 0x6366F1 });
-                const cube = new window.THREE.Mesh(geometry, material);
-                scene.add(cube);
-                
-                const gridHelper = new window.THREE.GridHelper(10, 10, 0x444444, 0x444444);
-                scene.add(gridHelper);
-
-                const ambientLight = new window.THREE.AmbientLight(0xffffff, 0.5);
-                scene.add(ambientLight);
-                const pointLight = new window.THREE.PointLight(0xffffff, 0.8);
-                pointLight.position.set(5, 5, 5);
-                scene.add(pointLight);
-
-                camera.position.z = 5;
-
-                const gimbalScene = new window.THREE.Scene();
-                const gimbalCamera = new window.THREE.PerspectiveCamera(50, 1, 0.1, 10);
-                gimbalRenderer = new window.THREE.WebGLRenderer({ alpha: true, antialias: true });
-                gimbalRenderer.setSize(80, 80);
-                gimbalRenderer.domElement.style.position = 'absolute';
-                gimbalRenderer.domElement.style.top = '10px';
-                gimbalRenderer.domElement.style.right = '10px';
-                currentMount.appendChild(gimbalRenderer.domElement);
-
-                const axesHelper = new window.THREE.AxesHelper(2);
-                gimbalScene.add(axesHelper);
-
-                const animate = () => {
-                    animationFrameId = requestAnimationFrame(animate);
-                    cube.rotation.x += 0.005;
-                    cube.rotation.y += 0.005;
-                    if (controls) controls.update();
-                    
-                    gimbalCamera.position.copy(camera.position);
-                    gimbalCamera.position.sub(controls.target);
-                    gimbalCamera.position.setLength(3);
-                    gimbalCamera.lookAt(gimbalScene.position);
-
-                    if (renderer) renderer.render(scene, camera);
-                    if (gimbalRenderer) gimbalRenderer.render(gimbalScene, gimbalCamera);
-                };
-                animate();
-
-                const handleResize = () => {
-                    if (!currentMount || !renderer) return;
-                    camera.aspect = currentMount.clientWidth / currentMount.clientHeight;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
-                };
-                window.addEventListener('resize', handleResize);
-                
-                return () => {
-                    window.removeEventListener('resize', handleResize);
-                };
-            };
-
-            if (window.THREE && window.THREE.OrbitControls) {
-                return setupScene();
-            } else {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';
-                script.id = 'orbit-controls-script';
-                script.onload = setupScene;
-                script.onerror = () => console.error("Failed to load OrbitControls script.");
-
-                if (!document.getElementById(script.id)) {
-                    document.body.appendChild(script);
-                }
-
-                return () => {
-                    const existingScript = document.getElementById(script.id);
-                    if (existingScript) {
-                        document.body.removeChild(existingScript);
-                    }
-                };
-            }
-        };
-
-        const cleanupScene = init();
-
-        return () => {
-            cancelAnimationFrame(animationFrameId);
-            if (controls) controls.dispose();
-            if (renderer) renderer.dispose();
-            if (gimbalRenderer) gimbalRenderer.dispose();
-            if (currentMount) {
-                while (currentMount.firstChild) {
-                    currentMount.removeChild(currentMount.firstChild);
-                }
-            }
-            if (typeof cleanupScene === 'function') {
-                cleanupScene();
-            }
-        };
-    }, []);
-
-    return <div ref={mountRef} className="w-full h-full relative" />;
-};
-
-const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId, showNotification }) => {
-    const [title, setTitle] = useState<string>('');
-    const [videoFile, setVideoFile] = useState<File | null>(null);
-    const [thumbnail, setThumbnail] = useState<string>('');
-    const [videoUrl, setVideoUrl] = useState<string>('');
-    const [twinxid, setTwinxid] = useState<string>('');
-    const [isGenerating, setIsGenerating] = useState<boolean>(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    useEffect(() => {
-        if (isOpen) {
-            setTwinxid(generateTwinxId());
-        } else {
-            setTitle(''); setVideoFile(null); setThumbnail(''); setTwinxid(''); setVideoUrl('');
-        }
-    }, [isOpen]);
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file && file.type.startsWith('video/')) {
-            setVideoFile(file);
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                setVideoUrl(event.target?.result as string);
-            };
-            reader.readAsDataURL(file);
-            generateThumbnail(file);
-        } else {
-            showNotification("Please select a valid video file.");
-        }
-    };
-
-    const generateThumbnail = (file: File) => {
-        setIsGenerating(true);
-        const video = document.createElement('video');
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        video.src = URL.createObjectURL(file);
-        video.muted = true;
-        video.onloadedmetadata = () => { video.currentTime = video.duration / 2; };
-        video.onseeked = () => {
-            if (context) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                setThumbnail(canvas.toDataURL('image/jpeg', 0.8));
-            }
-            setIsGenerating(false);
-            URL.revokeObjectURL(video.src);
-        };
-        video.onerror = () => {
-            setIsGenerating(false); setThumbnail('');
-            showNotification("Could not generate thumbnail from this video.");
-            URL.revokeObjectURL(video.src);
-        };
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!title || !videoFile || !userId) {
-            showNotification("Please provide a title and a video file."); return;
-        }
-        
-        onClose();
-
-        const newProject = {
-            title, twinxid, thumbnail, videoUrl, isFavorite: false, isPublished: false, currentStep: 0,
-            createdAt: new Date(), updatedAt: new Date(),
-        };
-        try {
-            const projectsCollectionPath = `/artifacts/${appId}/users/${userId}/projects`;
-            await addDoc(collection(db, projectsCollectionPath), newProject);
-            showNotification("Digital Twin created successfully!");
-        } catch (error) {
-            console.error("Error creating Digital Twin:", error);
-            showNotification("Failed to create Digital Twin.");
-        }
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div className="bg-[#262629] rounded-lg shadow-xl w-full max-w-lg border border-[#3A3A3C] transform transition-all scale-95 animate-scale-in">
-                <div className="flex justify-between items-center p-4 border-b border-[#3A3A3C]">
-                    <h3 className="text-xl font-bold text-white">Create New Digital Twin</h3>
-                    <button onClick={onClose} className="text-[#A0A0A5] hover:text-white"><X size={24} /></button>
-                </div>
-                <form onSubmit={handleSubmit}>
-                    <div className="p-6 space-y-4">
-                        <div>
-                            <label htmlFor="title" className="block text-sm font-medium text-white mb-1">Digital Twin Title</label>
-                            <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} required
-                                   className="w-full bg-[#1C1C1E] border border-[#3A3A3C] rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-white mb-1">Upload Video</label>
-                            <div onClick={() => fileInputRef.current?.click()}
-                                 className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-[#3A3A3C] border-dashed rounded-md cursor-pointer hover:border-[#6366F1]">
-                                <div className="space-y-1 text-center">
-                                    {thumbnail ? <img src={thumbnail} alt="Video preview" className="mx-auto h-24 rounded-md" /> : isGenerating ? <p className="text-[#A0A0A5]">Generating preview...</p> : <UploadCloud className="mx-auto h-12 w-12 text-[#A0A0A5]" />}
-                                    <div className="flex text-sm text-[#A0A0A5]"><p className="pl-1">{videoFile ? videoFile.name : 'Click to upload or drag and drop'}</p></div>
-                                    <p className="text-xs text-[#A0A0A5]">MP4, MOV, AVI up to 5GB</p>
-                                </div>
-                            </div>
-                            <input ref={fileInputRef} id="file-upload" name="file-upload" type="file" accept="video/*" className="sr-only" onChange={handleFileChange} />
-                        </div>
-                        <div>
-                            <label htmlFor="twinxid" className="block text-sm font-medium text-white mb-1">Twinx ID</label>
-                            <input type="text" id="twinxid" value={twinxid} readOnly className="w-full bg-[#1C1C1E] border border-[#3A3A3C] rounded-md px-3 py-2 text-[#A0A0A5] font-mono" />
-                        </div>
-                    </div>
-                    <div className="p-4 bg-[#1C1C1E] border-t border-[#3A3A3C] flex justify-end gap-3">
-                        <button type="button" onClick={onClose} className="bg-[#3A3A3C] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#4A4A4C] transition-colors">Cancel</button>
-                        <button type="submit" disabled={isGenerating || !thumbnail} className="bg-[#6366F1] text-white font-semibold py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors disabled:bg-opacity-50 disabled:cursor-not-allowed">
-                            {isGenerating ? 'Processing...' : 'Create Digital Twin'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
-
-const DeleteConfirmationModal: FC<DeleteConfirmationModalProps> = ({ isOpen, onClose, onConfirm, title, text }) => {
-    if (!isOpen) return null;
-    return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div className="bg-[#262629] rounded-lg shadow-xl w-full max-w-md border border-[#3A3A3C] transform transition-all scale-95 animate-scale-in">
-                <div className="p-6 text-center">
-                    <Trash2 className="mx-auto h-12 w-12 text-red-500" />
-                    <h3 className="mt-4 text-xl font-bold text-white">{title}</h3>
-                    <p className="mt-2 text-sm text-[#A0A0A5]">{text}</p>
-                </div>
-                <div className="p-4 bg-[#1C1C1E] border-t border-[#3A3A3C] flex justify-center gap-4">
-                    <button onClick={onClose} className="bg-[#3A3A3C] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#4A4A4C] transition-colors w-28">Cancel</button>
-                    <button onClick={onConfirm} className="bg-red-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-red-700 transition-colors w-28">Delete</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const EditKeyModal: FC<EditKeyModalProps> = ({ isOpen, onClose, onSave, apiKey }) => {
-    const [name, setName] = useState<string>('');
-
-    useEffect(() => {
-        if (apiKey) {
-            setName(apiKey.name);
-        }
-    }, [apiKey]);
-
-    if (!isOpen || !apiKey) return null;
-
-    const handleSave = () => {
-        onSave(apiKey.id, name);
-        onClose();
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div className="bg-[#262629] rounded-lg shadow-xl w-full max-w-md border border-[#3A3A3C] transform transition-all scale-95 animate-scale-in">
-                <div className="flex justify-between items-center p-4 border-b border-[#3A3A3C]">
-                    <h3 className="text-xl font-bold text-white">Edit API Key</h3>
-                    <button onClick={onClose} className="text-[#A0A0A5] hover:text-white"><X size={24} /></button>
-                </div>
-                <div className="p-6 space-y-4">
-                    <div>
-                        <label htmlFor="keyName" className="block text-sm font-medium text-white mb-1">Key Name</label>
-                        <input type="text" id="keyName" value={name} onChange={(e) => setName(e.target.value)}
-                               className="w-full bg-[#1C1C1E] border border-[#3A3A3C] rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]" />
-                    </div>
-                </div>
-                <div className="p-4 bg-[#1C1C1E] border-t border-[#3A3A3C] flex justify-end gap-3">
-                    <button type="button" onClick={onClose} className="bg-[#3A3A3C] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#4A4A4C] transition-colors">Cancel</button>
-                    <button type="button" onClick={handleSave} className="bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-600 transition-colors">Save</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-
-
-
-
-
-
 // Dynamically import Clerk components to avoid hydration errors
 const UserButton = dynamic(() => import('@clerk/nextjs').then(mod => mod.UserButton), {
   ssr: false,
@@ -721,6 +260,7 @@ function MainPage() {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const trashRef = useRef<HTMLDivElement>(null);
     const draggedCardRef = useRef<HTMLDivElement>(null);
+
 
     // --- Firebase Auth & Data Seeding ---
     useEffect(() => {
@@ -822,6 +362,8 @@ function MainPage() {
 
         return () => clearInterval(interval);
     }, [simulatingProjectId, userId]);
+
+
 
     const showNotification = (message: string) => {
         setNotification({ show: true, message });
@@ -936,17 +478,17 @@ function MainPage() {
     };
 
     const filteredAndSortedProjects = useMemo(() => projects
-        .filter(p => p.title && p.title.toLowerCase().includes(searchTerm.toLowerCase()) && (filter === 'Favorites' ? p.isFavorite : true))
-        .sort((a, b) => {
-            const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
-            const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
-            switch (sort) {
-                case 'name_asc': return a.title.localeCompare(b.title);
-                case 'name_desc': return b.title.localeCompare(a.title);
-                case 'date_asc': return dateA - dateB;
-                default: return dateB - dateA;
-            }
-        }), [projects, searchTerm, filter, sort]);
+    .filter(p => p.title && p.title.toLowerCase().includes(searchTerm.toLowerCase()) && (filter === 'Favorites' ? p.isFavorite : true))
+    .sort((a, b) => {
+        const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
+        const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
+        switch (sort) {
+            case 'name_asc': return a.title.localeCompare(b.title);
+            case 'name_desc': return b.title.localeCompare(a.title);
+            case 'date_asc': return dateA - dateB;
+            default: return dateB - dateA;
+        }
+    }), [projects, searchTerm, filter, sort]);
     
     const copyToClipboard = (text: string, message: string) => {
         navigator.clipboard.writeText(text).then(() => {
@@ -1011,603 +553,70 @@ function MainPage() {
         );
     };
 
-
-
-
-
-
-
-
-    //continue to seperate the pages and components ++++++++++++++++++++++++++++++++++++++++
-
     const ProjectView = () => {
-        if (!selectedProject) return null;
-
-        const project = projects.find(p => p.id === selectedProject.id);
-        if (!project) {
-            handleNavigate('dashboard');
-            return <div className="p-8 text-white">Digital Twin not found. Redirecting to dashboard...</div>;
-        }
-
-        const isCompleted = project.currentStep === TOTAL_STEPS;
-        const isProcessing = project.currentStep > 0 && project.currentStep < TOTAL_STEPS;
-
-        const handleCopyId = () => {
-            if (!project.isPublished) {
-                showNotification("Digital Twin must be published to copy ID.");
-                return;
-            }
-            copyToClipboard(project.twinxid, "Twinx ID copied to clipboard!");
-        };
 
         return (
-            <div className="p-4 sm:p-6 lg:p-8 text-white">
-                <button onClick={() => handleNavigate('dashboard')} className="flex items-center gap-2 text-[#A0A0A5] hover:text-white mb-6">
-                    <ChevronLeft size={20} /> Back to Dashboard
-                </button>
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
-                    <div>
-                        <h2 className="text-3xl font-bold">{project.title}</h2>
-                        <div className="flex items-center flex-wrap gap-4 mt-2">
-                            <p className={`text-sm font-semibold px-3 py-1 rounded-full inline-block ${project.isPublished ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
-                                {project.isPublished ? 'Published' : 'Unpublished'}
-                            </p>
-                            <div className="flex items-center gap-2 text-[#A0A0A5] font-mono text-sm cursor-pointer" onClick={handleCopyId}>
-                                <span>{project.twinxid}</span>
-                                <Copy size={16} className="hover:text-[#6366F1]" />
-                            </div>
-                        </div>
-                    </div>
+            <ProjectViewPage
+              selectedProject={selectedProject}
+              projects={projects}
+              TOTAL_STEPS={TOTAL_STEPS}
+              PIPELINE_CONFIG={PIPELINE_CONFIG}
+              simulatingProjectId={simulatingProjectId}
+              setSimulatingProjectId={setSimulatingProjectId}
+              handleNavigate={handleNavigate}
+              showNotification={showNotification}
+              copyToClipboard={copyToClipboard}
+            />
 
-                    <div className="flex items-center gap-4">
-                        {isCompleted && (
-                            <div className="bg-green-500/20 border border-green-500 text-green-300 px-4 py-2 rounded-lg text-center">
-                                <h3 className="font-bold text-sm">Processing Complete!</h3>
-                            </div>
-                        )}
-                    </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-[#262629] rounded-lg border border-[#3A3A3C] p-4 flex flex-col">
-                        <video key={project.id} controls poster={project.thumbnail} className="w-full h-full rounded-md object-cover flex-grow" src={project.videoUrl}>
-                            Your browser does not support the video tag.
-                        </video>
-                        {project.currentStep === 0 && (
-                            <button 
-                                onClick={() => setSimulatingProjectId(project.id)}
-                                className="mt-4 w-full bg-[#6366F1] text-white font-semibold py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors"
-                            >
-                                Generate Digital Twin
-                            </button>
-                        )}
-                         {isProcessing && (
-                            <div className="mt-4 w-full text-center py-2 px-4 rounded-md bg-[#3A3C3C] text-[#A0A0A5]">
-                                Processing...
-                            </div>
-                         )}
-                    </div>
-                    <div className="bg-[#262629] rounded-lg border border-[#3A3A3C] p-4 min-h-[300px]">
-                        <ThreeViewport />
-                    </div>
-                </div>
-
-                <h3 className="text-xl font-semibold mb-4">Processing Pipeline</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                    {PIPELINE_CONFIG.map(step => {
-                        const status = project.currentStep >= step.id ? 'completed' : simulatingProjectId === project.id && project.currentStep + 1 === step.id ? 'in-progress' : 'pending';
-                        const Icon = step.icon;
-                        return (
-                            <div key={step.id} className={`p-4 rounded-lg border transition-all duration-300
-                                ${status === 'completed' ? 'bg-green-500/10 border-green-500/30' : ''}
-                                ${status === 'in-progress' ? 'bg-blue-500/10 border-blue-500/50 animate-pulse' : ''}
-                                ${status === 'pending' ? 'bg-[#262629] border-[#3A3A3C]' : ''}
-                            `}>
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className={`p-2 rounded-full ${status === 'completed' ? 'bg-green-500/20 text-green-400' : ''} ${status === 'in-progress' ? 'bg-blue-500/20 text-blue-400' : ''} ${status === 'pending' ? 'bg-[#3A3A3C] text-[#A0A0A5]' : ''}`}>
-                                        {status === 'completed' ? <Check size={20} /> : <Icon size={20} />}
-                                    </div>
-                                    <span className="font-mono text-xs text-[#A0A0A5]">Step {step.id}</span>
-                                </div>
-                                <h4 className="font-semibold mb-1">{step.name}</h4>
-                                <p className="text-xs text-[#A0A0A5]">{step.description}</p>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
         );
     };
-    
-    const PlaceholderView = ({ title, icon: Icon }: {title: string, icon: React.ComponentType<LucideProps>}) => (
-        <div className="p-8 text-white">
-            <h2 className="text-3xl font-bold mb-4 flex items-center gap-3">
-                {Icon && <Icon size={32}/>}
-                {title}
-            </h2>
-            <div className="bg-[#262629] border border-[#3A3A3C] rounded-lg p-16 text-center text-[#A0A0A5]">
-                <p>This is a placeholder page for the "{title}" section.</p>
-                <p>Functionality for this area can be built out here.</p>
-            </div>
-        </div>
-    );
+
+    const PlaceholderView = () => {
+        return (
+            <PlaceholderViewPage title="Settings" icon={SettingsIcon} />
+        )
+    };
 
     const PlansPage = () => {
-        const [billingCycle, setBillingCycle] = useState('annual');
-
-        const plans = {
-            creator: {
-                name: 'Creator',
-                price: { monthly: 199, annual: 149 },
-                description: 'For individuals starting to create 3D scenes from video content.',
-                features: [
-                    'Generate up to 4 Digital Twins per month',
-                    'Standard Video-to-3D Conversion AI',
-                    'Basic Scene and Object Recognition',
-                    'Export to standard 3D formats',
-                    'Community Support',
-                ],
-                isCurrent: true,
-            },
-            pro: {
-                name: 'Pro Plan',
-                price: { monthly: 299, annual: 249 },
-                description: 'For professionals and teams requiring higher quality and more volume.',
-                features: [
-                    'Generate up to 12 Digital Twins per month',
-                    'Advanced Video-to-3D Conversion AI',
-                    'High-Fidelity Texture Generation',
-                    'Direct Unreal Engine Integration',
-                    'Team Collaboration (up to 5 users)',
-                    'Priority Email Support',
-                ],
-                isPopular: true,
-            },
-            business: {
-                name: 'Business Plan',
-                price: 'Custom' as const,
-                description: 'For large-scale operations needing tailored solutions and support.',
-                features: [
-                    'Custom Digital Twin generation limits',
-                    'Personalized AI model training',
-                    'API Access for workflow automation',
-                    'Advanced security & compliance features',
-                    'Dedicated account manager & onboarding',
-                    '24/7 Premium Support',
-                ],
-            },
-        };
-        type Plan = typeof plans.creator | typeof plans.pro | typeof plans.business;
-
-        const PlanCard = ({ plan }: { plan: Plan }) => {
-            const price = plan.price !== 'Custom' ? (billingCycle === 'annual' ? plan.price.annual : plan.price.monthly) : null;
-            return (
-                <div className={`bg-[#262629] border rounded-lg p-6 flex flex-col ${'isPopular' in plan && plan.isPopular ? 'border-indigo-500' : 'border-[#3A3A3C]'}`}>
-                    {'isPopular' in plan && plan.isPopular && (
-                        <div className="bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full self-start mb-4">
-                            Popular
-                        </div>
-                    )}
-                    <h3 className="text-xl font-bold text-white">{plan.name}</h3>
-                    <p className="text-[#A0A0A5] mt-2 mb-4 flex-grow">{plan.description}</p>
-                    
-                    {plan.price === 'Custom' ? (
-                         <p className="text-4xl font-bold text-white mb-1">Custom</p>
-                    ) : (
-                         <p className="text-4xl font-bold text-white mb-1">${price}</p>
-                    )}
-                   
-                    <p className="text-[#A0A0A5] text-sm mb-6">{plan.price === 'Custom' ? 'Contact us for a quote' : 'Per user & per month'}</p>
-
-                    {'isCurrent' in plan && plan.isCurrent ? (
-                        <button className="w-full bg-[#3A3A3C] text-white font-semibold py-2.5 px-4 rounded-md mb-2">Current Plan</button>
-                    ) : (
-                         <button className={`w-full font-semibold py-2.5 px-4 rounded-md mb-2 ${'isPopular' in plan && plan.isPopular ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-white text-black hover:bg-gray-200'}`}>
-                            {plan.name === 'Business Plan' ? 'Contact Sales' : 'Switch to this Plan'}
-                        </button>
-                    )}
-                   
-                    <p className="text-center text-xs text-[#A0A0A5]">
-                        {plan.name === 'Business Plan' ? 'Start Free 15-Days Trial' : 'Start Free 7-Days Trial'}
-                    </p>
-
-                    <hr className="border-t border-[#3A3A3C] my-6" />
-
-                    <div className="space-y-3">
-                        <h4 className="font-semibold text-white">Features</h4>
-                        <p className="text-sm text-[#A0A0A5]">Everything in our free plan includes</p>
-                        {plan.features.map((feature, index) => (
-                            <div key={index} className="flex items-center gap-3">
-                                <Check className="text-indigo-400" size={16} />
-                                <span className="text-sm text-[#A0A0A5]">{feature}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            );
-        };
-
         return (
-            <div className="p-4 sm:p-6 lg:p-8">
-                <div className="text-center mb-10">
-                    <h2 className="text-4xl font-bold text-white flex items-center justify-center gap-3"><CreditCard size={40}/> Pricing Plans</h2>
-                    <p className="text-lg text-[#A0A0A5] mt-2">Choose the plan that's right for your team.</p>
-                </div>
-
-                <div className="flex justify-center items-center mb-10">
-                    <div className="bg-[#262629] p-1 rounded-lg flex items-center gap-2">
-                         <button 
-                            onClick={() => setBillingCycle('monthly')}
-                            className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${billingCycle === 'monthly' ? 'bg-[#3A3A3C] text-white' : 'text-[#A0A0A5] hover:text-white'}`}
-                        >
-                            Monthly
-                        </button>
-                        <button 
-                            onClick={() => setBillingCycle('annual')}
-                            className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors relative ${billingCycle === 'annual' ? 'bg-indigo-500 text-white' : 'text-[#A0A0A5] hover:text-white'}`}
-                        >
-                            Annual
-                            <span className="absolute -top-2 -right-2 bg-green-400 text-black text-xs font-bold px-2 py-0.5 rounded-full">Save 50%</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                    <PlanCard plan={plans.creator} />
-                    <PlanCard plan={plans.pro} />
-                    <PlanCard plan={plans.business} />
-                </div>
-            </div>
+            <PlansPagePage />
         );
     };
 
     const ApiPage = () => {
-        const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
-        const [keyToEdit, setKeyToEdit] = useState<ApiKey | null>(null);
-        const [keyToDelete, setKeyToDelete] = useState<ApiKey | null>(null);
-        const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-        const [isDeleteKeyModalOpen, setIsDeleteKeyModalOpen] = useState(false);
-
-        const createNewKey = () => {
-            const newKey: ApiKey = {
-                id: Date.now(),
-                name: `New Key ${apiKeys.length + 1}`,
-                secret: `sk-...${[...Array(4)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`,
-                created: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-                lastUsed: 'Never',
-                createdBy: 'Simon Prusin',
-                permissions: 'All',
-            };
-            setApiKeys([...apiKeys, newKey]);
-            showNotification("New secret key created successfully!");
-        };
-        
-        const handleEditClick = (key: ApiKey) => {
-            setKeyToEdit(key);
-            setIsEditModalOpen(true);
-        };
-
-        const handleSaveKey = (id: number, newName: string) => {
-            setApiKeys(apiKeys.map(key => key.id === id ? { ...key, name: newName } : key));
-            showNotification("API Key updated successfully!");
-        };
-
-        const handleDeleteClick = (key: ApiKey) => {
-            setKeyToDelete(key);
-            setIsDeleteKeyModalOpen(true);
-        };
-
-        const confirmDeleteKey = () => {
-            if (!keyToDelete) return;
-            setApiKeys(apiKeys.filter(key => key.id !== keyToDelete.id));
-            setIsDeleteKeyModalOpen(false);
-            setKeyToDelete(null);
-            showNotification("API Key deleted.");
-        }
-
         return (
-            <>
-                <div className="p-4 sm:p-6 lg:p-8 text-white">
-                    <header className="flex justify-between items-center mb-6">
-                        <h2 className="text-2xl font-bold flex items-center gap-3"><KeyRound size={28}/> API Keys</h2>
-                        <button onClick={createNewKey} className="bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-600 transition-colors flex items-center gap-2">
-                            <Plus size={20} /> Create new secret key
-                        </button>
-                    </header>
-
-                    <div className="bg-blue-500/10 border border-blue-500/30 text-blue-300 p-4 rounded-lg mb-6 flex items-start gap-3">
-                        <Info size={20} className="shrink-0 mt-0.5" />
-                        <div>
-                            <h3 className="font-semibold">Project API keys have replaced user API keys.</h3>
-                            <p className="text-sm">We recommend using project based API keys for more granular control over your resources. <a href="#" className="underline hover:text-white">Learn more</a></p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4 text-[#A0A0A5] text-sm mb-8">
-                        <p>As an owner of this project, you can view and manage all API keys in this project.</p>
-                        <p>Do not share your API key with others, or expose it in the browser or other client-side code. In order to protect the security of your account, Twinx may also automatically disable any API key that has leaked publicly.</p>
-                        <p>View usage per API key on the <a href="#" onClick={() => handleNavigate('apiusage')} className="text-indigo-400 hover:underline">Usage page</a>.</p>
-                    </div>
-
-                    {apiKeys.length > 0 ? (
-                        <div className="bg-[#262629] border border-[#3A3A3C] rounded-lg overflow-x-auto">
-                            <table className="w-full text-left min-w-[800px]">
-                                <thead className="text-xs text-[#8A8A8E] uppercase border-b border-[#3A3A3C]">
-                                    <tr>
-                                        <th className="p-4">Name</th>
-                                        <th className="p-4">Secret Key</th>
-                                        <th className="p-4">Created</th>
-                                        <th className="p-4">Last Used</th>
-                                        <th className="p-4">Created By</th>
-                                        <th className="p-4">Permissions</th>
-                                        <th className="p-4"></th>
-                                    </tr>
-                                </thead>
-                                <tbody className="text-sm">
-                                    {apiKeys.map(key => (
-                                        <tr key={key.id} className="border-b border-[#3A3A3C] last:border-b-0 hover:bg-[#3A3A3C]/50">
-                                            <td className="p-4 font-semibold text-white">{key.name}</td>
-                                            <td className="p-4 font-mono">{key.secret}</td>
-                                            <td className="p-4">{key.created}</td>
-                                            <td className="p-4">{key.lastUsed}</td>
-                                            <td className="p-4">{key.createdBy}</td>
-                                            <td className="p-4">{key.permissions}</td>
-                                            <td className="p-4">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <button onClick={() => handleEditClick(key)} className="text-[#A0A0A5] hover:text-white"><Edit size={16} /></button>
-                                                    <button onClick={() => handleDeleteClick(key)} className="text-[#A0A0A5] hover:text-red-500"><Trash2 size={16} /></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <div className="text-center py-20 bg-[#262629] border-2 border-dashed border-[#3A3A3C] rounded-lg">
-                            <KeyRound size={48} className="mx-auto text-[#A0A0A5]" />
-                            <h3 className="mt-4 text-xl font-bold text-white">No API Keys</h3>
-                            <p className="mt-2 text-sm text-[#A0A0A5]">You don't have any API keys yet. Create one to get started.</p>
-                            <button onClick={createNewKey} className="mt-6 bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-600 transition-colors flex items-center gap-2 mx-auto">
-                                <Plus size={20} /> Create API Key
-                            </button>
-                        </div>
-                    )}
-                </div>
-                <EditKeyModal 
-                    isOpen={isEditModalOpen}
-                    onClose={() => setIsEditModalOpen(false)}
-                    onSave={handleSaveKey}
-                    apiKey={keyToEdit}
-                />
-                <DeleteConfirmationModal 
-                    isOpen={isDeleteKeyModalOpen}
-                    onClose={() => setIsDeleteKeyModalOpen(false)}
-                    onConfirm={confirmDeleteKey}
-                    title="Delete API Key"
-                    text={`Are you sure you want to delete the API key "${keyToDelete?.name}"? This action cannot be undone.`}
-                />
-            </>
+            <ApiPagePage showNotificationIn={(message) => showNotification(message)} handleNavigateIn={(view) => handleNavigate(view)} />
         );
     };
 
     const ApiGuidePage = () => {
-        const CodeBox: FC<{children: ReactNode}> = ({ children }) => (
-            <code className="bg-[#262629] border border-[#3A3A3C] rounded-md px-2 py-1 text-sm font-mono text-indigo-300">
-                {children}
-            </code>
-        );
-    
         return (
-            <div className="p-4 sm:p-6 lg:p-8 text-white max-w-4xl mx-auto">
-                <div className="space-y-8">
-                    <div>
-                        <h1 className="text-4xl font-bold text-white flex items-center gap-4"><BookOpen size={40}/> TwinX API Usage in Unreal Engine</h1>
-                        <div className="flex items-center gap-4 mt-4 text-sm text-[#A0A0A5]">
-                            <div className="flex items-center gap-2">
-                                <img src="https://placehold.co/24x24/6366F1/FFFFFF?text=J" alt="Author" className="w-6 h-6 rounded-full" />
-                                <span>Owned by Jay Soni</span>
-                            </div>
-                            <span>•</span>
-                            <span>Last updated: July 20, 2025</span>
-                        </div>
-                    </div>
-    
-                    <hr className="border-t border-[#3A3A3C]" />
-    
-                    <div className="space-y-6 text-base text-[#A0A0A5] leading-relaxed">
-                        <h2 className="text-2xl font-semibold text-white">1. Project Setup & Plugin Installation</h2>
-                        <p>To begin, your Unreal Engine project must be a C++ project. If it's not, you can easily convert it by adding a new C++ class via <CodeBox>Tools → New C++ Class...</CodeBox>.</p>
-                        <p>Next, create a <CodeBox>Plugins</CodeBox> folder in your project's root directory. Download and unzip the following plugins into this new folder:</p>
-                        <ul className="list-disc list-inside space-y-2 pl-4">
-                            <li><a href="https://github.com/ue4plugins/glTFRuntime/releases" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline">glTFRuntime Plugin</a> (for loading 3D models)</li>
-                            <li><a href="#" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline">Twinx Plugin</a> (for API communication)</li>
-                        </ul>
-                        <p>Finally, right-click your <CodeBox>.uproject</CodeBox> file, generate Visual Studio project files, and build the project from Visual Studio.</p>
-    
-                        <h2 className="text-2xl font-semibold text-white">2. Configuration in Unreal Engine</h2>
-                        <p>Once your project is compiled and open in the editor, you need to configure your API key.</p>
-                        <ol className="list-decimal list-inside space-y-2 pl-4">
-                            <li>Navigate to Project Settings: <CodeBox>Edit → Project Settings</CodeBox>.</li>
-                            <li>Find the <CodeBox>Twinx</CodeBox> section under the Plugins header.</li>
-                            <li>Copy your secret key from the <a href="#" onClick={() => handleNavigate('api')} className="text-indigo-400 hover:underline">API Keys</a> page and paste it into the <CodeBox>API Key</CodeBox> field.</li>
-                        </ol>
-    
-                        <h2 className="text-2xl font-semibold text-white">3. Loading Your Digital Twin</h2>
-                        <p>You're now ready to load a Digital Twin into any scene.</p>
-                         <ol className="list-decimal list-inside space-y-2 pl-4">
-                            <li>In the Content Browser, enable <CodeBox>Show Plugin Content</CodeBox> from the Settings menu.</li>
-                            <li>Find the <CodeBox>BP_Twinx</CodeBox> actor in the path: <CodeBox>Twinx Content → Blueprints</CodeBox>.</li>
-                            <li>Drag the <CodeBox>BP_Twinx</CodeBox> actor into your level.</li>
-                            <li>Select the actor in the scene, and in the Details panel, paste your desired <CodeBox>Twinx ID</CodeBox> from your dashboard.</li>
-                        </ol>
-                        <p>Press Play, and the plugin will handle the rest, fetching and rendering your 3D model in real-time.</p>
-                    </div>
-                </div>
-            </div>
+            <ApiGuidePagePage handleNavigateIn={(view)=>{handleNavigate(view)}} />
         );
     };
-
 
     const MembersPage = () => {
-        const [searchEmail, setSearchEmail] = useState<string>('');
-        const [searchResult, setSearchResult] = useState<AppUser | { error: string } | null>(null);
-        const [selectedFriend, setSelectedFriend] = useState<AppUser | null>(null);
-        const [messages, setMessages] = useState<DocumentData[]>([]);
-        const [newMessage, setNewMessage] = useState<string>('');
-        const messagesEndRef = useRef<HTMLDivElement>(null);
-    
-        useEffect(() => {
-            if (!userId || !selectedFriend) {
-                setMessages([]);
-                return;
-            };
-            const chatId = [userId, selectedFriend.id].sort().join('_');
-            const messagesRef = collection(db, `/artifacts/${appId}/public/data/chats/${chatId}/messages`);
-            const q = query(messagesRef);
-            const unsubscribe = onSnapshot(q, (snapshot) => {
-                const fetchedMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                setMessages(fetchedMessages);
-            }, (error) => console.error("Error fetching messages:", error));
-            return () => unsubscribe();
-        }, [userId, selectedFriend]);
-
-        useEffect(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-        }, [messages]);
-    
-        const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-            if (!searchEmail || searchEmail.toLowerCase() === userEmail?.toLowerCase()) {
-                setSearchResult({ error: "Please enter a valid user email." });
-                return;
-            }
-            
-            const usersRef = collection(db, `/artifacts/${appId}/public/data/users`);
-            const q = query(usersRef, where("email", "==", searchEmail.toLowerCase()));
-            const querySnapshot = await getDocs(q);
-
-            if (!querySnapshot.empty) {
-                const foundUser = querySnapshot.docs[0].data() as AppUser;
-                setSearchResult(foundUser);
-            } else {
-                setSearchResult({ error: "User not found." });
-            }
-        };
-    
-        const handleAddFriend = async () => {
-            if (!userId || !searchResult || 'error' in searchResult) return;
-            
-            const currentUserFriendsRef = doc(db, `/artifacts/${appId}/users/${userId}/friends`, searchResult.uid);
-            await setDoc(currentUserFriendsRef, searchResult);
-            
-            showNotification(`User ${searchResult.name} added as a friend.`);
-            setSearchResult(null);
-            setSearchEmail('');
-        };
-    
-        const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-            if (!newMessage.trim() || !userId || !selectedFriend?.id) return;
-            const chatId = [userId, selectedFriend.id].sort().join('_');
-            const messagesRef = collection(db, `/artifacts/${appId}/public/data/chats/${chatId}/messages`);
-            await addDoc(messagesRef, {
-                text: newMessage,
-                senderId: userId,
-                timestamp: serverTimestamp(),
-            });
-            setNewMessage('');
-        };
-    
         return (
-            <div className="p-4 sm:p-6 lg:p-8 text-white h-full flex flex-col">
-                 <header className="mb-6">
-                    <h2 className="text-2xl font-bold flex items-center gap-3"><Users size={28}/> Members & Chat</h2>
-                </header>
-                <div className="flex-grow flex border border-[#3A3A3C] rounded-lg overflow-hidden">
-                    <div className="w-1/3 flex flex-col border-r border-[#3A3A3C]">
-                        <div className="p-4 border-b border-[#3A3A3C]">
-                            <h3 className="text-lg font-semibold mb-2">Find Users</h3>
-                            <p className="text-sm text-[#A0A0A5] mb-2">Your Email: <span className="font-mono">{userEmail}</span></p>
-                            <form onSubmit={handleSearch} className="flex gap-2">
-                                <input
-                                    type="email"
-                                    value={searchEmail}
-                                    onChange={(e) => setSearchEmail(e.target.value)}
-                                    placeholder="Enter user's email"
-                                    className="flex-grow bg-[#262629] border border-[#3A3A3C] rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
-                                />
-                                <button type="submit" className="bg-[#6366F1] p-2 rounded-md hover:bg-opacity-90"><Search size={20} /></button>
-                            </form>
-                            {searchResult && (
-                                <div className="mt-4 p-3 bg-[#262629] rounded-md">
-                                    {'error' in searchResult ? (
-                                        <p className="text-red-400">{searchResult.error}</p>
-                                    ) : (
-                                        <div className="flex justify-between items-center">
-                                            <div>
-                                                <p className="font-semibold">{searchResult.name}</p>
-                                                <p className="text-sm text-[#A0A0A5]">{searchResult.email}</p>
-                                            </div>
-                                            <button onClick={handleAddFriend} className="bg-green-500 p-2 rounded-md hover:bg-green-600"><UserPlus size={18} /></button>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                        <div className="flex-grow p-4 overflow-y-auto hide-scrollbar">
-                            <h3 className="text-lg font-semibold mb-2">Friends</h3>
-                            <ul>
-                                {friends.map(friend => (
-                                    <li key={friend.id} onClick={() => setSelectedFriend(friend)}
-                                        className={`p-3 rounded-md cursor-pointer ${selectedFriend?.id === friend.id ? 'bg-[#3A3A3C]' : 'hover:bg-[#262629]'}`}>
-                                        <p className="font-semibold">{friend.name}</p>
-                                        <p className="text-sm text-[#A0A0A5]">{friend.email}</p>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="w-2/3 flex flex-col h-full">
-                        {selectedFriend ? (
-                            <>
-                                <div className="p-4 border-b border-[#3A3A3C] shrink-0">
-                                    <h3 className="font-semibold">Chat with <span className="text-[#A0A0A5]">{selectedFriend.name}</span></h3>
-                                </div>
-                                <div className="flex-grow p-4 overflow-y-auto hide-scrollbar">
-                                    {messages.map(msg => (
-                                        <div key={msg.id} className={`flex mb-3 ${msg.senderId === userId ? 'justify-end' : 'justify-start'}`}>
-                                            <div className={`p-3 rounded-lg max-w-lg ${msg.senderId === userId ? 'bg-[#6366F1] text-white' : 'bg-[#3A3A3C] text-white'}`}>
-                                                {msg.text}
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <div ref={messagesEndRef} />
-                                </div>
-                                <div className="p-4 border-t border-[#3A3A3C] shrink-0">
-                                    <form onSubmit={handleSendMessage} className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={newMessage}
-                                            onChange={(e) => setNewMessage(e.target.value)}
-                                            placeholder="Type a message..."
-                                            className="flex-grow bg-[#262629] border border-[#3A3A3C] rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
-                                        />
-                                        <button type="submit" className="bg-[#6366F1] p-2 rounded-md hover:bg-opacity-90"><Send size={20} /></button>
-                                    </form>
-                                </div>
-                            </>
-                        ) : (
-                            <div className="flex items-center justify-center h-full text-[#A0A0A5]">
-                                <p>Select a friend to start chatting.</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
+            <MembersPagePage
+              userId={userId}
+              userEmail={userEmail}
+              appId={appId}
+              friends={friends}
+              showNotification={(msg) => {showNotification(msg)}}
+            />
         );
     };
 
+
+
+
+
+
+
+
+
+
+    
     const ApiUsagePage = () => {
         const { summary, callsPerDayChart } = apiUsageData;
 
@@ -2494,7 +1503,7 @@ function UserSyncAndContent() {
   
     return (
       <>
-      
+
         <div style={{position:'fixed', bottom:'20px', right:'20px', zIndex:'1000'}}>
           <SignedIn>
               <UserButton afterSwitchSessionUrl='/' />
