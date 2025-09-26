@@ -87,7 +87,6 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({
         <div style={{ marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid #3A3A3C' }}>
           {cartItems.map(item => (
             <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <img src={item.thumbnail} alt={item.title} style={{ width: '4rem', height: '4rem', borderRadius: '0.5rem', objectFit: 'cover' }} />
               <div style={{ flexGrow: 1 }}>
                 <p style={{ fontSize: '1.125rem', fontWeight: '500' }}>{item.title}</p>
                 <p style={{ fontSize: '0.875rem', color: '#A0A0A5' }}>{item.description}</p>
