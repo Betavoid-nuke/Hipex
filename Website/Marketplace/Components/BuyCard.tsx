@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Product } from '../types'; // Adjust path as needed
 import RatingStars from './RatingStarSystem';
 
@@ -31,14 +31,37 @@ interface BuyCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
   onBuyNow: () => void;
-  isProductInCart: boolean;
   rating: number;
   reviews: string;
   twin: BaseItem;
 }
 
-const BuyCard: React.FC<BuyCardProps> = ({ product, onAddToCart, onBuyNow, isProductInCart, rating, reviews, twin }) => {
-  const { title, author, price, image } = product;
+let externalDisableAddBtn: ((disable: boolean) => void) | null = null;
+export function exthandleDisableAddBtn(disable: boolean) {
+  if (externalDisableAddBtn) {
+    externalDisableAddBtn(disable);
+  } else {
+    console.warn("exthandleAddToCart called before BuyAndCart mounted");
+  }
+}
+
+
+const BuyCard: React.FC<BuyCardProps> = ({ product, onAddToCart, onBuyNow, rating, reviews, twin }) => {
+
+  const [IsProductInCart, setIsProductInCart] = useState<boolean>(false);
+
+  const handleDisableAddToCart = useCallback((disable: boolean) => {
+    setIsProductInCart(disable);
+  }, []);
+  // Expose externalhandleAddToCart for outside use
+  useEffect(() => {
+    externalDisableAddBtn = handleDisableAddToCart;
+    return () => {
+      externalDisableAddBtn = null;
+    };
+  }, [handleDisableAddToCart]);
+
+
 
   return (
     <div className="commerce-section" style={{backgroundColor:'rgb(21 27 45)'}}>
@@ -61,10 +84,10 @@ const BuyCard: React.FC<BuyCardProps> = ({ product, onAddToCart, onBuyNow, isPro
         <button
           onClick={() => onAddToCart(product)}
           className="add-to-cart-btn"
-          disabled={isProductInCart}
-          style={{ opacity: isProductInCart ? 0.5 : 1, cursor: isProductInCart ? 'not-allowed' : 'pointer' }}
+          disabled={IsProductInCart}
+          style={{ opacity: IsProductInCart ? 0.5 : 1, cursor: IsProductInCart ? 'not-allowed' : 'pointer' }}
         >
-          {isProductInCart ? 'Added to Cart' : 'Add to Cart'}
+          {IsProductInCart ? 'Added to Cart' : 'Add to Cart'}
         </button>
       </div>
     </div>

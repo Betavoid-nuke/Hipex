@@ -5,12 +5,13 @@ import PhotoViewer from "../Components/PhotoViewer";
 import DownloadModal from "../Components/DownloadModel";
 import "../../../app/(twinx)/globals.css";
 import RatingStars from "../Components/RatingStarSystem";
-import { Product } from "../types";
+import { cart, Product } from "../types";
 import { BsCart2 } from "react-icons/bs";
 import MarketplaceCart from "../Components/BuyCart";
 import CheckoutModal from "../Components/CheckoutModal";
 import "../Styling/buyandcart.css"
 import BuyCard from "../Components/BuyCard";
+import { exthandleAddToCart, exthandleBuyNow } from "../Components/buyandcart";
 
 // Types
 interface BaseItem {
@@ -71,6 +72,7 @@ interface DetailedViewProps {
   onFavoriteToggle: (id: string) => void;
   onSelectTwin: (twin: BaseItem) => void;
   onCommentAdded: (twinId: string, newComment: { user: string; comment: string; date: Date }) => void;
+  cart: cart;
 }
 
 const DetailedView: React.FC<DetailedViewProps> = ({
@@ -80,6 +82,7 @@ const DetailedView: React.FC<DetailedViewProps> = ({
   onSelectTwin,
   userId,
   onCommentAdded,
+  cart
 }) => {
 
   const [newComment, setNewComment] = useState("");
@@ -131,64 +134,6 @@ const DetailedView: React.FC<DetailedViewProps> = ({
   const reviews = twin.reviews || 0;
 
 
-
-
-
-
-  // BUY AND CART FUNCTIONALITIES -----------------------------------------------
-  const [cart, setCart] = useState<Product[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // This is your product data. In a real app, this would likely come from an API.
-  const product: Product = {
-    id: 'prod_12345',
-    title: 'Awesome Product',
-    description: 'A digital download for an awesome product.',
-    author: 'AI Creator',
-    price: 29.99,
-    image: 'https://placehold.co/600x400/17151f/A0A0A5?text=Awesome+Product',
-    category: 'Digital',
-    thumbnail: 'https://placehold.co/100x100/17151f/A0A0A5?text=Product'
-  };
-
-  const handleAddToCart = (productToAdd: Product) => {
-    // Prevent adding the same product multiple times
-    if (!cart.find(item => item.id === productToAdd.id)) {
-      setCart(prevCart => [...prevCart, productToAdd]);
-    }
-  };
-
-  const handleRemoveFromCart = (productId: string) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== productId));
-  };
-
-  const handleBuyNow = () => {
-    // If the item isn't in the cart, add it before opening the modal
-    if (!cart.find(item => item.id === product.id)) {
-      setCart([product]);
-    }
-    setIsCartOpen(false);
-    setIsModalOpen(true);
-  };
-  
-  const handleCheckout = () => {
-    setIsCartOpen(false);
-    setIsModalOpen(true);
-  };
-
-  const handlePaymentSuccess = () => {
-    setIsModalOpen(false);
-    setCart([]); // Clear the cart after successful payment
-    alert('Payment successful! (Simulated)');
-  };
-  
-  const isProductInCart = cart.some(item => item.id === product.id);
-
-
-
-
-
   return ( 
     <div className="p-4 sm:p-6 lg:p-8 text-white" style={{backgroundColor:'transparent'}}>
       <div className="max-w-7xl mx-auto">
@@ -217,44 +162,6 @@ const DetailedView: React.FC<DetailedViewProps> = ({
             </svg>
             Back to Marketplace
           </button>
-
-
-
-
-
-
-
-
-
-
-
-
-
-          {/* move this to the marketplace page so the cart information is persistent */}
-
-
-          {/* Cart Icon */}
-          <button onClick={() => setIsCartOpen(true)} className="cart-icon" style={{backgroundColor:'#6366f1'}}>
-              {/* You can add your cart icon here, e.g., from a library like react-icons */}
-              <BsCart2 size={22} />
-              {cart.length > 0 && (
-                  <span className="cart-count">{cart.length}</span>
-              )}
-          </button>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -429,10 +336,9 @@ const DetailedView: React.FC<DetailedViewProps> = ({
           <div className="w-full lg:w-1/4" style={{width:'25%', marginRight:'20px'}}>
 
             <BuyCard 
-              product={product} 
-              onAddToCart={handleAddToCart}
-              onBuyNow={handleBuyNow}
-              isProductInCart={isProductInCart}
+              product={cart.product} 
+              onAddToCart={(product) => {exthandleAddToCart(product)}}
+              onBuyNow={() => {exthandleBuyNow()}}
               rating={rating}
               reviews={reviews.toString()}
               twin={twin}
@@ -467,22 +373,6 @@ const DetailedView: React.FC<DetailedViewProps> = ({
           onClose={() => setShowDownloadModal(false)}
         />
       )}
-
-
-      <MarketplaceCart 
-        isOpen={isCartOpen}
-        cartItems={cart}
-        onClose={() => setIsCartOpen(false)}
-        onRemoveItem={handleRemoveFromCart}
-        onCheckout={handleCheckout}
-      />
-      
-      <CheckoutModal 
-        isOpen={isModalOpen}
-        cartItems={cart}
-        onClose={() => setIsModalOpen(false)}
-        onPaymentSubmit={handlePaymentSuccess}
-      />
 
     </div>
   );

@@ -34,7 +34,6 @@ interface MarketplaceCardProps {
 const MarketplaceCard: FC<MarketplaceCardProps> = ({ item, onFavoriteToggle, onSelect }) => {
   const rating = item.rating || 0;
   const reviews = item.reviews || 0;
-  console.log(rating, reviews);
 
   return (
     <div className="marketplace-card" onClick={() => onSelect(item)} style={{backgroundColor:'#10121f', border:'none'}}>

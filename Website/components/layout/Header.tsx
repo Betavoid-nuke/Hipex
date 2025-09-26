@@ -1,6 +1,7 @@
 import { PageName } from '@/app/(root)/page';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import ClerkSignInOutButtons from '../Components/ClerkSignInOutButtons';
+import CartButton from '@/Website/Marketplace/Components/cartbutton';
 
 interface HeaderProps {
     activePage: PageName;
@@ -18,7 +19,7 @@ const navLinks: { name: string, page: PageName }[] = [
     { name: 'Get in Touch', page: 'contact' },
 ];
 
-const Header = ({ activePage, onNavClick, onWaitlistClick, onLoginClick }: HeaderProps) => {
+const Header = ({ activePage, onNavClick, onWaitlistClick, onLoginClick,  }: HeaderProps) => {
     return (
         <header className="header">
             <nav className="navbar-container">
@@ -44,6 +45,7 @@ const Header = ({ activePage, onNavClick, onWaitlistClick, onLoginClick }: Heade
                         Login
                     </a>
                 </div>
+                <CartButton />
             </nav>
         </header>
     );

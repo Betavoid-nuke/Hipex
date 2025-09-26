@@ -4,6 +4,9 @@ import NewProjectModal from '../../Marketplace/Components/NewProjectModelMarketP
 import UploadPage from '@/Website/Marketplace/Pages/UploadPage';
 import DetailedView from '@/Website/Marketplace/Pages/DetailedPage';
 import MarketplacePage from '@/Website/Marketplace/Pages/ListingPage';
+import MarketplaceCart from '@/Website/Marketplace/Components/BuyCart';
+import CheckoutModal from '@/Website/Marketplace/Components/CheckoutModal';
+import BuyAndCart from '@/Website/Marketplace/Components/buyandcart';
 
 
 // Extend the Window interface to include properties from external scripts
@@ -437,6 +440,7 @@ const MarketplacePageTwinx = () => {
 
     return (
         <section id="marketplace" className="pt-32 pb-24" style={{display:'block', marginTop:'-180px', background:'rgb(9 10 20)'}}>
+
            <style>
                 {`
                 .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -447,6 +451,7 @@ const MarketplacePageTwinx = () => {
                 .form-checkbox:checked { background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e"); }
                 `}
             </style>
+
             <div className="min-h-screen" style={{
                 display: 'flex',
                 flexWrap: 'wrap',
@@ -464,6 +469,7 @@ const MarketplacePageTwinx = () => {
                             onSelectTwin={handleSelectTwin}
                             userId={userId}
                             onCommentAdded={handleCommentAdded}
+                            cart={{product: selectedTwin}}
                         />
                     ) : (
                         <MarketplacePage 
@@ -482,8 +488,11 @@ const MarketplacePageTwinx = () => {
                 />
            
                 <AppNotification />
-                
+
+                <BuyAndCart />
+
             </div>
+
         </section>
     );
 
