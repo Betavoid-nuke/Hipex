@@ -196,7 +196,7 @@ const TOTAL_STEPS = PIPELINE_CONFIG.length;
 
 export default function dataManager(){
     const DataManager = {marketplaceListing: marketplaceListingsJson, users: USERS, assetListing: assetsJson,
-        listingAnalyticData: analyticsData, ApiUsageData: apiUsageData, sidebarConfig: SIDEBAR_CONFIG, PipelineConfig: PIPELINE_CONFIG, TotalPipelineSteps: TOTAL_STEPS
+        listingAnalyticData: analyticsData, ApiUsageData: apiUsageData, sidebarConfig: SIDEBAR_CONFIG, PipelineConfig: PIPELINE_CONFIG, TotalPipelineSteps: TOTAL_STEPS, MylistedModels :myListedTwinsJson
     };
     return DataManager;
 }

@@ -36,6 +36,9 @@ import PlansPagePage from '@/twinx/pages/PlansPage';
 import ApiPagePage from '@/twinx/pages/ApiPage';
 import ApiGuidePagePage from '@/twinx/pages/ApiGuidePage';
 import MembersPagePage from '@/twinx/pages/MembersPage';
+import ApiUsagePagePage from '@/twinx/pages/ApiUsagePage';
+import MarketplacePagePage from '@/twinx/pages/MarketplacePage';
+import AnalyticsPagePage from '@/twinx/pages/AnalyticsPage';
 
 
 // Extend the Window interface to include properties from external scripts
@@ -606,74 +609,19 @@ function MainPage() {
         );
     };
 
-
-
-
-
-
-
-
-
-
-    
     const ApiUsagePage = () => {
-        const { summary, callsPerDayChart } = apiUsageData;
-
-        const StatCard = ({ icon: Icon, title, value, color, trend }: { icon: React.ComponentType<LucideProps>, title: string, value: string, color: string, trend?: string | null}) => (
-            <div className="bg-[#262629] p-6 rounded-lg border border-[#3A3A3C] flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                    <div className={`p-2 rounded-full bg-${color}-500/20 text-${color}-400`}>
-                        <Icon size={24} />
-                    </div>
-                     {trend && <span className={`text-sm font-semibold flex items-center ${trend.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}><TrendingUp size={16} className="mr-1"/>{trend}</span>}
-                </div>
-                <div>
-                    <p className="text-3xl font-bold text-white mt-4">{value}</p>
-                    <p className="text-sm text-[#A0A0A5]">{title}</p>
-                </div>
-            </div>
-        );
-
         return (
-            <div className="p-4 sm:p-6 lg:p-8 text-white">
-                 <header className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold flex items-center gap-3"><BarChart2 size={28}/> API Usage</h2>
-                     <div className="flex items-center gap-2 text-sm text-[#A0A0A5]">
-                        <Calendar size={16} />
-                        <span>Last 30 days</span>
-                        <ChevronDown size={16} />
-                    </div>
-                </header>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard icon={Zap} title="Total Requests" value={summary.totalRequests.value} color="blue" trend={summary.totalRequests.trend} />
-                    <StatCard icon={Server} title="Data Processed" value={summary.dataProcessed.value} color="purple" trend={summary.dataProcessed.trend} />
-                    <StatCard icon={CheckCircle} title="Successful Requests" value={summary.successfulRequests.value} color="green" trend={summary.successfulRequests.trend}/>
-                    <StatCard icon={AlertTriangle} title="Error Rate" value={summary.errorRate.value} color="red" trend={summary.errorRate.trend}/>
-                </div>
-                 <div className="mt-8">
-                     <div className="bg-[#262629] p-6 rounded-lg border border-[#3A3A3C]">
-                        <h3 className="text-lg font-semibold mb-4">API Calls per Day</h3>
-                        <ResponsiveContainer width="100%" height={400}>
-                             <AreaChart data={callsPerDayChart} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                <defs>
-                                    <linearGradient id="colorApi" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
-                                <XAxis dataKey="day" stroke="#8A8A8E" fontSize={12} />
-                                <YAxis stroke="#8A8A8E" fontSize={12} />
-                                <CartesianGrid strokeDasharray="3 3" stroke="#3A3A3C" />
-                                <Tooltip contentStyle={{ backgroundColor: '#1C1C1E', border: '1px solid #3A3A3C' }} />
-                                <Area type="monotone" dataKey="requests" stroke="#8884d8" fillOpacity={1} fill="url(#colorApi)" />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                     </div>
-                </div>
-            </div>
+            <ApiUsagePagePage />
         );
     };
 
+
+
+
+
+
+
+    //del later
     const MarketplaceCard = ({ item, onFavoriteToggle, onSelect }: {item: BaseItem, onFavoriteToggle: (id: string) => void, onSelect: (item: BaseItem) => void}) => (
         <div className="bg-[#262629] rounded-lg overflow-hidden shadow-lg border border-[#3A3A3C] flex flex-col transition-all duration-200 h-full group cursor-pointer" onClick={() => onSelect(item)}>
             <div className="relative">
@@ -700,302 +648,25 @@ function MainPage() {
         </div>
     );
 
-    const NetworkUserCard = ({ user }: { user: AppUser }) => (
-        <div className="bg-[#262629] rounded-lg p-4 text-center border border-[#3A3A3C] hover:border-[#4A4A4C] transition-colors">
-            <img src={user.avatar} alt={user.name} className="w-20 h-20 rounded-full mx-auto mb-4" />
-            <h3 className="font-bold text-white">{user.name}</h3>
-            <p className="text-sm text-[#A0A0A5]">{user.email}</p>
-        </div>
-    );
+
+
 
     const MarketplacePage = ({ friends, onSelectTwin }: { friends: AppUser[], onSelectTwin: (twin: BaseItem) => void }) => {
-        const [listings, setListings] = useState<BaseItem[]>(marketplaceListingsJson);
-        const [assets, setAssets] = useState<BaseItem[]>(assetsJson);
-        const [filteredListings, setFilteredListings] = useState<BaseItem[]>(listings);
-        const [marketSearchTerm, setMarketSearchTerm] = useState<string>('');
-        const [category, setCategory] = useState<string>('All');
-        const [date, setDate] = useState<string>('All');
-        const [licenses, setLicenses] = useState({ downloadable: false, animated: false, free: false });
-        const [sortBy, setSortBy] = useState<string>('relevance');
-        const [activeTab, setActiveTab] = useState<string>('Store');
-        const [favoriteSubTab, setFavoriteSubTab] = useState<string>('Digital Twins');
-
-        const myListedModels = useMemo(() => myListedTwinsJson, []);
-
-        const handleResetFilters = () => {
-            setMarketSearchTerm('');
-            setCategory('All');
-            setDate('All');
-            setLicenses({ downloadable: false, animated: false, free: false });
-            setSortBy('relevance');
-        };
-        
-        const toggleListingFavorite = (id: string) => {
-            const updateList = (listSetter: React.Dispatch<React.SetStateAction<BaseItem[]>>) => {
-                listSetter(prevList => prevList.map(item => item.id === id ? { ...item, isFavorite: !item.isFavorite } : item));
-            };
-            
-            if (listings.some(item => item.id === id)) updateList(setListings);
-            if (assets.some(item => item.id === id)) updateList(setAssets);
-        };
-
-        useEffect(() => {
-            let sourceData: BaseItem[];
-            if (activeTab === 'My Listed Twins') sourceData = myListedModels;
-            else if (activeTab === '3D Assets') sourceData = assets;
-            else if (activeTab === 'Store') sourceData = listings;
-            else {
-                setFilteredListings([]);
-                return;
-            }
-
-            let result = sourceData.filter(item => 
-                item.title.toLowerCase().includes(marketSearchTerm.toLowerCase()) ||
-                item.author.toLowerCase().includes(marketSearchTerm.toLowerCase())
-            );
-
-            if (category !== 'All') result = result.filter(item => item.category === category);
-            if (licenses.downloadable) result = result.filter(item => item.isDownloadable);
-            if (licenses.animated) result = result.filter(item => item.isAnimated);
-            if (licenses.free) result = result.filter(item => item.price === 0);
-
-            result.sort((a, b) => {
-                switch (sortBy) {
-                    case 'likes': return b.likes - a.likes;
-                    case 'date': return b.date.getTime() - a.date.getTime();
-                    case 'price_asc': return a.price - b.price;
-                    case 'price_desc': return b.price - a.price;
-                    default: return b.likes - a.likes;
-                }
-            });
-
-            setFilteredListings(result);
-        }, [marketSearchTerm, category, licenses, sortBy, listings, assets, activeTab, myListedModels]);
-
-        const categories = useMemo(() => [
-            'All', 'Home', 'Office', 'Warehouse', 'Factory', 'Hall', 'Hotel', 
-            'Lobby', 'Stadium', 'Building', 'Venues', 'Penthouse', 'Mansion',
-            'Props', 'Nature', 'Weapons'
-        ], []);
-        
-        const renderContent = () => {
-            switch(activeTab) {
-                case 'My Network':
-                    return (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                            {friends.map(friend => <NetworkUserCard key={friend.uid} user={friend} />)}
-                        </div>
-                    );
-                case 'Favorites':
-                    const favoriteTwins = listings.filter(item => item.isFavorite);
-                    const favoriteAssets = assets.filter(item => item.isFavorite);
-                    const itemsToShow = favoriteSubTab === 'Digital Twins' ? favoriteTwins : favoriteAssets;
-                    return (
-                        <div>
-                            <div className="flex items-center gap-4 mb-6 border-b border-[#3A3A3C]">
-                                <button onClick={() => setFavoriteSubTab('Digital Twins')} className={`py-2 px-1 ${favoriteSubTab === 'Digital Twins' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>Digital Twins</button>
-                                <button onClick={() => setFavoriteSubTab('Assets')} className={`py-2 px-1 ${favoriteSubTab === 'Assets' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>Assets</button>
-                            </div>
-                            {itemsToShow.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                    {itemsToShow.map(item => <MarketplaceCard key={item.id} item={item} onFavoriteToggle={toggleListingFavorite} onSelect={onSelectTwin} />)}
-                                </div>
-                            ) : (
-                                <div className="text-center py-20 text-[#A0A0A5] border-2 border-dashed border-[#3A3A3C] rounded-lg">
-                                    <Heart size={48} className="mx-auto" />
-                                    <h3 className="mt-4 text-xl font-bold text-white">No Favorites Yet</h3>
-                                    <p>Click the heart icon on any item to add it to your favorites.</p>
-                                </div>
-                            )}
-                        </div>
-                    );
-                case 'Store':
-                case '3D Assets':
-                case 'My Listed Twins':
-                default:
-                    return (
-                        <>
-                            {filteredListings.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                    {filteredListings.map(item => <MarketplaceCard key={item.id} item={item} onFavoriteToggle={toggleListingFavorite} onSelect={onSelectTwin} />)}
-                                </div>
-                            ) : (
-                                <div className="text-center py-20 text-[#A0A0A5] col-span-full">
-                                    <Search size={48} className="mx-auto" />
-                                    <h3 className="mt-4 text-xl font-bold text-white">No results found</h3>
-                                    <p>Try adjusting your search or filters to find what you're looking for.</p>
-                                </div>
-                            )}
-                        </>
-                    );
-            }
-        };
-
         return (
-            <div className="p-4 sm:p-6 lg:p-8 text-white">
-                <div className="flex items-center justify-between gap-4 mb-4">
-                    <div className="flex items-center gap-3">
-                        <Store size={32} className="text-indigo-400" />
-                        <h1 className="text-2xl font-bold">TwinX Store</h1>
-                    </div>
-                    <form className="flex-grow max-w-2xl flex gap-2" onSubmit={(e) => e.preventDefault()}>
-                        <div className="relative flex-grow">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0A0A5]" size={20} />
-                            <input
-                                type="text"
-                                placeholder="Search for digital twins"
-                                value={marketSearchTerm}
-                                onChange={e => setMarketSearchTerm(e.target.value)}
-                                className="w-full bg-[#262629] border border-[#3A3A3C] rounded-full pl-12 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
-                            />
-                        </div>
-                         <button type="submit" className="bg-[#6366F1] hover:bg-opacity-90 text-white font-semibold py-3 px-6 rounded-full transition-colors">
-                            Search
-                        </button>
-                    </form>
-                </div>
-
-                <div className="border-b border-[#3A3A3C] mb-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-6">
-                             <a href="#" onClick={(e) => {e.preventDefault(); setActiveTab('My Listed Twins')}} className={`py-3 ${activeTab === 'My Listed Twins' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>My Listed Twins</a>
-                             <a href="#" onClick={(e) => {e.preventDefault(); setActiveTab('My Network')}} className={`py-3 ${activeTab === 'My Network' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>My Network</a>
-                             <a href="#" onClick={(e) => {e.preventDefault(); setActiveTab('Store')}} className={`py-3 ${activeTab === 'Store' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>Store</a>
-                             <a href="#" onClick={(e) => {e.preventDefault(); setActiveTab('3D Assets')}} className={`py-3 ${activeTab === '3D Assets' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>3D Assets</a>
-                             <a href="#" onClick={(e) => {e.preventDefault(); setActiveTab('Favorites')}} className={`py-3 ${activeTab === 'Favorites' ? 'text-white font-semibold border-b-2 border-white' : 'text-[#A0A0A5] hover:text-white'}`}>Favorites</a>
-                        </div>
-                        <button className="flex items-center gap-2 text-[#A0A0A5] hover:text-white">
-                            <ListFilter size={18} />
-                            <span>Filters & Sort</span>
-                        </button>
-                    </div>
-                </div>
-                 {(activeTab === 'Store' || activeTab === 'My Listed Twins' || activeTab === '3D Assets') && (
-                    <div className="flex items-center justify-between gap-4 mb-8 text-sm">
-                        <div className="flex items-center gap-4 flex-wrap">
-                            <div className="flex items-center gap-2">
-                                 <span className="text-xs uppercase text-[#8A8A8E]">Category</span>
-                                 <div className="relative">
-                                    <select value={category} onChange={e => setCategory(e.target.value)} className="bg-[#262629] border border-[#3A3A3C] rounded-md pl-3 pr-8 py-1 text-white focus:outline-none focus:ring-1 focus:ring-[#6366F1] appearance-none">
-                                        {categories.map(c => <option key={c} value={c} className="bg-[#262629] text-white">{c}</option>)}
-                                    </select>
-                                    <ChevronDown size={16} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#A0A0A5] pointer-events-none" />
-                                </div>
-                            </div>
-                             <div className="flex items-center gap-2">
-                                 <span className="text-xs uppercase text-[#8A8A8E]">Date</span>
-                                 <div className="relative">
-                                    <select value={date} onChange={e => setDate(e.target.value)} className="bg-[#262629] border border-[#3A3A3C] rounded-md pl-3 pr-8 py-1 text-white focus:outline-none focus:ring-1 focus:ring-[#6366F1] appearance-none">
-                                         <option value="All" className="bg-[#262629] text-white">All time</option>
-                                         <option value="week" className="bg-[#262629] text-white">This week</option>
-                                         <option value="month" className="bg-[#262629] text-white">This month</option>
-                                         <option value="year" className="bg-[#262629] text-white">This year</option>
-                                     </select>
-                                     <ChevronDown size={16} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#A0A0A5] pointer-events-none" />
-                                 </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                 <label className="flex items-center gap-2 cursor-pointer">
-                                     <input type="checkbox" checked={licenses.downloadable} onChange={e => setLicenses({...licenses, downloadable: e.target.checked})} className="form-checkbox bg-[#3A3A3C] border-[#8A8A8E] rounded text-indigo-500 focus:ring-indigo-500" />
-                                     <span>Downloadable</span>
-                                 </label>
-                                 <label className="flex items-center gap-2 cursor-pointer">
-                                     <input type="checkbox" checked={licenses.animated} onChange={e => setLicenses({...licenses, animated: e.target.checked})} className="form-checkbox bg-[#3A3A3C] border-[#8A8A8E] rounded text-indigo-500 focus:ring-indigo-500" />
-                                     <span>Animated</span>
-                                 </label>
-                                 <label className="flex items-center gap-2 cursor-pointer">
-                                     <input type="checkbox" checked={licenses.free} onChange={e => setLicenses({...licenses, free: e.target.checked})} className="form-checkbox bg-[#3A3A3C] border-[#8A8A8E] rounded text-indigo-500 focus:ring-indigo-500" />
-                                     <span>Free</span>
-                                 </label>
-                            </div>
-                            <button onClick={handleResetFilters} className="text-indigo-400 hover:underline">Reset</button>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs uppercase text-[#8A8A8E]">Sort By</span>
-                            <div className="relative">
-                                <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="bg-[#262629] border border-[#3A3A3C] rounded-md pl-3 pr-8 py-1 text-white focus:outline-none focus:ring-1 focus:ring-[#6366F1] appearance-none">
-                                    <option value="relevance" className="bg-[#262629] text-white">Relevance</option>
-                                    <option value="likes" className="bg-[#262629] text-white">Most Liked</option>
-                                    <option value="date" className="bg-[#262629] text-white">Newest</option>
-                                    <option value="price_asc" className="bg-[#262629] text-white">Price: Low to High</option>
-                                    <option value="price_desc" className="bg-[#262629] text-white">Price: High to Low</option>
-                                </select>
-                                <ChevronDown size={16} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#A0A0A5] pointer-events-none" />
-                            </div>
-                        </div>
-                    </div>
-                )}
-                
-                {renderContent()}
-            </div>
+            <MarketplacePagePage friends={friends} onSelectTwin={onSelectTwin} />
         );
     };
 
     const AnalyticsPage = () => {
-        const { summary, salesRevenueChart } = analyticsData;
-
-        const StatCard = ({ icon: Icon, title, value, color, trend }: { icon: React.ComponentType<LucideProps>, title: string, value: string, color: string, trend?: string | null}) => (
-            <div className="bg-[#262629] p-6 rounded-lg border border-[#3A3A3C] flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                    <div className={`p-2 rounded-full bg-${color}-500/20 text-${color}-400`}>
-                        <Icon size={24} />
-                    </div>
-                    {trend && <span className={`text-sm font-semibold flex items-center ${trend.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}><TrendingUp size={16} className="mr-1"/>{trend}</span>}
-                </div>
-                <div>
-                    <p className="text-3xl font-bold text-white mt-4">{value}</p>
-                    <p className="text-sm text-[#A0A0A5]">{title}</p>
-                </div>
-            </div>
-        );
-
         return (
-            <div className="p-4 sm:p-6 lg:p-8 text-white">
-                <header className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold flex items-center gap-3"><BarChart2 size={28}/> Your Twins Analytics</h2>
-                    <div className="flex items-center gap-2 text-sm text-[#A0A0A5]">
-                        <Calendar size={16} />
-                        <span>Last 30 days</span>
-                        <ChevronDown size={16} />
-                    </div>
-                </header>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard icon={DollarSign} title="Total Revenue" value={summary.totalRevenue.value} color="green" trend={summary.totalRevenue.trend} />
-                    <StatCard icon={TrendingUp} title="Total Sales" value={summary.totalSales.value} color="blue" trend={summary.totalSales.trend} />
-                    <StatCard icon={MousePointerClick} title="Total Clicks" value={summary.totalClicks.value} color="purple" trend={summary.totalClicks.trend} />
-                    <StatCard icon={Clock} title="Avg. Time Spent" value={summary.avgTimeSpent.value} color="yellow" trend={summary.avgTimeSpent.trend} />
-                </div>
-
-                <div className="mt-8">
-                     <div className="bg-[#262629] p-6 rounded-lg border border-[#3A3A3C]">
-                        <h3 className="text-lg font-semibold mb-4">Sales & Revenue</h3>
-                        <ResponsiveContainer width="100%" height={400}>
-                             <AreaChart data={salesRevenueChart} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                <defs>
-                                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#6366F1" stopOpacity={0.8}/>
-                                    <stop offset="95%" stopColor="#6366F1" stopOpacity={0}/>
-                                    </linearGradient>
-                                    <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
-                                    <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
-                                <XAxis dataKey="name" stroke="#8A8A8E" />
-                                <YAxis stroke="#8A8A8E" />
-                                <CartesianGrid strokeDasharray="3 3" stroke="#3A3A3C" />
-                                <Tooltip contentStyle={{ backgroundColor: '#1C1C1E', border: '1px solid #3A3A3C' }} />
-                                <Legend />
-                                <Area type="monotone" dataKey="revenue" stroke="#6366F1" fillOpacity={1} fill="url(#colorRevenue)" />
-                                <Area type="monotone" dataKey="sales" stroke="#82ca9d" fillOpacity={1} fill="url(#colorSales)" />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                     </div>
-                </div>
-            </div>
+            <AnalyticsPagePage />
         );
     };
     
+
+
+
+
     const YourTwinsPage = () => {
         const [activeTab, setActiveTab] = useState<string>('Models');
         const userListedTwins = useMemo(() => myListedTwinsJson, []);
@@ -1350,11 +1021,11 @@ function MainPage() {
             'api': <ApiPage />,
             'apiguide': <ApiGuidePage />,
             'apiusage': <ApiUsagePage />,
-            'updates': <PlaceholderView title="Pending Updates" icon={Download}/>,
+            'updates': <PlaceholderView />,
             'profile': <ProfilePage />,
             'settings': <SettingsPage />,
             'integrations': <IntegrationsPage handleNavigate={handleNavigate} />,
-            'templates': <PlaceholderView title="Templates" icon={LayoutTemplate}/>,
+            'templates': <PlaceholderView />,
         };
         return views[currentView] || <Dashboard />;
 
