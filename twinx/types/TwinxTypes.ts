@@ -80,7 +80,6 @@ export interface NewProjectModalProps {
     isOpen: boolean;
     onClose: () => void;
     userId: string | null;
-    showNotification: (message: string) => void;
 }
 
 export interface DeleteConfirmationModalProps {

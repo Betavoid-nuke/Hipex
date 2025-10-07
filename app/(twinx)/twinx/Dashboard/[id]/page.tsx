@@ -1,8 +1,12 @@
 import { Briefcase, Plus, Search } from "lucide-react";
-import ProjectCard from "../components/ProjectCard";
 import { useEffect, useMemo, useState } from "react";
-import { AppUser, BaseItem, DraggingProject, Project } from "../types/TwinxTypes";
 import { Timestamp } from "firebase/firestore";
+import { DraggingProject, Project } from "@/twinx/types/TwinxTypes";
+import ProjectCardCore from "@/twinx/components/ProjectCard";
+import { useParams } from "next/navigation";
+import NewProjectModal from "@/twinx/components/NewProjectModel";
+import { copyToClipboard } from "@/twinx/utils/TwinxUtils";
+import { getProjectsByUserId, updateProjectKeyById } from "@/twinx/utils/twinxDBUtils";
 
 
 interface props {
@@ -13,8 +17,8 @@ interface props {
     copyToClipboard: (text: string, message: string) => void;
     togglePublish: (id: string, isPublished: boolean) => void;
 }
-    
-export default function DashboardCore({setIsModalOpen, handleSelectProject, handleDeleteClick, toggleFavorite, copyToClipboard, togglePublish  }: props) {
+
+export default function DashboardCore() {
 
 
     const [searchTerm, setSearchTerm] = useState<string>('');
@@ -24,6 +28,7 @@ export default function DashboardCore({setIsModalOpen, handleSelectProject, hand
     const [draggingProject, setDraggingProject] = useState<DraggingProject | null>(null);
     const [projects, setProjects] = useState<Project[]>([]);
     const [userId, setUserId] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
 
     const filteredAndSortedProjects = useMemo(() => projects
@@ -39,23 +44,60 @@ export default function DashboardCore({setIsModalOpen, handleSelectProject, hand
         }
     }), [projects, searchTerm, filter, sort]);
 
+    function hendleCopyTwinxID(message:string){
+      copyToClipboard(message, "Copied to clipboard!")
+    }
+
     //will come from the page [id]
-    // setUserId();
+    const params = useParams();
+    const id = params?.id as string;
+    setUserId(id);
 
-    // --- Projects Fetching ---
+
+    // --- Projects Fetching ---     --DB
     useEffect(() => {
-        if (!userId) return;
-
-        //logic for fetching projects from mongoDB
-        // setProjects(fetchedProjects);
-
-    }, [userId]);
+      if (!userId) return;
     
+      const fetchProjects = async () => {
+        const result = await getProjectsByUserId(userId);
+      
+        if (result.success && result.data) {
+          setProjects(result.data);
+        } else {
+          setProjects([]);
+        }
+      };
+    
+      fetchProjects();
+    }, [userId]);
 
+    //toggle fav on project models     --DB
+    const toggleFavorite = async (projectId: string, isFavorite: boolean) => {
+    };
+
+
+
+
+
+
+    // code the toggle fav for db so the user model gets updated and the new fav project gets added to the user model
+
+
+
+
+
+
+
+
+    //toggle published on project models     --DB
+    const togglePublish = async (projectId: string, isPublished: boolean) => {
+      await updateProjectKeyById(projectId, "published", isPublished);
+    };
 
     return (
         <div className="p-4 sm:p-6 lg:p-8">
-            <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+
+          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                 <h2 className="text-2xl font-bold text-white mb-4 sm:mb-0 flex items-center gap-3"><Briefcase size={28}/> Digital Twins</h2>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
                     <div className="relative w-full sm:w-auto">
@@ -79,30 +121,35 @@ export default function DashboardCore({setIsModalOpen, handleSelectProject, hand
                         <Plus size={20} /> New Digital Twin
                     </button>
                 </div>
-            </header>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          </header>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredAndSortedProjects.map(project => (
-                    <ProjectCard 
-                        key={project.id} 
-                        project={project} 
-                        setDraggingProject={setDraggingProject}
-                        isDragging={draggingProject?.id === project.id}
-                        activeDropdown={activeDropdown}
-                        handleSelectProject={handleSelectProject}
-                        handleDeleteClick={handleDeleteClick}
-                        toggleFavorite={toggleFavorite}
-                        setActiveDropdown={setActiveDropdown}
-                        copyToClipboard={copyToClipboard}
-                        togglePublish= {togglePublish}
+                    <ProjectCardCore 
+                      key={project.id} 
+                      project={project} 
+                      setDraggingProject={setDraggingProject}
+                      isDragging={draggingProject?.id === project.id}
+                      activeDropdown={activeDropdown}
+                      toggleFavorite={toggleFavorite}
+                      setActiveDropdown={setActiveDropdown}
+                      copyToClipboard={(text) => {hendleCopyTwinxID(text)}}
+                      togglePublish= {togglePublish}
                     />
                 ))}
-            </div>
-             {filteredAndSortedProjects.length === 0 && (
+          </div>
+           {filteredAndSortedProjects.length === 0 && (
                 <div className="text-center py-20 text-[#A0A0A5] col-span-full">
                     <p>No Digital Twins found.</p>
                     <p>Click "New Digital Twin" to get started.</p>
                 </div>
-            )}
+          )}
+
+          <NewProjectModal 
+              isOpen={isModalOpen} 
+              onClose={() => setIsModalOpen(false)} 
+              userId={userId}
+          />
+
         </div>
     );
     

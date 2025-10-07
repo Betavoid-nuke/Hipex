@@ -38,6 +38,18 @@ const userSchema = new mongoose.Schema({
       ref: "Community",
     },
   ],
+  twinxprojects:[
+    {
+      type: String, //array of projectIDs on mongo
+      unique: false,
+    }
+  ],
+  twinxfavprojects:[
+    {
+      type: String, //array of projectIDs on mongo
+      unique: false,
+    }
+  ]
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

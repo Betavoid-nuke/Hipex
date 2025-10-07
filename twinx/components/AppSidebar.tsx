@@ -18,6 +18,8 @@ import { ChevronDown, Star } from "lucide-react";
 import dataManager from "../data/data";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsible";
+import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 
 interface AppSidebarProps {
   currentView: string;
@@ -25,8 +27,13 @@ interface AppSidebarProps {
 }
 
 export  default function AppSidebar({ currentView, onNavigate }: AppSidebarProps) {
+    
   const { state } = useSidebar();
   const isOpen = state === "expanded"; // "collapsed" if closed
+
+  const { user, isLoaded } = useUser();
+  if (!isLoaded) return null; // or loading spinner
+  const userId = user?.id;
 
   return (
     <Sidebar
@@ -84,21 +91,15 @@ export  default function AppSidebar({ currentView, onNavigate }: AppSidebarProps
                           return (
                             <SidebarMenuItem key={item.view}>
                               <SidebarMenuButton asChild>
-                                <button
-                                  onClick={() => onNavigate(item.view)}
-                                  className={`
-                                    flex items-center w-full rounded-md px-3 py-2 text-sm font-medium
-                                    transition-all duration-200 ease-in-out
-                                    ${
-                                      isActive
-                                        ? "bg-[#6366F1]/20 text-[#6366F1]"
-                                        : "text-gray-300 hover:bg-[#333336] hover:text-white"
-                                    }
-                                  `}
+
+                                <Link 
+                                  href={`${item.href}/${userId}`}
+                                  className="flex items-center gap-2 p-2 rounded hover:bg-gray-100"
                                 >
-                                  <item.icon className="w-5 h-5 shrink-0" />
-                                  {isOpen && <span className="ml-3">{item.text}</span>}
-                                </button>
+                                  <item.icon size={18} />
+                                  <span>{item.text}</span>
+                                </Link>
+
                               </SidebarMenuButton>
                             </SidebarMenuItem>
                           );

@@ -3,6 +3,8 @@ import { Timestamp } from "firebase/firestore";
 import dataManager from "../data/data";
 import { useRef } from "react";
 import { Copy, Eye, EyeOff, MoreVertical, Star, Trash2 } from "lucide-react";
+import Router from "next/router";
+import { deleteProject } from "../utils/twinxDBUtils";
 
 
 interface Project {
@@ -31,16 +33,14 @@ interface props {
     isDragging: boolean;
     activeDropdown: string | null;
     setActiveDropdown: (id: string | null) => void;
-    handleSelectProject: (project: Project) => void;
-    handleDeleteClick: (project: Project) => void;
     toggleFavorite: (id: string, isFavorite: boolean) => void;
-    copyToClipboard: (text: string, message: string) => void;
+    copyToClipboard: (text: string) => void;
     togglePublish: (id: string, isPublished: boolean) => void;
     dropdownRef?: React.RefObject<HTMLDivElement>;
 }
 
 
-export default function ProjectCardCore({ project, setDraggingProject, isDragging, activeDropdown, handleSelectProject, handleDeleteClick, toggleFavorite, setActiveDropdown, copyToClipboard, togglePublish, dropdownRef }: props) {
+export default function ProjectCardCore({ project, setDraggingProject, isDragging, activeDropdown, toggleFavorite, setActiveDropdown, copyToClipboard, togglePublish, dropdownRef }: props) {
     
     if(!project){return null;} // Ensure project is defined before proceeding
 
@@ -70,8 +70,8 @@ export default function ProjectCardCore({ project, setDraggingProject, isDraggin
         };
         const onUp = (upEvent: MouseEvent) => {
             if (!dragStarted) {
-                 if (!(upEvent.target as Element).closest('.more-options-button')) {
-                    handleSelectProject(project);
+                if (!(upEvent.target as Element).closest('.more-options-button')) {
+                    Router.push(`/project/${project.id}`);
                 }
             }
             window.removeEventListener('mousemove', onMove);
@@ -106,14 +106,14 @@ export default function ProjectCardCore({ project, setDraggingProject, isDraggin
                         {isDropdownOpen && (
                             <div className="absolute right-0 mt-2 w-48 bg-[#3A3A3C] border border-[#4A4A4C] rounded-md shadow-xl z-20">
                                 <a href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); togglePublish(project.id, project.isPublished); }} className="flex items-center gap-3 px-4 py-2 text-sm text-white hover:bg-[#4A4A4C]">{project.isPublished ? <EyeOff size={16}/> : <Eye size={16}/>} {project.isPublished ? 'Unpublish' : 'Publish'}</a>
-                                <a href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteClick(project); }} className="flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-[#4A4A4C]"><Trash2 size={16}/> Delete</a>
+                                <a href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); deleteProject(project.id); }} className="flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-[#4A4A4C]"><Trash2 size={16}/> Delete</a>
                             </div>
                         )}
                     </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-[#A0A0A5] font-mono mb-3">
                     <span className="truncate">{project.twinxid}</span>
-                    <Copy size={14} className="hover:text-white shrink-0 cursor-pointer" onClick={(e) => { e.stopPropagation(); copyToClipboard(project.twinxid, 'Twinx ID copied!'); }}/>
+                    <Copy size={14} className="hover:text-white shrink-0 cursor-pointer" onClick={(e) => { e.stopPropagation(); copyToClipboard(project.twinxid); }}/>
                 </div>
                 <div className="mt-auto">
                     <div className="w-full bg-[#3A3A3C] rounded-full h-2 mb-1">

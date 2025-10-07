@@ -43,6 +43,7 @@ import AnalyticsPagePage from '@/twinx/pages/AnalyticsPage';
 import "../globals.css"
 import AppSidebar from '@/twinx/components/AppSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { showNotification } from '@/twinx/components/AppNotification';
 
 
 // Extend the Window interface to include properties from external scripts
@@ -197,6 +198,7 @@ const SignedOut = dynamic(() => import('@clerk/nextjs').then(mod => mod.SignedOu
 
 // --- Main App Component ---
 function MainPage() {
+
     // --- State Management ---
     const [userId, setUserId] = useState<string | null>(null);
     const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -205,15 +207,10 @@ function MainPage() {
     const [previousView, setPreviousView] = useState<string>('dashboard');
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [selectedTwin, setSelectedTwin] = useState<BaseItem | null>(null);
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
     const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
-    const [searchTerm, setSearchTerm] = useState<string>('');
-    const [filter, setFilter] = useState<string>('All');
-    const [sort, setSort] = useState<string>('date_desc');
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-    const [notification, setNotification] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
     const [draggingProject, setDraggingProject] = useState<DraggingProject | null>(null);
     const [dragPosition, setDragPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [isOverTrash, setIsOverTrash] = useState<boolean>(false);
@@ -327,13 +324,6 @@ function MainPage() {
         return () => clearInterval(interval);
     }, [simulatingProjectId, userId]);
 
-
-
-    const showNotification = (message: string) => {
-        setNotification({ show: true, message });
-        setTimeout(() => setNotification({ show: false, message: '' }), 3000);
-    };
-
     const handleNavigate = (view: string) => {
         setCurrentView(view);
         if (view === 'dashboard') setSelectedProject(null);
@@ -405,11 +395,6 @@ function MainPage() {
         return () => document.removeEventListener('mousedown', handleOutsideClick);
     }, [handleOutsideClick]);
 
-    const handleSelectProject = (project: Project) => {
-        setSelectedProject(project);
-        setCurrentView('project');
-    };
-    
     const handleSelectTwin = (twin: BaseItem) => {
         setPreviousView(currentView);
         setSelectedTwin(twin);
@@ -440,19 +425,6 @@ function MainPage() {
         showNotification("Digital Twin deleted successfully.");
         setProjectToDelete(null);
     };
-
-    const filteredAndSortedProjects = useMemo(() => projects
-    .filter(p => p.title && p.title.toLowerCase().includes(searchTerm.toLowerCase()) && (filter === 'Favorites' ? p.isFavorite : true))
-    .sort((a, b) => {
-        const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
-        const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
-        switch (sort) {
-            case 'name_asc': return a.title.localeCompare(b.title);
-            case 'name_desc': return b.title.localeCompare(a.title);
-            case 'date_asc': return dateA - dateB;
-            default: return dateB - dateA;
-        }
-    }), [projects, searchTerm, filter, sort]);
     
     const copyToClipboard = (text: string, message: string) => {
         navigator.clipboard.writeText(text).then(() => {
@@ -463,59 +435,18 @@ function MainPage() {
         });
     };
 
-    // --- Render Components ---
-    const AppNotification = () => (
-        <div className={`fixed bottom-5 right-5 bg-[#6366F1] text-white py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-300 ${notification.show ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-            {notification.message}
-        </div>
-    );
 
 
 
 
 
+    // PAGES ------------------------------------z
 
-    // PAGES ------------------------------------
-
-    const Dashboard = () => {
+    const Dashboard = () => { // moved to page
         return (
-            <DashboardCore
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              filter={filter}
-              setFilter={setFilter}
-              sort={sort}
-              setSort={setSort}
-              filteredAndSortedProjects={filteredAndSortedProjects}
-              setDraggingProject={setDraggingProject}
-              draggingProject={draggingProject}
-              setIsModalOpen={setIsModalOpen}
-              handleSelectProject={handleSelectProject}
-              activeDropdown={activeDropdown}
-              setActiveDropdown={setActiveDropdown}
-              handleDeleteClick={handleDeleteClick}
-              toggleFavorite={toggleFavorite}
-              togglePublish={togglePublish}
-              copyToClipboard={copyToClipboard}
-            />
+            null
         );
     }
-
-    const ProjectCard = () => {
-        return (
-            <ProjectCardCore
-                handleSelectProject={handleSelectProject}
-                setDraggingProject={setDraggingProject}
-                activeDropdown={activeDropdown}
-                setActiveDropdown={setActiveDropdown}
-                handleDeleteClick={handleDeleteClick}
-                toggleFavorite={toggleFavorite}
-                togglePublish={togglePublish}
-                copyToClipboard={copyToClipboard}
-                isDragging={draggingProject !== null}
-            />
-        );
-    };
 
     const ProjectView = () => {
 
@@ -609,9 +540,6 @@ function MainPage() {
             </div>
         </div>
     );
-
-
-
 
     const MarketplacePage = ({ friends, onSelectTwin }: { friends: AppUser[], onSelectTwin: (twin: BaseItem) => void }) => {
         return (
@@ -1022,13 +950,6 @@ function MainPage() {
                     </div>
                 </div>
 
-                <NewProjectModal 
-                    isOpen={isModalOpen} 
-                    onClose={() => setIsModalOpen(false)} 
-                    userId={userId}
-                    showNotification={showNotification}
-                />
-
                 <DeleteConfirmationModal 
                     isOpen={isDeleteModalOpen}
                     onClose={() => setIsDeleteModalOpen(false)}
@@ -1036,8 +957,6 @@ function MainPage() {
                     title="Delete Digital Twin"
                     text={`Are you sure you want to delete the Digital Twin "${projectToDelete?.title}"? This action cannot be undone.`}
                 />
-
-                <AppNotification />
                 
             </div>
         </>

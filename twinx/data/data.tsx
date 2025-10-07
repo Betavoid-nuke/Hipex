@@ -134,40 +134,41 @@ const apiUsageData = {
 
 
 const SIDEBAR_CONFIG = [
-    {
-        title: 'Workspace',
-        items: [
-            { view: 'dashboard', text: 'Digital Twins', icon: Briefcase },
-            { view: 'templates', text: 'Templates', icon: LayoutTemplate },
-            { view: 'members', text: 'Members', icon: Users },
-            { view: 'integrations', text: 'Integrations', icon: Puzzle },
-        ]
-    },
-    {
-        title: 'Marketplace',
-        items: [
-            { view: 'marketplace', text: 'Marketplace', icon: Store },
-            { view: 'yourtwins', text: 'Your Twins', icon: Briefcase },
-            { view: 'analytics', text: 'Analytics', icon: BarChart2 },
-        ]
-    },
-    {
-        title: 'API',
-        items: [
-            { view: 'api', text: 'Keys', icon: KeyRound },
-            { view: 'apiguide', text: 'Guide', icon: BookOpen },
-            { view: 'apiusage', text: 'Usage', icon: BarChart2 },
-        ]
-    },
-    {
-        title: 'Account',
-        items: [
-            { view: 'profile', text: 'Profile', icon: User },
-            { view: 'settings', text: 'Settings', icon: Settings },
-            { view: 'plans', text: 'Plans', icon: CreditCard },
-        ]
-    }
+  {
+    title: 'Workspace',
+    items: [
+      { view: 'dashboard', text: 'Digital Twins', icon: Briefcase, href: '/dashboard' },
+      { view: 'templates', text: 'Templates', icon: LayoutTemplate, href: '/templates' },
+      { view: 'members', text: 'Members', icon: Users, href: '/members' },
+      { view: 'integrations', text: 'Integrations', icon: Puzzle, href: '/integrations' },
+    ],
+  },
+  {
+    title: 'Marketplace',
+    items: [
+      { view: 'marketplace', text: 'Marketplace', icon: Store, href: '/marketplace' },
+      { view: 'yourtwins', text: 'Your Twins', icon: Briefcase, href: '/yourtwins' },
+      { view: 'analytics', text: 'Analytics', icon: BarChart2, href: '/analytics' },
+    ],
+  },
+  {
+    title: 'API',
+    items: [
+      { view: 'api', text: 'Keys', icon: KeyRound, href: '/api' },
+      { view: 'apiguide', text: 'Guide', icon: BookOpen, href: '/apiguide' },
+      { view: 'apiusage', text: 'Usage', icon: BarChart2, href: '/apiusage' },
+    ],
+  },
+  {
+    title: 'Account',
+    items: [
+      { view: 'profile', text: 'Profile', icon: User, href: '/accountprofile' },
+      { view: 'settings', text: 'Settings', icon: Settings, href: '/accountsettings' },
+      { view: 'plans', text: 'Plans', icon: CreditCard, href: '/accountplans' },
+    ],
+  },
 ];
+
 
 
 // --- Constants ---

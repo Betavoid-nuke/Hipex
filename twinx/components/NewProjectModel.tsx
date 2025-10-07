@@ -4,8 +4,9 @@ import { generateTwinxId } from "../utils/TwinxUtils";
 import { UploadCloud, X } from "lucide-react";
 import { addDoc, collection } from "firebase/firestore";
 import { appId, db } from "../utils/firebaseUtils";
+import { showNotification, useNotification } from "./AppNotification";
 
-const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId, showNotification }) => {
+const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) => {
     const [title, setTitle] = useState<string>('');
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [thumbnail, setThumbnail] = useState<string>('');
