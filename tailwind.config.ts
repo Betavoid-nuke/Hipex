@@ -263,33 +263,31 @@ module.exports = {
   					height: 0
   				}
   			},
-			'scale-in': {
-          		'from': {
-          		  opacity: '0',
-          		  transform: 'scale(0.95)'
-          		},
-          		'to': {
-          		  opacity: '1',
-          		  transform: 'scale(1)'
-          		}
-			}
-        
+  			'scale-in': {
+  				from: {
+  					opacity: '0',
+  					transform: 'scale(0.95)'
+  				},
+  				to: {
+  					opacity: '1',
+  					transform: 'scale(1)'
+  				}
+  			}
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
-			'scale-in': 'scale-in 0.2s ease-out forwards',
+  			'scale-in': 'scale-in 0.2s ease-out forwards'
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
-		backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-      	}
+  		backgroundImage: {
+  			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+  			'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))'
+  		}
   	}
   },
   plugins: [require("tailwindcss-animate"), require('@tailwindcss/forms')],

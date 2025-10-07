@@ -1,24 +1,16 @@
-// /app/layout.tsx
+"use client";
 
-import NextTopLoader from 'nextjs-toploader';
-import './globals.css';
-import type { Metadata } from 'next';
-import { Toaster } from 'sonner';
-
-// Metadata for the application
-export const metadata: Metadata = {
-  title: 'TwinX Dashboard',
-  description: 'Your Digital Twin Management Platform',
-};
+import NextTopLoader from "nextjs-toploader";
+import "./globals.css";
+import type { Metadata } from "next";
+import { Toaster } from "sonner";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import AppSidebar from "@/twinx/components/AppSidebar";
 
 /**
  * RootLayout component
- * This is the main server component layout that wraps the entire application.
- * It sets up the basic HTML structure and includes global styles.
- *
- * @param {object} props - The properties for the component.
- * @param {React.ReactNode} props.children - The child components to be rendered within the layout.
- * @returns {JSX.Element} The rendered root layout.
+ * This is the main client component layout that wraps the entire application.
+ * It sets up the basic HTML structure and includes global styles + sidebar context.
  */
 export default function RootLayout({
   children,
@@ -27,16 +19,30 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <div className="flex gap-2 p-2">
-          <section className="h-full w-full" style={{width:'-webkit-fill-available'}}>
-            <div className="w-full h-full">
+      <body style={{scrollbarWidth:'none'}}>
+
+        <SidebarProvider>
+          <div className="flex h-screen" style={{width:'-webkit-fill-available'}}>
+
+            {/* 🧭 Sidebar Section */}
+            <AppSidebar
+              currentView="dashboard"
+              onNavigate={(view) => console.log("Navigating to:", view)}
+            />
+
+            {/* 🧱 Main Content Section */}
+            <section
+              className="flex-1 flex flex-col p-2 overflow-auto"
+              style={{ width: "-webkit-fill-available", scrollbarWidth:'none'}}
+            >
               <NextTopLoader />
-              {children}
-            </div>
-            <Toaster />
-          </section>
-        </div>
+              <div className="w-full h-full">{children}</div>
+              <Toaster />
+            </section>
+
+          </div>
+        </SidebarProvider>
+        
       </body>
     </html>
   );

@@ -40,6 +40,10 @@ import ApiUsagePagePage from '@/twinx/pages/ApiUsagePage';
 import MarketplacePagePage from '@/twinx/pages/MarketplacePage';
 import AnalyticsPagePage from '@/twinx/pages/AnalyticsPage';
 
+import "../globals.css"
+import AppSidebar from '@/twinx/components/AppSidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
+
 
 // Extend the Window interface to include properties from external scripts
 declare global {
@@ -138,48 +142,6 @@ const apiUsageData = {
     })()
 };
 
-
-const SIDEBAR_CONFIG = [
-    {
-        title: null,
-        items: [
-            { view: 'updates', text: 'Pending updates', icon: Download, badgeCount: 2 },
-        ]
-    },
-    {
-        title: 'Workspace',
-        items: [
-            { view: 'dashboard', text: 'Digital Twins', icon: Briefcase },
-            { view: 'templates', text: 'Templates', icon: LayoutTemplate },
-            { view: 'members', text: 'Members', icon: Users },
-            { view: 'integrations', text: 'Integrations', icon: Puzzle },
-        ]
-    },
-    {
-        title: 'Marketplace',
-        items: [
-            { view: 'marketplace', text: 'Marketplace', icon: Store },
-            { view: 'yourtwins', text: 'Your Twins', icon: Briefcase },
-            { view: 'analytics', text: 'Analytics', icon: BarChart2 },
-        ]
-    },
-    {
-        title: 'API',
-        items: [
-            { view: 'api', text: 'Keys', icon: KeyRound },
-            { view: 'apiguide', text: 'Guide', icon: BookOpen },
-            { view: 'apiusage', text: 'Usage', icon: BarChart2 },
-        ]
-    },
-    {
-        title: 'Account',
-        items: [
-            { view: 'profile', text: 'Profile', icon: User },
-            { view: 'settings', text: 'Settings', icon: Settings },
-            { view: 'plans', text: 'Plans', icon: CreditCard },
-        ]
-    }
-];
 
 
 // --- Constants ---
@@ -1044,51 +1006,10 @@ function MainPage() {
                 .form-checkbox:checked { background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e"); }
             `}</style>
             <div className="min-h-screen bg-[#1C1C1E]">
-                <aside 
-                    onMouseEnter={() => setIsSidebarExpanded(true)}
-                    onMouseLeave={() => setIsSidebarExpanded(false)}
-                    className={`fixed top-0 left-0 h-full bg-[#262629] text-white flex flex-col z-40 transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'w-72' : 'w-20'}`}>
-                    
-                    <div className={`flex items-center p-4 shrink-0`}>
-                        <img src="https://placehold.co/40x40/6366F1/FFFFFF?text=S" alt="User Avatar" className="w-10 h-10 rounded-lg shrink-0"/>
-                        <div className={`overflow-hidden transition-all duration-300 whitespace-nowrap ${!isSidebarExpanded ? 'w-0 ml-0 opacity-0' : 'w-auto ml-3 opacity-100'}`}>
-                            <p className="font-semibold text-white">Simon Prusin</p>
-                            <p className="text-xs text-[#A0A0A5]">simonprusin@gmail.com</p>
-                        </div>
-                    </div>
-            
-                    <nav className="flex-grow p-2 overflow-y-auto overflow-x-hidden hide-scrollbar">
-                        {SIDEBAR_CONFIG.map((section, index) => (
-                            <div key={index}>
-                                {section.title && <NavHeader text={section.title} isSidebarExpanded={isSidebarExpanded} />}
-                                <ul>
-                                    {section.items.map(item => (
-                                        <NavItem 
-                                            key={item.view}
-                                            icon={item.icon}
-                                            text={item.text}
-                                            view={item.view}
-                                            isSidebarExpanded={isSidebarExpanded}
-                                            currentView={currentView}
-                                            handleNavigate={handleNavigate}
-                                        />
-                                    ))}
-                                </ul>
-                            </div>
-                        ))}
-                    </nav>
-            
-                    <div className="p-4 mt-auto shrink-0">
-                        <button className={`w-full bg-[#6366F1] text-white font-semibold py-2.5 px-4 rounded-md hover:bg-opacity-90 transition-colors flex items-center ${!isSidebarExpanded ? 'justify-center' : 'justify-start'}`}>
-                            <Star size={18} className="shrink-0" />
-                             <span className={`overflow-hidden transition-all duration-300 whitespace-nowrap ${!isSidebarExpanded ? 'w-0 ml-0 opacity-0' : 'w-auto ml-4 opacity-100'}`}>
-                                Unlock Premium
-                            </span>
-                        </button>
-                    </div>
-                </aside>
+                
+                {/* <Sidebar currentView={currentView} handleNavigate={handleNavigate} /> */}
 
-                <main className={`transition-all duration-300 ease-in-out bg-[#1C1C1E] min-h-screen ${isSidebarExpanded ? 'pl-72' : 'pl-20'}`}>
+                <main className={`transition-all duration-300 ease-in-out bg-[#1C1C1E] min-h-screen`}>
                     {renderCurrentView()}
                 </main>
 

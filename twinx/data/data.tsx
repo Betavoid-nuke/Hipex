@@ -135,12 +135,6 @@ const apiUsageData = {
 
 const SIDEBAR_CONFIG = [
     {
-        title: null,
-        items: [
-            { view: 'updates', text: 'Pending updates', icon: Download, badgeCount: 2 },
-        ]
-    },
-    {
         title: 'Workspace',
         items: [
             { view: 'dashboard', text: 'Digital Twins', icon: Briefcase },
