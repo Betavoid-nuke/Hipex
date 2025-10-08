@@ -1,15 +1,15 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { NewProjectModalProps } from "../types/TwinxTypes";
-import { generateTwinxId } from "../utils/TwinxUtils";
+import { generateThumbnailFile, generateTwinxId } from "../utils/TwinxUtils";
 import { UploadCloud, X } from "lucide-react";
-import { addDoc, collection } from "firebase/firestore";
-import { appId, db } from "../utils/firebaseUtils";
-import { showNotification, useNotification } from "./AppNotification";
+import { showNotification } from "./AppNotification";
+import { createProject } from "../utils/twinxDBUtils.action";
 
 const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) => {
+
     const [title, setTitle] = useState<string>('');
     const [videoFile, setVideoFile] = useState<File | null>(null);
-    const [thumbnail, setThumbnail] = useState<string>('');
+    const [thumbnail, setThumbnail] = useState<File | null>(null);
     const [videoUrl, setVideoUrl] = useState<string>('');
     const [twinxid, setTwinxid] = useState<string>('');
     const [isGenerating, setIsGenerating] = useState<boolean>(false);
@@ -19,51 +19,180 @@ const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) 
         if (isOpen) {
             setTwinxid(generateTwinxId());
         } else {
-            setTitle(''); setVideoFile(null); setThumbnail(''); setTwinxid(''); setVideoUrl('');
+            setTitle(''); setVideoFile(null); setThumbnail(null); setTwinxid(''); setVideoUrl('');
         }
     }, [isOpen]);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file && file.type.startsWith('video/')) {
-            setVideoFile(file);
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                setVideoUrl(event.target?.result as string);
-            };
-            reader.readAsDataURL(file);
-            generateThumbnail(file);
-        } else {
-            showNotification("Please select a valid video file.");
-        }
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file || !file.type.startsWith('video/')) {
+        showNotification('Please select a valid video file.');
+        return;
+      }
+
+      setVideoFile(file);
+      setVideoUrl(URL.createObjectURL(file));
+
+      //upload video to azure
+      handleUploadToAzure();
+
+      try {
+
+        setIsGenerating(true);
+        const thumbnailFile = await generateThumbnailFile(file);
+        console.log('✅ Thumbnail generated:', thumbnailFile);
+        
+        setThumbnail(thumbnailFile);
+
+        // ⬇️ Here you can directly upload `thumbnailFile` to Azure Blob
+        await handleUploadPhotoToAzure();
+
+      } catch (err) {
+
+        console.error('❌ Thumbnail generation failed', err);
+        showNotification('Could not generate thumbnail from this video.');
+
+      } finally {
+
+        setIsGenerating(false);
+
+      }
     };
 
-    const generateThumbnail = (file: File) => {
+    //upload video
+    const handleUploadToAzure = async () => {
+
+      if (!videoFile){
+        return
+      } else {
+      
         setIsGenerating(true);
-        const video = document.createElement('video');
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        video.src = URL.createObjectURL(file);
-        video.muted = true;
-        video.onloadedmetadata = () => { video.currentTime = video.duration / 2; };
-        video.onseeked = () => {
-            if (context) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                setThumbnail(canvas.toDataURL('image/jpeg', 0.8));
-            }
-            setIsGenerating(false);
-            URL.revokeObjectURL(video.src);
-        };
-        video.onerror = () => {
-            setIsGenerating(false); setThumbnail('');
-            showNotification("Could not generate thumbnail from this video.");
-            URL.revokeObjectURL(video.src);
-        };
+
+        try {
+
+        // 1) ask server for SAS url
+        const res = await fetch("/api/generate-uploadmedia-sas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filename: videoFile.name }),
+        });
+        const data = await res.json();
+        if (!data.success) {
+          showNotification(data.message || "Failed to get upload URL", "error");
+          setIsGenerating(false);
+          return;
+        }
+
+        const { uploadUrl, blobUrl } = data as { uploadUrl: string; blobUrl: string };
+
+        // 2) PUT the file directly to Azure
+        const putRes = await fetch(uploadUrl, {
+          method: "PUT",
+          headers: {
+            "x-ms-blob-type": "BlockBlob",
+            "Content-Type": videoFile.type,
+          },
+          body: videoFile,
+        });
+
+        if (!putRes.ok) {
+          const text = await putRes.text().catch(() => "");
+          console.error("Azure PUT failed:", putRes.status, text);
+          showNotification("Upload failed", "error");
+        } else {
+          // success — blobUrl is the public URL (container must have blob public access)
+          setVideoUrl(blobUrl);
+          showNotification("Upload complete", "normal");
+          console.log(blobUrl);
+          
+        }
+
+        } catch (err) {
+        console.error(err);
+        showNotification("Upload error", "error");
+        } finally {
+        setIsGenerating(false);
+        }
+        
+      }
+
     };
+
+    //upload thumbnail jpeg
+    const handleUploadPhotoToAzure = async () => {
+
+      if (!thumbnail){
+        return
+      } else {
+      
+        setIsGenerating(true);
+
+        try {
+
+        // 1) ask server for SAS url
+        const res = await fetch("/api/generate-uploadmedia-sas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filename: twinxid }),
+        });
+        const data = await res.json();
+        if (!data.success) {
+          showNotification(data.message || "Failed to get upload URL", "error");
+          setIsGenerating(false);
+          return;
+        }
+
+        const { uploadUrl, blobUrl } = data as { uploadUrl: string; blobUrl: string };
+
+        // 2) PUT the file directly to Azure
+        const putRes = await fetch(uploadUrl, {
+          method: "PUT",
+          headers: {
+            "x-ms-blob-type": "BlockBlob",
+            "Content-Type": "jpeg",
+          },
+          body: thumbnail,
+        });
+
+        if (!putRes.ok) {
+          const text = await putRes.text().catch(() => "");
+          console.error("Azure PUT failed:", putRes.status, text);
+          showNotification("Upload failed", "error");
+        } else {
+          // success — blobUrl is the public URL (container must have blob public access)
+          setVideoUrl(blobUrl);
+          showNotification("Upload complete", "normal");
+
+          // OPTIONAL: save blobUrl into your project doc via your backend (createProject/updateProject)
+          // await fetch('/api/save-blob-url', { method: 'POST', body: JSON.stringify({ projectId, blobUrl })});
+        }
+
+        } catch (err) {
+        console.error(err);
+        showNotification("Upload error", "error");
+        } finally {
+        setIsGenerating(false);
+        }
+
+      }
+
+    };
+
+
+
+
+
+
+
+
+
+
+
+    //the video url is not going into the mongo model and the thumbnail maybe causing issue, not posting anymore, check that
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        
         e.preventDefault();
         if (!title || !videoFile || !userId) {
             showNotification("Please provide a title and a video file."); return;
@@ -72,12 +201,20 @@ const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) 
         onClose();
 
         const newProject = {
-            title, twinxid, thumbnail, videoUrl, isFavorite: false, isPublished: false, currentStep: 0,
-            createdAt: new Date(), updatedAt: new Date(),
+            title: title,
+            twinxid: twinxid,
+            currentStep: 0,
+            ownerID: userId,
+            published: false,
+            thumbnail: thumbnail,
+            videoUrl: videoUrl
         };
+
+        const redirectPath = '/twinx/Dashboard/'+userId;
+
+
         try {
-            const projectsCollectionPath = `/artifacts/${appId}/users/${userId}/projects`;
-            await addDoc(collection(db, projectsCollectionPath), newProject);
+            createProject(newProject, userId, redirectPath);
             showNotification("Digital Twin created successfully!");
         } catch (error) {
             console.error("Error creating Digital Twin:", error);

@@ -137,26 +137,26 @@ const SIDEBAR_CONFIG = [
   {
     title: 'Workspace',
     items: [
-      { view: 'dashboard', text: 'Digital Twins', icon: Briefcase, href: '/dashboard' },
-      { view: 'templates', text: 'Templates', icon: LayoutTemplate, href: '/templates' },
+      { view: 'dashboard', text: 'Digital Twins', icon: Briefcase, href: 'twinx/Dashboard' },
+      { view: 'templates', text: 'Templates', icon: LayoutTemplate, href: 'twinx//templates' },
       { view: 'members', text: 'Members', icon: Users, href: '/members' },
-      { view: 'integrations', text: 'Integrations', icon: Puzzle, href: '/integrations' },
+      { view: 'integrations', text: 'Integrations', icon: Puzzle, href: 'twinx//integrations' },
     ],
   },
   {
     title: 'Marketplace',
     items: [
-      { view: 'marketplace', text: 'Marketplace', icon: Store, href: '/marketplace' },
-      { view: 'yourtwins', text: 'Your Twins', icon: Briefcase, href: '/yourtwins' },
-      { view: 'analytics', text: 'Analytics', icon: BarChart2, href: '/analytics' },
+      { view: 'marketplace', text: 'Marketplace', icon: Store, href: 'twinx//marketplace' },
+      { view: 'yourtwins', text: 'Your Twins', icon: Briefcase, href: 'twinx//yourtwins' },
+      { view: 'analytics', text: 'Analytics', icon: BarChart2, href: 'twinx//analytics' },
     ],
   },
   {
     title: 'API',
     items: [
       { view: 'api', text: 'Keys', icon: KeyRound, href: '/api' },
-      { view: 'apiguide', text: 'Guide', icon: BookOpen, href: '/apiguide' },
-      { view: 'apiusage', text: 'Usage', icon: BarChart2, href: '/apiusage' },
+      { view: 'apiguide', text: 'Guide', icon: BookOpen, href: 'twinx//apiguide' },
+      { view: 'apiusage', text: 'Usage', icon: BarChart2, href: 'twinx//apiusage' },
     ],
   },
   {

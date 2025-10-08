@@ -4,21 +4,10 @@ import dataManager from "../data/data";
 import { useRef } from "react";
 import { Copy, Eye, EyeOff, MoreVertical, Star, Trash2 } from "lucide-react";
 import Router from "next/router";
-import { deleteProject } from "../utils/twinxDBUtils";
+import { deleteProject, toggleFavoriteProject, updateProjectKeyById } from "../utils/twinxDBUtils.action";
+import { Project } from "../types/TwinxTypes";
+import { showNotification } from "./AppNotification";
 
-
-interface Project {
-    id: string;
-    title: string;
-    twinxid: string;
-    thumbnail: string;
-    videoUrl: string;
-    isFavorite: boolean;
-    isPublished: boolean;
-    currentStep: number;
-    createdAt: Timestamp | Date;
-    updatedAt: Timestamp | Date;
-}
 
 interface DraggingProject extends Project {
     offsetX: number;
@@ -33,16 +22,34 @@ interface props {
     isDragging: boolean;
     activeDropdown: string | null;
     setActiveDropdown: (id: string | null) => void;
-    toggleFavorite: (id: string, isFavorite: boolean) => void;
     copyToClipboard: (text: string) => void;
-    togglePublish: (id: string, isPublished: boolean) => void;
     dropdownRef?: React.RefObject<HTMLDivElement>;
+    userId: string;
 }
 
 
-export default function ProjectCardCore({ project, setDraggingProject, isDragging, activeDropdown, toggleFavorite, setActiveDropdown, copyToClipboard, togglePublish, dropdownRef }: props) {
+
+export default function ProjectCardCore({ userId, project, setDraggingProject, isDragging, activeDropdown, setActiveDropdown, copyToClipboard, dropdownRef }: props) {
     
     if(!project){return null;} // Ensure project is defined before proceeding
+
+    //toggle fav on project models     --DB
+    const toggleFavorite = async (projectId: string, isFavorite: boolean) => {
+      if (userId) return;
+      const res = await toggleFavoriteProject(userId, projectId, isFavorite);
+      if (!res.success) {
+        console.error(res.message);
+        showNotification("can't add this project to Favorite, please try again later!", "error")
+      } else {
+        showNotification("added the project to your Favorite list!", "normal")
+      }
+    };
+
+    //toggle published on project models     --DB
+    const togglePublish = async (projectId: string, isPublished: boolean) => {
+      await updateProjectKeyById(projectId, "published", isPublished);
+      showNotification("Porject Published Successfully!", "normal")
+    };
 
     const Data = dataManager();
     const progress = (project.currentStep / Data.TotalPipelineSteps) * 100;

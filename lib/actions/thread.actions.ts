@@ -95,20 +95,19 @@ export async function fetchProject(pageNumber = 1, pageSize = 50) {
 
 export async function fetchAssemblies(pageNumber = 1, pageSize = 50) {
 
-    connectToDB();
-    const skipAmount = (pageNumber -1) * pageSize;
+  connectToDB();
+  const skipAmount = (pageNumber -1) * pageSize;
+  const postsQuery = Assemblies.find()
+  .sort({ createdAt: 'desc'})
+  .skip(skipAmount)
+  .limit(pageSize)
+  .populate({ path: 'author', model: User })
 
-    const postsQuery = Assemblies.find()
-        .sort({ createdAt: 'desc'})
-        .skip(skipAmount)
-        .limit(pageSize)
-        .populate({ path: 'author', model: User })
+  const titalPostCount = await Assemblies.countDocuments({ parantId: { $in: [null, undefined] } })
+  const Assembly = await postsQuery.exec();
+  const isNext = titalPostCount > skipAmount + Assembly.length;
 
-    const titalPostCount = await Assemblies.countDocuments({ parantId: { $in: [null, undefined] } })
-    const Assembly = await postsQuery.exec();
-    const isNext = titalPostCount > skipAmount + Assembly.length;
-
-    return { Assembly, isNext }
+  return { Assembly, isNext }
 
 }
 

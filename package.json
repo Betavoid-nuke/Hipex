@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.28.0",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/standalone": "^7.27.6",
@@ -44,6 +45,7 @@
     "emmet-monaco-es": "^5.2.1",
     "firebase": "^12.0.0",
     "framer-motion": "^12.16.0",
+    "gsap": "^3.13.0",
     "localforage": "^1.10.0",
     "lucide-react": "^0.474.0",
     "mongodb-client-encryption": "^2.2.0",
@@ -51,6 +53,7 @@
     "next": "^15.3.3",
     "next-themes": "^0.4.6",
     "nextjs-toploader": "^3.8.16",
+    "ogl": "^1.0.11",
     "react": "^18.3.1",
     "react-colorful": "^5.6.1",
     "react-datepicker": "^8.4.0",

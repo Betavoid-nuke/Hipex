@@ -1,4 +1,23 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
+
+
+interface SocialHandle {
+  platform: string;
+  url: string;
+}
+
+const SocialHandleSchema = new Schema<SocialHandle>({
+  platform: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  url: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+});
 
 const userSchema = new mongoose.Schema({
   id: {
@@ -46,10 +65,14 @@ const userSchema = new mongoose.Schema({
   ],
   twinxfavprojects:[
     {
-      type: String, //array of projectIDs on mongo
+      type: String, //array of projectIDs on mongoa
       unique: false,
     }
-  ]
+  ],
+  socialhandles: {
+    type: [SocialHandleSchema],
+    default: [],
+  },
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

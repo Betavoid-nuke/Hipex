@@ -12,7 +12,8 @@ export interface IProject extends Document {
   createdAt: Date;
   updatedAt: Date;
   ownerID: string,
-  published: boolean
+  published: boolean;
+  ThumbnailUrl: string;
 }
 
 // 👇 Define Mongoose schema
@@ -36,13 +37,9 @@ const TwinxProjectSchema = new Schema<IProject>(
       type: String,
       default: "",
     },
-    isFavorite: {
-      type: Boolean,
-      default: false,
-    },
-    isPublished: {
-      type: Boolean,
-      default: false,
+    ThumbnailUrl: {
+      type: String,
+      default: "",
     },
     currentStep: {
       type: Number,
@@ -50,6 +47,7 @@ const TwinxProjectSchema = new Schema<IProject>(
     },
     ownerID: {
       type: String,
+      ref: "User",
       required: true,
       index: true,
     },
