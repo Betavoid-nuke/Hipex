@@ -3,7 +3,10 @@ import { NewProjectModalProps } from "../types/TwinxTypes";
 import { generateThumbnailFile, generateTwinxId } from "../utils/TwinxUtils";
 import { UploadCloud, X } from "lucide-react";
 import { showNotification } from "./AppNotification";
-import { createProject } from "../utils/twinxDBUtils.action";
+import { createProject, getUserById } from "../utils/twinxDBUtils.action";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/router";
+import User from "@/lib/models/user.model";
 
 const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) => {
 
@@ -14,6 +17,40 @@ const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) 
     const [twinxid, setTwinxid] = useState<string>('');
     const [isGenerating, setIsGenerating] = useState<boolean>(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+      
+    const router = useRouter();
+    const [loading, setLoading] = useState(true);
+    const [UserData, setUserData] = useState<any>(null);
+    const { user } = useUser();
+  
+    //gets the user from mongodb and checks if onboarded or na, and shows the onboaridng cards if not or will send to dashboard
+    useEffect(() => {
+      if (user) {
+  
+        const fetchUser = async () => {
+          try {
+  
+            const fetchedUser = await getUserById(user.id);
+            console.log('✅ User fetched:');
+  
+            if(!fetchedUser){
+              router.replace(`/twinx`);
+            } else {
+              if(fetchedUser.onboarded){
+                setLoading(false);
+                setUserData(fetchedUser)            //done loading, show the modal
+              }
+            }
+  
+          } catch (error) {
+            console.error('❌ Error fetching user:', error);
+          }
+        };
+        fetchUser();
+  
+      }
+    }, [user]); 
 
     useEffect(() => {
         if (isOpen) {
@@ -179,18 +216,6 @@ const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) 
     };
 
 
-
-
-
-
-
-
-
-
-
-    //the video url is not going into the mongo model and the thumbnail maybe causing issue, not posting anymore, check that
-
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         
         e.preventDefault();
@@ -206,7 +231,8 @@ const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) 
             currentStep: 0,
             ownerID: userId,
             published: false,
-            thumbnail: thumbnail,
+            thumbnail: "",
+            // thumbnail: thumbnail,          base64 thumbnail is generated and it is too big to be stored. figure this out later
             videoUrl: videoUrl
         };
 

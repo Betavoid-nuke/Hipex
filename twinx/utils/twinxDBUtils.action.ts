@@ -100,7 +100,7 @@ export async function getProjectById(projectId: string): Promise<{ success: bool
       return { success: false, message: "Project not found" };
     }
 
-    return { success: true, data: project, message: "Project fetched successfully" };
+    return { success: true, data: JSON.parse(JSON.stringify(project)), message: "Project fetched successfully" };
   } catch (error: any) {
     console.error("❌ Error fetching project:", error);
     return { success: false, message: error.message || "Failed to fetch project" };
@@ -123,11 +123,7 @@ export async function getProjectsByUserId(userId: string): Promise<{ success: bo
     .sort({ createdAt: -1 })
     .lean();
 
-    // const projects = TwinxProject.find()
-    // .sort({ createdAt: 'desc'})
-    // .populate({ path: 'author', model: User })
-
-    return { success: true, data: projects, message: "Projects fetched successfully" };
+    return { success: true, data: JSON.parse(JSON.stringify(projects)), message: "Projects fetched successfully" };
   } catch (error: any) {
     console.error("❌ Error fetching projects by user ID:", error);
     return { success: false, message: error.message || "Failed to fetch projects" };
@@ -217,7 +213,7 @@ export async function getUserById(userId: string) {
       .exec();
     if (!userDoc) return null;
 
-    // 🔥 This is the magic line — converts everything to plain JSON (ObjectIds, Dates, etc.)
+    //converts everything to plain JSON (ObjectIds, Dates, etc.)
     return JSON.parse(JSON.stringify(userDoc));
   } catch (error: any) {
     console.error("❌ getUserById error:", error);

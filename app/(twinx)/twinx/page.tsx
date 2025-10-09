@@ -14,7 +14,7 @@ import LightRays from '@/General/Backgrounds/Lightrays/Lightrays';
 import TextType from '@/General/TextAnimations/TextType/TextType';
 
 export default function OnboardingPage() {
-  const router = useRouter();
+  
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(1);
 
@@ -28,6 +28,7 @@ export default function OnboardingPage() {
   const [userId, setuserId] = useState('');
 
   const { user } = useUser();
+  const router = useRouter();
 
   //gets the user from mongodb and checks if onboarded or na, and shows the onboaridng cards if not or will send to dashboard
   useEffect(() => {
