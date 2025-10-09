@@ -18,7 +18,6 @@ export default function dashboard() {
   const [filter, setFilter] = useState<string>('All');
   const [sort, setSort] = useState<string>('date_desc');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [draggingProject, setDraggingProject] = useState<DraggingProject | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);

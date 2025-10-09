@@ -81,21 +81,6 @@ export default function DashboardCore({setIsModalOpen, handleSelectProject, hand
                 </div>
             </header>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredAndSortedProjects.map(project => (
-                    <ProjectCard 
-                        key={project.id} 
-                        project={project} 
-                        setDraggingProject={setDraggingProject}
-                        isDragging={draggingProject?.id === project.id}
-                        activeDropdown={activeDropdown}
-                        handleSelectProject={handleSelectProject}
-                        handleDeleteClick={handleDeleteClick}
-                        toggleFavorite={toggleFavorite}
-                        setActiveDropdown={setActiveDropdown}
-                        copyToClipboard={copyToClipboard}
-                        togglePublish= {togglePublish}
-                    />
-                ))}
             </div>
              {filteredAndSortedProjects.length === 0 && (
                 <div className="text-center py-20 text-[#A0A0A5] col-span-full">
