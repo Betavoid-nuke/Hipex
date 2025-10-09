@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { getUserById } from "@/twinx/utils/twinxDBUtils.action";
+import { usePathname } from "next/navigation";
 
 interface LimitedAccessProps {
   children: React.ReactNode;
@@ -10,6 +11,7 @@ interface LimitedAccessProps {
 
 export default function LimitedAccessComponent({ children }: LimitedAccessProps) {
   const { user, isLoaded } = useUser();
+  const pathname = usePathname();
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export default function LimitedAccessComponent({ children }: LimitedAccessProps)
     };
 
     checkAccess();
-  }, [user, isLoaded]);
+  }, [user, isLoaded, pathname]);
 
   if (!isAuthorized) return null; // 🚫 Block rendering
 
