@@ -45,10 +45,6 @@ export default function dashboard() {
       }
   }), [projects, searchTerm, filter, sort]);
 
-  function hendleCopyTwinxID(message:string){
-    copyToClipboard(message, "Copied to clipboard!")
-  }
-
   // --- Projects Fetching ---     --DB
   useEffect(() => {
     if (!userId){
@@ -59,10 +55,14 @@ export default function dashboard() {
 
       const result = await getProjectsByUserId(userId);
       
-      if (result.success && result.data) {
-        setProjects(result.data || []);
+      if (result.data) {
+        try {
+          setProjects(result.data);
+        } catch (error) {
+          console.log("Error parsing project data:", error);
+        }
+        
       } else {
-        setProjects([]);
       }
     };
   
@@ -79,8 +79,8 @@ export default function dashboard() {
       {!userId ? (
           <div className="flex items-center justify-center h-[60vh]">
             <div className="bg-[#262629] text-white p-6 rounded-xl shadow-lg max-w-md w-full text-center border border-[#3A3A3C]">
-              <h3 className="text-xl font-semibold mb-2">Waiting for Authentication</h3>
-              <p className="text-[#A0A0A5]">Please sign in to view your dashboard.</p>
+              <h3 className="text-xl font-semibold mb-2" style={{color:'white'}}>Waiting for Authentication</h3>
+              <p className="text-[#A0A0A5]" style={{color:'white'}}>Please sign in to view your dashboard.</p>
             </div>
           </div>
       ) : (
@@ -88,7 +88,7 @@ export default function dashboard() {
             {/* 🟣 DASHBOARD HEADER */}
             <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
               <h2 className="text-2xl font-bold text-white mb-4 sm:mb-0 flex items-center gap-3">
-                <Briefcase size={28} /> Digital Twins
+                <Briefcase size={28} /> Twinx Dashboard
               </h2>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
                 <div className="relative w-full sm:w-auto">
@@ -153,18 +153,15 @@ export default function dashboard() {
               // 🟣 PROJECT GRID
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredAndSortedProjects.map((project) => (
+                  <div>
                   <ProjectCardCore
                     key={project.id}
                     project={project}
-                    setDraggingProject={setDraggingProject}
-                    isDragging={draggingProject?.id === project.id}
                     activeDropdown={activeDropdown}
                     setActiveDropdown={setActiveDropdown}
-                    copyToClipboard={(text) => {
-                      hendleCopyTwinxID(text);
-                    }}
                     userId={userId}
                   />
+                  </div>
                 ))}
               </div>
             )}

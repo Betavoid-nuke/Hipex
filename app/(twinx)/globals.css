@@ -421,4 +421,17 @@
 
 
 
+.twinxproject-card {
+  transition: all 0.25s ease;
+  border: 1px solid #3A3A3C;
+  background-color: #262629;
+  border-radius: 1.5rem;
+  transform: scale(1);
+}
+
+.twinxproject-card:hover {
+  transform: scale(1.03);
+  border-color: #6366F1;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
 

@@ -17,9 +17,7 @@ const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) 
     const [twinxid, setTwinxid] = useState<string>('');
     const [isGenerating, setIsGenerating] = useState<boolean>(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-      
-    const router = useRouter();
+    
     const [loading, setLoading] = useState(true);
     const [UserData, setUserData] = useState<any>(null);
     const { user } = useUser();
@@ -32,14 +30,12 @@ const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) 
           try {
   
             const fetchedUser = await getUserById(user.id);
-            console.log('✅ User fetched:');
   
             if(!fetchedUser){
-              router.replace(`/twinx`);
             } else {
               if(fetchedUser.onboarded){
                 setLoading(false);
-                setUserData(fetchedUser)            //done loading, show the modal
+                setUserData(fetchedUser);            //done loading, show the modal
               }
             }
   
@@ -220,7 +216,7 @@ const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) 
         
         e.preventDefault();
         if (!title || !videoFile || !userId) {
-            showNotification("Please provide a title and a video file."); return;
+          showNotification("Please provide a title and a video file."); return;
         }
         
         onClose();
@@ -229,7 +225,7 @@ const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) 
             title: title,
             twinxid: twinxid,
             currentStep: 0,
-            ownerID: userId,
+            ownerID: userId,                   //project model has clerk user id
             published: false,
             thumbnail: "",
             // thumbnail: thumbnail,          base64 thumbnail is generated and it is too big to be stored. figure this out later
@@ -240,8 +236,8 @@ const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) 
 
 
         try {
-            createProject(newProject, userId, redirectPath);
-            showNotification("Digital Twin created successfully!");
+            createProject(newProject, UserData?._id.toString(), redirectPath);        //user model will have _id of the project
+            showNotification("Video Uploaded successfully!", "normal");
         } catch (error) {
             console.error("Error creating Digital Twin:", error);
             showNotification("Failed to create Digital Twin.");

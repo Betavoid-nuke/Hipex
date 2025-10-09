@@ -38,29 +38,6 @@ export  default function AppSidebar({ currentView, onNavigate }: AppSidebarProps
 
   return (
     <>
-
-
-
-
-
-
-
-
-
-      {/* after onboarding when the dasboard comes on, the sidebar does not update, i have to manually refersh to see the sidebar/ */}
-
-
-
-
-
-
-
-
-
-
-
-
-
       <LimitedAccessComponent>
         <Sidebar
           collapsible="icon"
@@ -113,7 +90,6 @@ export  default function AppSidebar({ currentView, onNavigate }: AppSidebarProps
                         <SidebarGroupContent>
                           <SidebarMenu>
                             {section.items.map((item: any) => {
-                              const isActive = currentView === item.view;
                               return (
                                 <SidebarMenuItem key={item.view}>
                                   <SidebarMenuButton asChild>

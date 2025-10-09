@@ -1,11 +1,9 @@
 "use server"
 
 import User from "@/lib/models/user.model";
-import { showNotification } from "../components/AppNotification";
 import TwinxProject from "../models/TwinxProject.model";
 import { revalidatePath } from "next/cache";
 import { connectToDB } from "@/lib/mongoose";
-import Community from "@/lib/models/community.model";
 
 /**
  * 🗑 Deletes a project document from MongoDB by its ID.
@@ -23,7 +21,6 @@ export async function deleteProject(projectId: string): Promise<{ success: boole
       return { success: false, message: "Project not found" };
     }
 
-    showNotification("Digital Twin deleted successfully.");
     return { success: true, message: "Project deleted successfully" };
   } catch (error: any) {
     console.error("❌ Error deleting project:", error);
@@ -43,11 +40,9 @@ export async function createProject(data: Record<string, any>, author:string, pa
 
     //adding the peroject id to the user model
     await User.findByIdAndUpdate(author, {
-      $push: { twinxprojects: project._id }
+      $push: { twinxprojects: project._id.toString() }
     })
     revalidatePath(path);
-
-    showNotification("Digital Twin created successfully.");
     return { success: true, data: project, message: "Project created successfully" };
   } catch (error: any) {
     console.error("❌ Error adding project:", error);
@@ -76,7 +71,6 @@ export async function updateProjectKeyById(
       return { success: false, message: "Project not found" };
     }
 
-    showNotification(`Project ${key} updated.`);
     return { success: true, message: "Project updated successfully" };
   } catch (error: any) {
     console.error("❌ Error updating project:", error);
@@ -121,9 +115,13 @@ export async function getProjectsByUserId(userId: string): Promise<{ success: bo
 
     const projects = await TwinxProject.find({ ownerID: userId })
     .sort({ createdAt: -1 })
-    .lean();
+    .lean()
+    .exec();
 
-    return { success: true, data: JSON.parse(JSON.stringify(projects)), message: "Projects fetched successfully" };
+    //converts everything to plain JSON (ObjectIds, Dates, etc.)
+    const projectData = JSON.parse(JSON.stringify(projects));
+    return { success: true, data: projectData, message: "Projects fetched successfully" };
+    
   } catch (error: any) {
     console.error("❌ Error fetching projects by user ID:", error);
     return { success: false, message: error.message || "Failed to fetch projects" };
