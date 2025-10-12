@@ -94,7 +94,9 @@ export async function getProjectById(projectId: string): Promise<{ success: bool
       return { success: false, message: "Project not found" };
     }
 
-    return { success: true, data: JSON.parse(JSON.stringify(project)), message: "Project fetched successfully" };
+    const allprojectdata = JSON.parse(JSON.stringify(project));
+
+    return { success: true, data: allprojectdata, message: "Project fetched successfully" };
   } catch (error: any) {
     console.error("❌ Error fetching project:", error);
     return { success: false, message: error.message || "Failed to fetch project" };

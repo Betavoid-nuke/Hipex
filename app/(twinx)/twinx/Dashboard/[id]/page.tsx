@@ -31,18 +31,43 @@ export default function dashboard() {
     }
   }, [id]);
 
-  const filteredAndSortedProjects = useMemo(() => projects
-    .filter(p => p.title && p.title.toLowerCase().includes(searchTerm.toLowerCase()) && (filter === 'Favorites' ? p.isFavorite : true))
-    .sort((a, b) => {
-      const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
-      const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
-      switch (sort) {
-          case 'name_asc': return a.title.localeCompare(b.title);
-          case 'name_desc': return b.title.localeCompare(a.title);
-          case 'date_asc': return dateA - dateB;
-          default: return dateB - dateA;
-      }
-  }), [projects, searchTerm, filter, sort]);
+  const filteredAndSortedProjects = useMemo(() => {
+    
+    const uniqueProjects = Array.from(
+      new Map(projects.map(p => [p.twinxid,p])).values() // ✅ deduplicate by id
+    );
+
+    const up = uniqueProjects
+      .filter(
+        p =>
+          p.title &&
+          p.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+          (filter === 'Favorites' ? p.isFavorite : true)
+      )
+      .sort((a, b) => {
+        const dateA =
+          a.createdAt instanceof Timestamp
+            ? a.createdAt.toDate().getTime()
+            : new Date(a.createdAt).getTime();
+        const dateB =
+          b.createdAt instanceof Timestamp
+            ? b.createdAt.toDate().getTime()
+            : new Date(b.createdAt).getTime();
+        switch (sort) {
+          case 'name_asc':
+            return a.title.localeCompare(b.title);
+          case 'name_desc':
+            return b.title.localeCompare(a.title);
+          case 'date_asc':
+            return dateA - dateB;
+          default:
+            return dateB - dateA;
+        }
+    });
+
+    return up
+  }, [projects, searchTerm, filter, sort]);
+
 
   // --- Projects Fetching ---     --DB
   useEffect(() => {
@@ -152,9 +177,9 @@ export default function dashboard() {
               // 🟣 PROJECT GRID
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredAndSortedProjects.map((project) => (
-                  <div>
+                  <div key={project.twinxid}>
                   <ProjectCardCore
-                    key={project.id}
+                    keyUni={project.twinxid}
                     project={project}
                     activeDropdown={activeDropdown}
                     setActiveDropdown={setActiveDropdown}

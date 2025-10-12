@@ -30,6 +30,7 @@ export interface AppUser {
 
 export interface Project {
     id: string;
+    _id?: string;
     title: string;
     twinxid: string;
     thumbnail: string;
@@ -39,6 +40,8 @@ export interface Project {
     currentStep: number;
     createdAt: Timestamp | Date;
     updatedAt: Timestamp | Date;
+    totalSteps?: number;
+    pipelineConfig?: PipelineStep[];
 }
 
 export interface DraggingProject extends Project {

@@ -20,6 +20,8 @@ import { copyToClipboard } from "../utils/TwinxUtils";
 import "../../app/(twinx)/globals.css";
 import SpotlightCard from "@/components/SpotlightCard";
 import { motion } from 'framer-motion';
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 interface Props {
   project?: Project;
@@ -27,6 +29,7 @@ interface Props {
   setActiveDropdown: (id: string | null) => void;
   dropdownRef?: React.RefObject<HTMLDivElement>;
   userId: string;
+  keyUni: string;
 }
 
 export default function ProjectCardCore({
@@ -35,9 +38,11 @@ export default function ProjectCardCore({
   activeDropdown,
   setActiveDropdown,
   dropdownRef,
+  keyUni
 }: Props) {
   if (!project) return null;
 
+  // const router = useRouter();
   const Data = dataManager();
   const progress = (project.currentStep / Data.TotalPipelineSteps) * 100;
 
@@ -82,7 +87,8 @@ export default function ProjectCardCore({
   const uniqueCardID = `project-card-${project.twinxid}`;
 
   return (
-    <div className="twinxproject-card rounded-xl">
+    <Link href={`/twinx/project/${project._id}`} className="block">  
+    <div key={keyUni} className="twinxproject-card rounded-xl">
     <motion.div
       key={uniqueCardID}
       initial={{ opacity: 0, y: 50 }}
@@ -216,5 +222,6 @@ export default function ProjectCardCore({
     </SpotlightCard>
     </motion.div>
     </div>
+    </Link>
   );
 }
