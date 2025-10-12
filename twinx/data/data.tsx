@@ -137,34 +137,34 @@ const SIDEBAR_CONFIG = [
   {
     title: 'Workspace',
     items: [
-      { view: 'dashboard', text: 'Digital Twins', icon: Briefcase, href: 'twinx/Dashboard' },
-      { view: 'templates', text: 'Templates', icon: LayoutTemplate, href: 'twinx//templates' },
-      { view: 'members', text: 'Members', icon: Users, href: '/members' },
-      { view: 'integrations', text: 'Integrations', icon: Puzzle, href: 'twinx//integrations' },
+      { view: 'dashboard', text: 'Digital Twins', icon: Briefcase, href: '/twinx/Dashboard', idneeded:true },
+      { view: 'templates', text: 'Templates', icon: LayoutTemplate, href: '/twinx/templates', idneeded:false },
+      { view: 'members', text: 'Members', icon: Users, href: '/twinx/members', idneeded:true },
+      { view: 'integrations', text: 'Integrations', icon: Puzzle, href: '/twinx/integrations', idneeded:false },
     ],
   },
   {
     title: 'Marketplace',
     items: [
-      { view: 'marketplace', text: 'Marketplace', icon: Store, href: 'twinx//marketplace' },
-      { view: 'yourtwins', text: 'Your Twins', icon: Briefcase, href: 'twinx//yourtwins' },
-      { view: 'analytics', text: 'Analytics', icon: BarChart2, href: 'twinx//analytics' },
+      { view: 'marketplace', text: 'Marketplace', icon: Store, href: '/twinx/marketplace', idneeded:true },
+      { view: 'yourtwins', text: 'Your Twins', icon: Briefcase, href: '/twinx/yourtwins', idneeded:true },
+      { view: 'analytics', text: 'Analytics', icon: BarChart2, href: '/twinx/analytics', idneeded:true },
     ],
   },
   {
     title: 'API',
     items: [
-      { view: 'api', text: 'Keys', icon: KeyRound, href: '/api' },
-      { view: 'apiguide', text: 'Guide', icon: BookOpen, href: 'twinx//apiguide' },
-      { view: 'apiusage', text: 'Usage', icon: BarChart2, href: 'twinx//apiusage' },
+      { view: 'api', text: 'Keys', icon: KeyRound, href: '/api', idneeded:true },
+      { view: 'apiguide', text: 'Guide', icon: BookOpen, href: '/twinx/apiguide', idneeded:true },
+      { view: 'apiusage', text: 'Usage', icon: BarChart2, href: '/twinx/apiusage', idneeded:true },
     ],
   },
   {
     title: 'Account',
     items: [
-      { view: 'profile', text: 'Profile', icon: User, href: '/accountprofile' },
-      { view: 'settings', text: 'Settings', icon: Settings, href: '/accountsettings' },
-      { view: 'plans', text: 'Plans', icon: CreditCard, href: '/accountplans' },
+      { view: 'profile', text: 'Profile', icon: User, href: '/twinx/accountprofile', idneeded:true },
+      { view: 'settings', text: 'Settings', icon: Settings, href: '/twinx/accountsettings', idneeded:true },
+      { view: 'plans', text: 'Plans', icon: CreditCard, href: '/twinx/accountplans', idneeded:false },
     ],
   },
 ];

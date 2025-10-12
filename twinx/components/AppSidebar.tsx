@@ -95,7 +95,7 @@ export  default function AppSidebar({ currentView, onNavigate }: AppSidebarProps
                                   <SidebarMenuButton asChild>
                               
                                     <Link 
-                                      href={`${item.href}/${userId}`}
+                                      href={item.idneeded ? `${item.href}/${userId}` : item.href}
                                       className="flex items-center gap-2 p-2 rounded hover:bg-gray-100"
                                     >
                                       <item.icon size={18} />

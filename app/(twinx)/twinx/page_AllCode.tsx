@@ -35,7 +35,6 @@ import PlaceholderViewPage from '@/twinx/pages/PlaceholderView';
 import PlansPagePage from '@/twinx/pages/PlansPage';
 import ApiPagePage from '@/twinx/pages/ApiPage';
 import ApiGuidePagePage from '@/twinx/pages/ApiGuidePage';
-import MembersPagePage from '@/twinx/pages/MembersPage';
 import ApiUsagePagePage from '@/twinx/pages/ApiUsagePage';
 import MarketplacePagePage from '@/twinx/pages/MarketplacePage';
 import AnalyticsPagePage from '@/twinx/pages/AnalyticsPage';
@@ -477,15 +476,7 @@ function MainPage() {
     };
 
     const MembersPage = () => {
-        return (
-            <MembersPagePage
-              userId={userId}
-              userEmail={userEmail}
-              appId={appId}
-              friends={friends}
-              showNotification={(msg) => {showNotification(msg)}}
-            />
-        );
+        return null
     };
 
     const ApiUsagePage = () => {

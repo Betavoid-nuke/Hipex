@@ -68,7 +68,6 @@ export default function dashboard() {
     return up
   }, [projects, searchTerm, filter, sort]);
 
-
   // --- Projects Fetching ---     --DB
   useEffect(() => {
     if (!userId){
