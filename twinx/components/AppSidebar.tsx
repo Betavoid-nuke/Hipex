@@ -93,15 +93,16 @@ export  default function AppSidebar({ currentView, onNavigate }: AppSidebarProps
                               return (
                                 <SidebarMenuItem key={item.view}>
                                   <SidebarMenuButton asChild>
-                              
-                                    <Link 
+                                    <Link
                                       href={item.idneeded ? `${item.href}/${userId}` : item.href}
-                                      className="flex items-center gap-2 p-2 rounded hover:bg-gray-100"
+                                      className="flex items-center gap-2 p-2 rounded w-full justify-start
+                                                 text-gray-400 font-normal transition-all duration-200
+                                                 hover:font-semibold hover:text-white hover:bg-gray-800
+                                                 hover:scale-[1.01]"
                                     >
-                                      <item.icon size={18} />
-                                      <span>{item.text}</span>
+                                      <item.icon size={18} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                                      <span className="transition-all duration-200">{item.text}</span>
                                     </Link>
-                              
                                   </SidebarMenuButton>
                                 </SidebarMenuItem>
                               );

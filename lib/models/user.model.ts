@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { unique } from "next/dist/build/utils";
 
 
 interface SocialHandle {
@@ -46,11 +47,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  friendsid: [
-    {
-      type: String, // Array of Clerk userIds
-    },
-  ],
+  friendsId: {
+    type: [String],
+    default: [],
+  },
   communities: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -59,7 +59,7 @@ const userSchema = new mongoose.Schema({
   ],
   twinxprojects:[
     {
-      type: String, //array of projectIDs on mongo
+      type: String,
       unique: false,
     }
   ],
@@ -73,6 +73,48 @@ const userSchema = new mongoose.Schema({
     type: [SocialHandleSchema],
     default: [],
   },
+  tags: [
+    {
+      type: String,
+      unique: false,
+      required: false,
+      default: "twinx user",
+    }
+  ],
+  jobs: {
+    type: [
+      {
+        title: String,
+        company: String,
+        startDate: Date,
+        endDate: Date,
+        description: String,
+      }
+    ],
+    default: [],
+  },
+  country: {
+    type: String,
+    required: true,
+    default: "Earth",
+  },
+  oneSentanceIntro: {
+    type: String,
+    required: false,
+    default: "Hello, I'm new to Twinx!",
+  },
+  listedAssets: [
+    {
+      type: String,
+      required: false,
+    }
+  ],
+  listedTwins: [
+    {
+      type: String,
+      required: false,
+    }
+  ]
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

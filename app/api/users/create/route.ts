@@ -16,10 +16,16 @@ export async function POST(req: Request) {
       id: body.id,
       username: body.username,
       name: body.name,
+      email: body.email,
       bio: body.bio,
+      OSI: body.OSI,
+      tags: body.tags,
       socialhandles: body.socialhandles,
+      jobs: body.jobs,
+      country: body.country,
       onboarded: true,
     });
+
 
     return NextResponse.json({ message: "User created", id: newUser.id }, { status: 201 });
   } catch (err) {

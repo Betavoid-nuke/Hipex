@@ -20,13 +20,43 @@ export interface BaseItem {
     isFavorite: boolean;
 }
 
-export interface AppUser {
-    uid: string;
-    name: string;
-    email: string;
-    avatar: string;
-    id?: string; // id is sometimes used interchangeably with uid
+export interface SocialHandle {
+  platform: string;
+  url: string;
 }
+
+export interface AppUser {
+  _id: string;
+  id: string;
+  uid?: string; // optional Clerk or auth provider id
+  username: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  image?: string;
+  bio?: string;
+  onboarded: boolean;
+  friendsId: string[];
+  communities: string[];
+  Countdowns: string[];
+  twinxprojects: string[];
+  twinxfavprojects: string[];
+  socialhandles: SocialHandle[];
+  tags: string[];
+  jobs: Job[];
+  country: string;
+  oneSentanceIntro: string;
+  listedAssets: string[];
+  listedTwins: string[];
+}
+
+export type Job = {
+  title: string;
+  company: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+};
 
 export interface Project {
     id: string;

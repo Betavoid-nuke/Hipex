@@ -12,6 +12,7 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-reac
 import { getUserById } from '@/twinx/utils/twinxDBUtils.action';
 import LightRays from '@/General/Backgrounds/Lightrays/Lightrays';
 import TextType from '@/General/TextAnimations/TextType/TextType';
+import { Job } from '@/twinx/types/TwinxTypes';
 
 export default function OnboardingPage() {
   
@@ -20,8 +21,15 @@ export default function OnboardingPage() {
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [OSI, setOSI] = useState('');
   const [bio, setBio] = useState('');
+  const [country, setcountry] = useState('');
   const [socials, setSocials] = useState<{ platform: string; handle: string }[]>([]);
+
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState("");
+  const [jobs, setJobs] = useState<Job[]>([]);
+
 
   const [selectedPlatform, setSelectedPlatform] = useState('');
   const [socialHandle, setSocialHandle] = useState('');
@@ -29,6 +37,8 @@ export default function OnboardingPage() {
 
   const { user } = useUser();
   const router = useRouter();
+
+
 
   //gets the user from mongodb and checks if onboarded or na, and shows the onboaridng cards if not or will send to dashboard
   useEffect(() => {
@@ -98,6 +108,53 @@ export default function OnboardingPage() {
     if (step > 1) setStep(step - 1);
   };
 
+  const addTag = () => {
+    const trimmed = newTag.trim().toLowerCase();
+    if (!trimmed) return;
+    if (tags.includes(trimmed)) return; // avoid duplicates
+    if (tags.length >= 5) return alert("You can only add up to 5 tags.");
+    setTags([...tags, trimmed]);
+    setNewTag("");
+  };
+
+  const removeTag = (index: number) => {
+    setTags(tags.filter((_, i) => i !== index));
+  };
+
+  //jobs section
+  const addJob = () => {
+    setJobs([
+      ...jobs,
+      { title: "", company: "", startDate: "", endDate: "", description: "" },
+    ]);
+  };
+
+  const removeJob = (index: number) => {
+    setJobs(jobs.filter((_, i) => i !== index));
+  };
+
+  const updateJob = (index: number, key: keyof Job, value: string) => {
+    const updatedJobs = [...jobs];
+    updatedJobs[index][key] = value;
+    setJobs(updatedJobs);
+  };
+
+  const moveJobUp = (index: number) => {
+    if (index === 0) return;
+    const updated = [...jobs];
+    [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
+    setJobs(updated);
+  };
+
+  const moveJobDown = (index: number) => {
+    if (index === jobs.length - 1) return;
+    const updated = [...jobs];
+    [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]];
+    setJobs(updated);
+  };
+  //jobs section end
+
+
   // 👉 Called when user finishes onboarding
   const handleSubmit = async () => {
     try {
@@ -110,10 +167,25 @@ export default function OnboardingPage() {
           name: username,
           email,
           bio,
+          OSI, // One Sentence Introduction
+          tags, // Array of up to 5 tags
+
           socialhandles: socials.map((s) => ({
             platform: s.platform,
-            url: s.handle.startsWith("http") ? s.handle : `https://${s.platform}.com/${s.handle.replace("@", "")}`,
+            url: s.handle.startsWith("http")
+              ? s.handle
+              : `https://${s.platform}.com/${s.handle.replace("@", "")}`,
           })),
+
+          jobs: jobs.map((job) => ({
+            title: job.title?.trim(),
+            company: job.company?.trim(),
+            startDate: job.startDate ? new Date(job.startDate) : null,
+            endDate: job.endDate ? new Date(job.endDate) : null,
+            description: job.description?.trim(),
+          })),
+
+          country: country || "Earth", // default fallback
         }),
       });
 
@@ -125,6 +197,7 @@ export default function OnboardingPage() {
       console.error("❌ Onboarding failed:", err);
     }
   };
+
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen text-xl">Loading...</div>;
@@ -153,7 +226,8 @@ export default function OnboardingPage() {
             {/* onboarding cards */}
             <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100 p-4" style={{ backgroundColor: '#1c1c1e' }}>
 
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center" style={{color:'#9f9fa5ff', fontSize:'42px', marginTop:'-40px'}}>
+              {/* animated text intro */}
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center" style={{color:'#9f9fa5ff', fontSize:'42px', marginTop:'-40px', zIndex:'999'}}>
                 <TextType 
                   text={["Welcome to TwinX, Let's get your Onboarded!", "Ready to build somthing amazing?", "TwinX got your back, let your imagination run free!", "with Twinx you can digital twin your room, museums, anything."]}
                   typingSpeed={100}
@@ -178,17 +252,65 @@ export default function OnboardingPage() {
                   <CardHeader>
                     <CardTitle className="text-2xl font-bold text-center">
                       {step === 1 && 'Step 1: Personal Details'}
-                      {step === 2 && 'Step 2: Payment Details'}
-                      {step === 3 && 'Step 3: Choose a Plan'}
+                      {step === 2 && 'Step 2: Jobs'}
+                      {step === 3 && 'Step 3: Payment Details'}
+                      {step === 4 && 'Step 4: Choose a Plan'}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {step === 1 && (
                       <>
-                        <Input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} />
-                        <Input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-                        <Input placeholder="Bio" value={bio} onChange={e => setBio(e.target.value)} />
-                    
+                        <Input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}} />
+                        <Input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}} />
+                        <Input placeholder="One Sentance Introduction" value={OSI} onChange={e => setOSI(e.target.value)} style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}} />
+                        <Input placeholder="Bio" value={bio} onChange={e => setBio(e.target.value)} style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}} />
+                        <Input placeholder="country" value={country} onChange={e => setcountry(e.target.value)} style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}} />
+
+                        {/* Tags Section */}
+                        <div className="mt-4">
+                          <label className="block mb-2 font-medium">Tags (max 5)</label>
+
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {tags.map((tag, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center gap-2 bg-[#262629] text-white px-3 py-1 rounded-full"
+                              >
+                                <span>#{tag}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => removeTag(index)}
+                                  className="hover:text-red-400"
+                                >
+                                  <Trash size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {tags.length < 5 && (
+                            <div className="flex items-center gap-2">
+                              <Input
+                                placeholder="Type a tag and press Enter"
+                                value={newTag}
+                                onChange={(e) => setNewTag(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    addTag();
+                                  }
+                                }}
+                                className="flex-1"
+                                style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}}
+                              />
+                              <Button type="button" onClick={addTag}>
+                                <Plus size={16} />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Social Handles Section */}
                         <div>
                           <label className="block mb-2 font-medium">Social Handles</label>
                           <div className="flex gap-2 mb-2">
@@ -196,7 +318,7 @@ export default function OnboardingPage() {
                               value={selectedPlatform}
                               onChange={e => setSelectedPlatform(e.target.value)}
                               className="border p-2 rounded w-1/3"
-                              style={{ backgroundColor: '#222224ff' }}
+                              style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}}
                             >
                               <option value="">Select platform</option>
                               <option value="twitter">Twitter</option>
@@ -209,6 +331,7 @@ export default function OnboardingPage() {
                               value={socialHandle}
                               onChange={e => setSocialHandle(e.target.value)}
                               className="flex-1"
+                              style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}}
                             />
                             <Button type="button" onClick={addSocial}><Plus size={16} /></Button>
                           </div>
@@ -225,6 +348,119 @@ export default function OnboardingPage() {
                     )}
 
                     {step === 2 && (
+                      <div className="space-y-6">
+                      <h3 className="text-lg font-semibold text-white">Job Experience</h3>
+                      <p className="text-sm text-gray-400">
+                        Add your work experience below. You can reorder, edit, or delete jobs anytime.
+                      </p>
+                      
+                      {/* Job List */}
+                      <div className="space-y-4">
+                        {jobs.map((job, index) => (
+                          <div
+                            key={index}
+                            className="p-4 rounded-lg border border-[#3A3A3C] space-y-3 relative"
+                            style={{backgroundColor:'rgb(18 28 33 / 75%)'}}
+                          >
+                            <div className="flex justify-between items-center">
+                              <h4 className="font-semibold text-white">
+                                {job.title || "Untitled Job"} — {job.company || "Company"}
+                              </h4>
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => moveJobUp(index)}
+                                  disabled={index === 0}
+                                  className="text-gray-400 hover:text-white disabled:opacity-30"
+                                  title="Move Up"
+                                >
+                                  ↑
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => moveJobDown(index)}
+                                  disabled={index === jobs.length - 1}
+                                  className="text-gray-400 hover:text-white disabled:opacity-30"
+                                  title="Move Down"
+                                >
+                                  ↓
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removeJob(index)}
+                                  className="text-red-400 hover:text-red-500"
+                                  title="Delete Job"
+                                >
+                                  <Trash size={16} />
+                                </button>
+                              </div>
+                            </div>
+                        
+                            <div className="grid sm:grid-cols-2 gap-3">
+                              <Input
+                                placeholder="Job Title"
+                                value={job.title}
+                                style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}}
+                                onChange={(e) => updateJob(index, "title", e.target.value)}
+                              />
+                              <Input
+                                placeholder="Company"
+                                value={job.company}
+                                style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}}
+                                onChange={(e) => updateJob(index, "company", e.target.value)}
+                              />
+                            </div>
+                        
+                            <div className="grid sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-sm text-gray-400 mb-1">Start Date</label>
+                                <Input
+                                  type="date"
+                                  value={job.startDate || ""}
+                                  style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}}
+                                  onChange={(e) => updateJob(index, "startDate", e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm text-gray-400 mb-1">End Date</label>
+                                <Input
+                                  type="date"
+                                  value={job.endDate || ""}
+                                  style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}}
+                                  onChange={(e) => updateJob(index, "endDate", e.target.value)}
+                                />
+                              </div>
+                            </div>
+                        
+                            <div>
+                              <label className="block text-sm text-gray-400 mb-1">Description</label>
+                              <textarea
+                                placeholder="Describe your role, key achievements, or technologies used..."
+                                value={job.description}
+                                style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}}
+                                onChange={(e) => updateJob(index, "description", e.target.value)}
+                                className="w-full bg-[#262629] border border-[#3A3A3C] rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1] min-h-[80px]"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Add Job Button */}
+                      <div className="flex justify-center">
+                        <Button
+                          type="button"
+                          onClick={addJob}
+                          className="bg-[#6366F1] hover:bg-opacity-90 flex items-center gap-2"
+                        >
+                          <Plus size={16} /> Add Job
+                        </Button>
+                      </div>
+                    </div>
+
+                    )}
+
+                    {step === 3 && (
                       <div className="text-center space-y-4">
                         <p className="text-gray-600">Payment details (Stripe integration placeholder)</p>
                         <div className="border-dashed border-2 p-8 rounded-xl bg-gray-50" style={{ backgroundColor: '#1c1c1e', borderColor: '#1c1c1e' }}>
@@ -234,7 +470,7 @@ export default function OnboardingPage() {
                       </div>
                     )}
 
-                    {step === 3 && (
+                    {step === 4 && (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {[{
                           name: 'Free', price: '$0', features: ['Basic tools', 'Community access']
@@ -283,5 +519,5 @@ export default function OnboardingPage() {
         </SignedOut>
     </>
   );
-}
 
+}

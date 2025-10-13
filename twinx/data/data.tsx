@@ -132,6 +132,20 @@ const apiUsageData = {
     })()
 };
 
+const allCountries = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (Burma)", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"];
+
+const allSkills = [
+  "3D Modeling", "3D Animation", "Character Modeling", "Environment Art", "Hard Surface Modeling", 
+  "Subdivision Modeling", "Retopology", "UV Mapping", "Texturing", "PBR Workflow", "VFX Artist",
+  "Unreal Engine 5", "UE5 Blueprint", "UE5 C++", "Niagara", "Lumen", "Nanite", "MetaHumans", 
+  "Unreal Editor", "Level Design (UE)", "Material Editor (UE)", "Sequencer", "Performance Optimization (UE)",
+  "Unity 3D", "Unity C#", "DOTS", "Unity URP", "Unity HDRP", "Shader Graph (Unity)", 
+  "Cinemachine", "Unity ECS", "ProBuilder", "Mobile Game Development (Unity)", "VR/AR Development (Unity)",
+  "Blender", "Maya", "3ds Max", "ZBrush", "Substance Painter", "Substance Designer", "Marmoset Toolbag",
+  "Houdini", "Cinema 4D", "Meshroom", "Photogrammetry", "Rigging", "Motion Capture",
+  "Game Design", "Technical Artist", "Pipeline Automation", "Python Scripting (DCCs)",
+  "Virtual Reality (VR)", "Augmented Reality (AR)", "Real-time Rendering", "Procedural Generation",
+];
 
 const SIDEBAR_CONFIG = [
   {
@@ -139,7 +153,7 @@ const SIDEBAR_CONFIG = [
     items: [
       { view: 'dashboard', text: 'Digital Twins', icon: Briefcase, href: '/twinx/Dashboard', idneeded:true },
       { view: 'templates', text: 'Templates', icon: LayoutTemplate, href: '/twinx/templates', idneeded:false },
-      { view: 'members', text: 'Members', icon: Users, href: '/twinx/members', idneeded:true },
+      { view: 'members', text: 'Members', icon: Users, href: '/twinx/members', idneeded:true }, 
       { view: 'integrations', text: 'Integrations', icon: Puzzle, href: '/twinx/integrations', idneeded:false },
     ],
   },
@@ -191,7 +205,8 @@ const TOTAL_STEPS = PIPELINE_CONFIG.length;
 
 export default function dataManager(){
     const DataManager = {marketplaceListing: marketplaceListingsJson, users: USERS, assetListing: assetsJson,
-        listingAnalyticData: analyticsData, ApiUsageData: apiUsageData, sidebarConfig: SIDEBAR_CONFIG, PipelineConfig: PIPELINE_CONFIG, TotalPipelineSteps: TOTAL_STEPS, MylistedModels :myListedTwinsJson
+        listingAnalyticData: analyticsData, ApiUsageData: apiUsageData, sidebarConfig: SIDEBAR_CONFIG, PipelineConfig: PIPELINE_CONFIG, TotalPipelineSteps: TOTAL_STEPS, MylistedModels :myListedTwinsJson,
+        allCountries: allCountries, allSkills: allSkills
     };
     return DataManager;
 }

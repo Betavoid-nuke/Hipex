@@ -62,7 +62,7 @@ const templates: FC<templates> = ({ title, icon: Icon }) => {
       {/* 🟣 DASHBOARD HEADER */}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
         <h2 className="text-2xl font-bold text-white mb-4 sm:mb-0 flex items-center gap-3">
-          <List size={28} /> Marketplace
+          <List size={28} /> Templates
         </h2>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
           <div className="relative w-full sm:w-auto">
@@ -101,8 +101,8 @@ const templates: FC<templates> = ({ title, icon: Icon }) => {
         </div>
       </header>
 
-      <div className="bg-[#262629] border border-[#3A3A3C] rounded-lg p-16 text-center text-[#A0A0A5] flex flex-col items-center justify-center space-y-4">
-        <h2 className="text-2xl font-semibold text-white tracking-wide">Marketplace Incoming</h2>
+      <div className="bg-[#262629] border border-[#3A3A3C] rounded-lg p-16 text-center text-[#A0A0A5] flex flex-col items-center justify-center space-y-4" style={{backgroundColor:'rgb(23 23 24)', borderColor:'rgb(79 79 79)'}}>
+        <h2 className="text-2xl font-semibold text-white tracking-wide">Templates Incoming</h2>
         <p className="max-w-md text-[#A0A0A5]">
           Get ready to explore a curated collection of <span className="text-white font-medium">AAA-quality</span> assets — all free to use.  
           Our creators are crafting something extraordinary.
