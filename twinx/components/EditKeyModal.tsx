@@ -1,3 +1,5 @@
+"use client";
+
 import { FC, useEffect, useState } from "react";
 import { EditKeyModalProps } from "../types/TwinxTypes";
 import { X } from "lucide-react";

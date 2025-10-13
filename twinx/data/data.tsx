@@ -168,9 +168,9 @@ const SIDEBAR_CONFIG = [
   {
     title: 'API',
     items: [
-      { view: 'api', text: 'Keys', icon: KeyRound, href: '/api', idneeded:true },
-      { view: 'apiguide', text: 'Guide', icon: BookOpen, href: '/twinx/apiguide', idneeded:true },
-      { view: 'apiusage', text: 'Usage', icon: BarChart2, href: '/twinx/apiusage', idneeded:true },
+      { view: 'apipage', text: 'Keys', icon: KeyRound, href: '/twinx/apipage', idneeded:true },
+      { view: 'apiguide', text: 'Guide', icon: BookOpen, href: '/twinx/apiguide', idneeded:false },
+      { view: 'apiusage', text: 'Usage', icon: BarChart2, href: '/twinx/apiusage', idneeded:false },
     ],
   },
   {

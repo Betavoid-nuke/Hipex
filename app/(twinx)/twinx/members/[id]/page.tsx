@@ -6,7 +6,6 @@ import { Search, X, Globe, Briefcase, Tag } from "lucide-react";
 import { AppUser } from "@/twinx/types/TwinxTypes";
 import dataManager from "@/twinx/data/data";
 import { useParams } from "next/navigation";
-import { showNotification } from "@/twinx/components/AppNotification";
 import UserCard from "@/twinx/components/UserCard";
 import AutosuggestFilterInput from "@/twinx/components/AutosuggestFilterInput";
 

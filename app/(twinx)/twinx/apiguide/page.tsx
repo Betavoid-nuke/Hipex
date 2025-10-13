@@ -1,11 +1,8 @@
 import { BookOpen } from "lucide-react";
 import { FC, ReactNode } from "react";
 
-interface prop {
-    handleNavigateIn: (view: string) => void;
-}
-
-export default function ApiGuidePagePage({handleNavigateIn}: prop) {
+export default function ApiGuidePagePage() {
+    
     const CodeBox: FC<{children: ReactNode}> = ({ children }) => (
         <code className="bg-[#262629] border border-[#3A3A3C] rounded-md px-2 py-1 text-sm font-mono text-indigo-300">
             {children}
@@ -44,7 +41,7 @@ export default function ApiGuidePagePage({handleNavigateIn}: prop) {
                     <ol className="list-decimal list-inside space-y-2 pl-4">
                         <li>Navigate to Project Settings: <CodeBox>Edit → Project Settings</CodeBox>.</li>
                         <li>Find the <CodeBox>Twinx</CodeBox> section under the Plugins header.</li>
-                        <li>Copy your secret key from the <a href="#" onClick={() => handleNavigateIn('api')} className="text-indigo-400 hover:underline">API Keys</a> page and paste it into the <CodeBox>API Key</CodeBox> field.</li>
+                        <li>Copy your secret key from the <a className="text-indigo-400 hover:underline">API Keys</a> page and paste it into the <CodeBox>API Key</CodeBox> field.</li>
                     </ol>
 
                     <h2 className="text-2xl font-semibold text-white">3. Loading Your Digital Twin</h2>

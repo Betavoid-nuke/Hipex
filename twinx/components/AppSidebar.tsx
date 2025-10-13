@@ -21,6 +21,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/r
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import LimitedAccessComponent from "@/General/Security/LimitedAccessComponent";
+import { usePathname } from "next/navigation";
+
 
 interface AppSidebarProps {
   currentView: string;
@@ -35,6 +37,9 @@ export  default function AppSidebar({ currentView, onNavigate }: AppSidebarProps
   const { user, isLoaded } = useUser();
   if (!isLoaded) return null; // or loading spinner
   const userId = user?.id;
+
+  const pathname = usePathname();
+
 
   return (
     <>
@@ -90,15 +95,19 @@ export  default function AppSidebar({ currentView, onNavigate }: AppSidebarProps
                         <SidebarGroupContent>
                           <SidebarMenu>
                             {section.items.map((item: any) => {
+                              const isActive = pathname === (item.idneeded ? `${item.href}/${userId}` : item.href);
                               return (
                                 <SidebarMenuItem key={item.view}>
                                   <SidebarMenuButton asChild>
                                     <Link
                                       href={item.idneeded ? `${item.href}/${userId}` : item.href}
-                                      className="flex items-center gap-2 p-2 rounded w-full justify-start
-                                                 text-gray-400 font-normal transition-all duration-200
-                                                 hover:font-semibold hover:text-white hover:bg-gray-800
-                                                 hover:scale-[1.01]"
+                                      className={`
+                                        flex items-center gap-2 p-2 rounded w-full justify-start transition-all duration-200
+                                        ${isActive 
+                                          ? "bg-[#3A3A3C] text-white font-semibold" 
+                                          : "text-gray-400 hover:text-white hover:bg-gray-800 hover:scale-[1.01]"
+                                        }
+                                      `}
                                     >
                                       <item.icon size={18} className="transition-transform duration-200 group-hover:translate-x-0.5" />
                                       <span className="transition-all duration-200">{item.text}</span>

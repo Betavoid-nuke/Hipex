@@ -42,16 +42,15 @@ export default function RootLayout({
                   style={{ width: "-webkit-fill-available", scrollbarWidth: "none" }}
                 >
                   <NextTopLoader />
-                  <div className="w-full h-full">
-                    <NotificationProvider>{children}</NotificationProvider>
+                  <div className="w-full h-full">{children}
                   </div>
-                  <Toaster />
                 </section>
 
               </div>
             </SidebarProvider>
           </AuthGuardProvider>
         </ClerkProvider>
+        <Toaster expand={true} richColors />
       </body>
     </html>
   );

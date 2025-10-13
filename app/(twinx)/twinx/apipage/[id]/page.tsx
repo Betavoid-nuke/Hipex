@@ -1,15 +1,16 @@
-import { FC, useState } from "react";
+
+"use client";
+
+import { useState } from "react";
 import { KeyRound, Plus, Info, Edit, Trash2 } from "lucide-react";
-import { ApiKey, DeleteConfirmationModalProps, EditKeyModalProps } from "../types/TwinxTypes";
-import EditKeyModal from "../components/EditKeyModal";
-import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
+import { ApiKey } from "@/twinx/types/TwinxTypes";
+import { showNotification } from "@/twinx/components/AppNotification";
+import EditKeyModal from "@/twinx/components/EditKeyModal";
+import DeleteConfirmationModal from "@/twinx/components/DeleteConfirmationModal";
 
-interface props {
-    showNotificationIn: (message: string) => void;
-    handleNavigateIn: (view: string) => void;
-}
 
-function ApiPagePage({showNotificationIn, handleNavigateIn}: props) {
+export default function ApiPagePage() {
+
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [keyToEdit, setKeyToEdit] = useState<ApiKey | null>(null);
   const [keyToDelete, setKeyToDelete] = useState<ApiKey | null>(null);
@@ -33,7 +34,7 @@ function ApiPagePage({showNotificationIn, handleNavigateIn}: props) {
       permissions: "All",
     };
     setApiKeys([...apiKeys, newKey]);
-    showNotificationIn("New secret key created successfully!");
+    showNotification("New secret key created successfully!", 'normal');
   };
 
   const handleEditClick = (key: ApiKey) => {
@@ -45,7 +46,7 @@ function ApiPagePage({showNotificationIn, handleNavigateIn}: props) {
     setApiKeys(
       apiKeys.map((key) => (key.id === id ? { ...key, name: newName } : key))
     );
-    showNotificationIn("API Key updated successfully!");
+    showNotification("API Key updated successfully!", "normal");
   };
 
   const handleDeleteClick = (key: ApiKey) => {
@@ -58,7 +59,7 @@ function ApiPagePage({showNotificationIn, handleNavigateIn}: props) {
     setApiKeys(apiKeys.filter((key) => key.id !== keyToDelete.id));
     setIsDeleteKeyModalOpen(false);
     setKeyToDelete(null);
-    showNotificationIn("API Key deleted.");
+    showNotification("API Key deleted.", "notification");
   };
 
   return (
@@ -106,8 +107,7 @@ function ApiPagePage({showNotificationIn, handleNavigateIn}: props) {
           <p>
             View usage per API key on the{" "}
             <a
-              href="#"
-              onClick={() => handleNavigateIn("apiusage")}
+              href="/twinx/apiusage"
               className="text-indigo-400 hover:underline"
             >
               Usage page
@@ -198,4 +198,3 @@ function ApiPagePage({showNotificationIn, handleNavigateIn}: props) {
   );
 };
 
-export default ApiPagePage;

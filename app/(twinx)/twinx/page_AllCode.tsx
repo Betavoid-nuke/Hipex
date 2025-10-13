@@ -33,9 +33,7 @@ import DeleteConfirmationModal from '@/twinx/components/DeleteConfirmationModal'
 import ProjectViewPage from '@/twinx/pages/ProjectView';
 import PlaceholderViewPage from '@/twinx/pages/PlaceholderView';
 import PlansPagePage from '@/twinx/pages/PlansPage';
-import ApiPagePage from '@/twinx/pages/ApiPage';
-import ApiGuidePagePage from '@/twinx/pages/ApiGuidePage';
-import ApiUsagePagePage from '@/twinx/pages/ApiUsagePage';
+import ApiUsagePagePage from '@/app/(twinx)/twinx/apiusage/page';
 import MarketplacePagePage from '@/twinx/pages/MarketplacePage';
 import AnalyticsPagePage from '@/twinx/pages/AnalyticsPage';
 
@@ -464,15 +462,9 @@ function MainPage() {
     };
 
     const ApiPage = () => {
-        return (
-            <ApiPagePage showNotificationIn={(message) => showNotification(message)} handleNavigateIn={(view) => handleNavigate(view)} />
-        );
     };
 
     const ApiGuidePage = () => {
-        return (
-            <ApiGuidePagePage handleNavigateIn={(view)=>{handleNavigate(view)}} />
-        );
     };
 
     const MembersPage = () => {
@@ -885,8 +877,6 @@ function MainPage() {
             'twinDetail': <TwinDetailPage />,
             'members': <MembersPage />,
             'plans': <PlansPage />,
-            'api': <ApiPage />,
-            'apiguide': <ApiGuidePage />,
             'apiusage': <ApiUsagePage />,
             'updates': <PlaceholderView />,
             'profile': <ProfilePage />,

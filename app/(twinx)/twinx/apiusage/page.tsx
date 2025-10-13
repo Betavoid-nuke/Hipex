@@ -1,11 +1,15 @@
+
+"use client";
+
 import { AlertTriangle, BarChart2, Calendar, CheckCircle, ChevronDown, LucideProps, Server, TrendingUp, Zap } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, Bar } from 'recharts';
-import dataManager from "../data/data";
+import dataManager from "../../../../twinx/data/data";
 
 
 
 export default function ApiUsagePagePage() {
     const { summary, callsPerDayChart } = dataManager().ApiUsageData;
+
     const StatCard = ({ icon: Icon, title, value, color, trend }: { icon: React.ComponentType<LucideProps>, title: string, value: string, color: string, trend?: string | null}) => (
         <div className="bg-[#262629] p-6 rounded-lg border border-[#3A3A3C] flex flex-col justify-between">
             <div className="flex justify-between items-start">
@@ -20,6 +24,7 @@ export default function ApiUsagePagePage() {
             </div>
         </div>
     );
+
     return (
         <div className="p-4 sm:p-6 lg:p-8 text-white">
              <header className="flex justify-between items-center mb-6">
