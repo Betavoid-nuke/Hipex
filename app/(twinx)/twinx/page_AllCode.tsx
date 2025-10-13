@@ -78,7 +78,7 @@ const db: Firestore = getFirestore(app);
 
 
 // --- Mock Data and Configuration ---
-const FAKE_USERS: AppUser[] = dataManager().users;
+const FAKE_USERS = dataManager().users;
 
 const marketplaceListingsJson: BaseItem[] = [
     { id: 'm1', title: 'Cyberpunk Megatower', author: 'Alex Doe', price: 89.99, thumbnail: 'https://placehold.co/400x225/FF5722/FFFFFF?text=Tower', category: 'Building', tags: ['sci-fi', 'cyberpunk', 'skyscraper'], isAnimated: false, isDownloadable: true, date: new Date('2025-06-15'), likes: 1200, isFavorite: false },
