@@ -1,60 +1,20 @@
 "use client";
 
-import { FC, useMemo, useState } from "react";
-import { Briefcase, List, LucideProps, Plus, Search } from "lucide-react";
+import { useMemo, useState } from "react";
+import { List, LucideProps, Search } from "lucide-react";
 import { Project } from "@/twinx/types/TwinxTypes";
 import { Timestamp } from "firebase/firestore";
-import LaserFlow from "@/components/LaserFlow";
-import Comingsoon from "@/General/components/comingsoon/comingsoon";
 
 interface templates {
   title: string;
   icon: React.ComponentType<LucideProps>;
 }
 
-const templates: FC<templates> = ({ title, icon: Icon }) => {
+export default function templates() {
 
-    const [searchTerm, setSearchTerm] = useState<string>('');
-    const [filter, setFilter] = useState<string>('All');
-    const [sort, setSort] = useState<string>('date_desc');
-    const [projects, setProjects] = useState<Project[]>([]);
-
-    const filteredAndSortedProjects = useMemo(() => {
-      
-      const uniqueProjects = Array.from(
-        new Map(projects.map(p => [p.twinxid,p])).values() // ✅ deduplicate by id
-      );
-
-      const up = uniqueProjects
-        .filter(
-          p =>
-            p.title &&
-            p.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            (filter === 'Favorites' ? p.isFavorite : true)
-        )
-        .sort((a, b) => {
-          const dateA =
-            a.createdAt instanceof Timestamp
-              ? a.createdAt.toDate().getTime()
-              : new Date(a.createdAt).getTime();
-          const dateB =
-            b.createdAt instanceof Timestamp
-              ? b.createdAt.toDate().getTime()
-              : new Date(b.createdAt).getTime();
-          switch (sort) {
-            case 'name_asc':
-              return a.title.localeCompare(b.title);
-            case 'name_desc':
-              return b.title.localeCompare(a.title);
-            case 'date_asc':
-              return dateA - dateB;
-            default:
-              return dateB - dateA;
-          }
-      });
-
-      return up
-    }, [projects, searchTerm, filter, sort]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [filter, setFilter] = useState<string>('All');
+  const [sort, setSort] = useState<string>('date_desc');
 
   return (
     <div className="p-8 text-white">
@@ -115,6 +75,6 @@ const templates: FC<templates> = ({ title, icon: Icon }) => {
 
     </div>
   );
+  
 };
 
-export default templates;

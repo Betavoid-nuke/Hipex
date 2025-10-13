@@ -181,8 +181,7 @@ function MembersPagePage() {
 
   }, [filterCountry, filterTag, filterCompany, searchQuery]);
 
-
-
+  // Sync search input to searchKey for debounced searching
   useEffect(() => {
     if (!isLoading) {
       setSearchKey(searchQuery);
