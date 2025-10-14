@@ -61,7 +61,8 @@ export default function templates() {
         </div>
       </header>
 
-      <div className="bg-[#262629] border border-[#3A3A3C] rounded-lg p-16 text-center text-[#A0A0A5] flex flex-col items-center justify-center space-y-4" style={{backgroundColor:'rgb(23 23 24)', borderColor:'rgb(79 79 79)'}}>
+      {/* 🟣 TEMPLATES GRID */}
+      <div className="bg-transparent border border-[#3A3A3C] rounded-lg p-16 text-center text-[#A0A0A5] flex flex-col items-center justify-center space-y-4" style={{backgroundColor:'transparent', border:'none'}}>
         <h2 className="text-2xl font-semibold text-white tracking-wide">Templates Incoming</h2>
         <p className="max-w-md text-[#A0A0A5]">
           Get ready to explore a curated collection of <span className="text-white font-medium">AAA-quality</span> assets — all free to use.  
@@ -71,7 +72,6 @@ export default function templates() {
           Launching Soon ⏳
         </div>
       </div>
-
 
     </div>
   );

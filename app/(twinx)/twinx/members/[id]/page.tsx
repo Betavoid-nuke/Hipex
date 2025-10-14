@@ -188,7 +188,7 @@ function MembersPagePage() {
   }, [searchQuery]);
 
   return (
-    <div className="bg-[#1C1C1E] min-h-screen text-white p-4 sm:p-6 lg:p-8 font-['Inter']">
+    <div className="bg-[#1c1c1e] min-h-screen text-white p-4 sm:p-6 lg:p-8 font-['Inter']">
         
       {/* Sleek Search Bar (Always at the top) */}
       <div className="max-w-6xl mx-auto mb-6">
@@ -200,7 +200,7 @@ function MembersPagePage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for name, title, skill, company, or country..."
-              className="w-full bg-[#262629] border border-[#3A3A3C] rounded-none px-10 py-3 text-white focus:outline-none focus:ring-1 focus:ring-[#6366F1] transition shadow-md"
+              className="w-full bg-[#171718] border border-[#3A3A3C] rounded-none px-10 py-3 text-white focus:outline-none focus:ring-1 focus:ring-[#6366F1] transition shadow-md"
             />
             {searchQuery && (
                 <button 
@@ -220,8 +220,8 @@ function MembersPagePage() {
 
         {/* LEFT COLUMN: Filter Bar */}
         <div className="w-full md:w-1/4 hidden md:block">
-          <div className="bg-[#262629] border border-[#3A3A3C] rounded-none overflow-hidden sticky top-4">
-            <div className="p-4 border-b border-[#3A3A3C]">
+          <div className="bg-[#171718] border border-[#171718] rounded-none overflow-hidden sticky top-4">
+            <div className="p-4 border-b border-[#171718]">
               <h3 className="text-lg font-bold text-white">Filter Results</h3>
             </div>
             <div className="p-4">
@@ -246,7 +246,7 @@ function MembersPagePage() {
                 
                 {/* Company Filter - Simple Input (No Suggestions) */}
                 <div className="mb-4">
-                    <label className="text-sm font-semibold text-[#A0A0A5] flex items-center gap-2 mb-2">
+                    <label className="text-sm font-semibold text-[#171718] flex items-center gap-2 mb-2">
                         <Briefcase size={16} /> Company
                     </label>
                     <div className="relative">
@@ -255,7 +255,7 @@ function MembersPagePage() {
                             value={filterCompany}
                             onChange={(e) => setFilterCompany(e.target.value)}
                             placeholder="Type company name..."
-                            className="w-full bg-[#1C1C1E] border border-[#3A3A3C] text-white p-2 focus:outline-none focus:ring-1 focus:ring-[#6366F1] rounded-none"
+                            className="w-full bg-[#171718] border border-[#3A3A3C] text-white p-2 focus:outline-none focus:ring-1 focus:ring-[#6366F1] rounded-none"
                         />
                         {filterCompany && (
                             <button 
@@ -275,8 +275,8 @@ function MembersPagePage() {
 
         {/* RIGHT COLUMN: Search Results */}
         <div className="w-full md:w-3/4">
-          <div className="bg-[#262629] border border-[#3A3A3C] rounded-none overflow-hidden">
-            <div className="p-4 border-b border-[#3A3A3C]">
+          <div className="bg-[#171718] rounded-none overflow-hidden" style={{border:'none'}}>
+            <div className="p-4" style={{border:'none'}}>
               <h3 className="font-bold text-lg text-white">
                 {searchQuery || filterCountry || filterTag || filterCompany
                   ? "Filtered Results"

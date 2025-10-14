@@ -18,12 +18,13 @@ export async function POST(req: Request) {
       name: body.name,
       email: body.email,
       bio: body.bio,
-      OSI: body.OSI,
+      oneSentanceIntro: body.OSI,
       tags: body.tags,
       socialhandles: body.socialhandles,
       jobs: body.jobs,
       country: body.country,
       onboarded: true,
+      website: body.website
     });
 
 

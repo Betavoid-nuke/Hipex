@@ -176,7 +176,7 @@ const SIDEBAR_CONFIG = [
   {
     title: 'Account',
     items: [
-      { view: 'profile', text: 'Profile', icon: User, href: '/twinx/accountprofile', idneeded:true },
+      { view: 'profile', text: 'Profile', icon: User, href: '/twinx/profile', idneeded:true },
       { view: 'settings', text: 'Settings', icon: Settings, href: '/twinx/accountsettings', idneeded:true },
       { view: 'plans', text: 'Plans', icon: CreditCard, href: '/twinx/accountplans', idneeded:false },
     ],

@@ -884,10 +884,7 @@ function MainPage() {
             'integrations': <IntegrationsPage handleNavigate={handleNavigate} />,
             'templates': <PlaceholderView />,
         };
-        return views[currentView] || <Dashboard />;
-
-        //use the marketplace UI and functionalities from here for the marketplace page on the website
-
+        return views[currentView] || <Dashboard />
     };
 
     return (

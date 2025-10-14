@@ -48,6 +48,7 @@ export interface AppUser {
   oneSentanceIntro: string;
   listedAssets: string[];
   listedTwins: string[];
+  website?: string;
 }
 
 export type Job = {

@@ -23,6 +23,7 @@ export default function OnboardingPage() {
   const [email, setEmail] = useState('');
   const [OSI, setOSI] = useState('');
   const [bio, setBio] = useState('');
+  const [website, setwebsite] = useState('');
   const [country, setcountry] = useState('');
   const [socials, setSocials] = useState<{ platform: string; handle: string }[]>([]);
 
@@ -261,9 +262,10 @@ export default function OnboardingPage() {
                     {step === 1 && (
                       <>
                         <Input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}} />
-                        <Input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}} />
+                        <Input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} type='email' style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}} />
                         <Input placeholder="One Sentance Introduction" value={OSI} onChange={e => setOSI(e.target.value)} style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}} />
                         <Input placeholder="Bio" value={bio} onChange={e => setBio(e.target.value)} style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}} />
+                        <Input placeholder="website" value={website} onChange={e => setwebsite(e.target.value)} type='link' style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}} />
                         <Input placeholder="country" value={country} onChange={e => setcountry(e.target.value)} style={{backgroundColor:'rgb(18 28 33 / 75%)', borderColor:'#343f3d'}} />
 
                         {/* Tags Section */}

@@ -1,15 +1,25 @@
 "use client"
 
-import { Briefcase, Plus, Search } from "lucide-react";
+import { ArrowUpRightIcon, Briefcase, Plus, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Timestamp } from "firebase/firestore";
-import { DraggingProject, Project } from "@/twinx/types/TwinxTypes";
+import { Project } from "@/twinx/types/TwinxTypes";
 import ProjectCardCore from "@/twinx/components/ProjectCard";
 import { useParams } from "next/navigation";
 import NewProjectModal from "@/twinx/components/NewProjectModel";
-import { copyToClipboard } from "@/twinx/utils/TwinxUtils";
 import { getProjectsByUserId } from "@/twinx/utils/twinxDBUtils.action";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import { Button } from "@/components/ui/button";
+import { IconFolderCode } from "@tabler/icons-react"
+
 
 
 export default function dashboard() {
@@ -158,20 +168,25 @@ export default function dashboard() {
 
             {/* 🟡 EMPTY PROJECTS STATE */}
             {filteredAndSortedProjects.length === 0 ? (
-              <div className="flex items-center justify-center h-[50vh]">
-                <div className="bg-[#262629] text-white p-6 rounded-xl shadow-lg max-w-md w-full text-center border border-[#3A3A3C]">
-                  <h3 className="text-xl font-semibold mb-2">No Digital Twins Found</h3>
-                  <p className="text-[#A0A0A5] mb-4">
-                    You don’t have any projects yet. Click below to create your first Digital Twin.
-                  </p>
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-[#6366F1] text-white font-semibold py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors"
-                  >
-                    <Plus size={18} className="inline-block mr-1" /> New Digital Twin
-                  </button>
-                </div>
-              </div>
+
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <IconFolderCode />
+                  </EmptyMedia>
+                  <EmptyTitle>No Projects Yet</EmptyTitle>
+                  <EmptyDescription>
+                    You haven&apos;t created any projects yet. Get started by creating
+                    your first project.
+                  </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                  <div className="flex gap-2">
+                    <Button onClick={() => setIsModalOpen(true)} style={{backgroundColor:'#6366f1', borderRadius:'5px', color:"white", fontWeight:'bold'}}>Create Project</Button>
+                  </div>
+                </EmptyContent>
+              </Empty>
+
             ) : (
               // 🟣 PROJECT GRID
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

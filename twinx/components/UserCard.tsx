@@ -92,8 +92,8 @@ const UserCard: FC<UserCardProps> = ({ user, currentUserId, onConnectionChange }
   return (
     <div
       key={user.id}
-      className="bg-[#262629] border-b border-[#3A3A3C] p-4 flex flex-col sm:flex-row gap-4 transition duration-200 hover:bg-[#3A3A3C] last:border-b-0"
-      style={{display:'flex', alignItems:'center'}}
+      className="bg-[#171718] border-b border-[#3A3A3C] p-4 flex flex-col sm:flex-row gap-4 transition duration-200 hover:bg-[#3A3A3C] last:border-b-0"
+      style={{display:'flex', alignItems:'center', border:'none'}}
     >
       <img
         src={

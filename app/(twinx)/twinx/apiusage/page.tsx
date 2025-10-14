@@ -42,7 +42,7 @@ export default function ApiUsagePagePage() {
                 <StatCard icon={AlertTriangle} title="Error Rate" value={summary.errorRate.value} color="red" trend={summary.errorRate.trend}/>
             </div>
              <div className="mt-8">
-                 <div className="bg-[#262629] p-6 rounded-lg border border-[#3A3A3C]">
+                 <div className="p-6 rounded-lg border border-[#3A3A3C]" style={{backgroundColor:'transparent', border:'none'}}>
                     <h3 className="text-lg font-semibold mb-4">API Calls per Day</h3>
                     <ResponsiveContainer width="100%" height={400}>
                          <AreaChart data={callsPerDayChart} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>

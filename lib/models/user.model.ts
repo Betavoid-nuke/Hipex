@@ -114,7 +114,17 @@ const userSchema = new mongoose.Schema({
       type: String,
       required: false,
     }
-  ]
+  ],
+  email: {
+    type: String,
+    required: true,
+    default: "No Email"
+  },
+  website: {
+    type: String,
+    required: true,
+    default: "No Email"
+  },
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
