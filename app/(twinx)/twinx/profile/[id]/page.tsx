@@ -173,7 +173,7 @@ export default function ProfilePage() {
                     </div>
                 )}
                 <div style={{display:'flex', gap:'10px', flexWrap:'wrap', marginTop:'20px'}}>
-                    {fetchedUser?.tags.map((tag, i) => (
+                    {fetchedUser?.tags?.map((tag, i) => (
                       <span key={i} className="bg-[#2e2e2e] px-3 py-1 rounded-full flex items-center gap-2">
                         #{tag}
                       </span>

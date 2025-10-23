@@ -87,7 +87,7 @@ export default function ProjectCardCore({
   const uniqueCardID = `project-card-${project.twinxid}`;
 
   return (
-    <Link href={`/twinx/project/${project._id}`} className="block">  
+    
     <div key={keyUni} className="twinxproject-card rounded-xl">
     <motion.div
       key={uniqueCardID}
@@ -103,6 +103,7 @@ export default function ProjectCardCore({
           style={{ backgroundColor: "transparent", margin:'-35px', border:'none' }}
         >
           {/* Thumbnail */}
+          <Link href={`/twinx/project/${project._id}`} className="block">  
           <div className="relative">
         <img
           src={
@@ -131,6 +132,7 @@ export default function ProjectCardCore({
           </button>
         </div>
           </div>
+          </Link>
 
           {/* Info Section */}
           <div className="p-4 flex flex-col flex-grow justify-between">
@@ -222,6 +224,6 @@ export default function ProjectCardCore({
     </SpotlightCard>
     </motion.div>
     </div>
-    </Link>
+    
   );
 }

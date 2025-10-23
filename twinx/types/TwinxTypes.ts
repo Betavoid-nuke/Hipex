@@ -73,6 +73,7 @@ export interface Project {
     updatedAt: Timestamp | Date;
     totalSteps?: number;
     pipelineConfig?: PipelineStep[];
+    pipelineFinished?: boolean;
 }
 
 export interface DraggingProject extends Project {

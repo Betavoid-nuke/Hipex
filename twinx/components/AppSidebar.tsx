@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   useSidebar,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { ChevronDown, Star } from "lucide-react";
 import dataManager from "../data/data";
@@ -53,26 +54,10 @@ export  default function AppSidebar({ currentView, onNavigate }: AppSidebarProps
         
           {/* ---------- HEADER ---------- */}
           <SidebarHeader>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <SidebarMenuButton>
-                      Select Workspace
-                      <ChevronDown className="ml-auto" />
-                    </SidebarMenuButton>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
-                    <DropdownMenuItem>
-                      <span>Acme Inc</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <span>Acme Corp.</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </SidebarMenuItem>
-            </SidebarMenu>
+            <div style={{color:'gray', display:'flex', alignItems:'center', gap:'8px', fontWeight:'600', height:'100%', width:'100%', justifyContent:'center', fontSize:'26px', fontFamily:'monospace', marginBottom:'-20px'}}>
+              Hipex
+            </div>
+            <div style={{height:'1px', width:'100%', backgroundColor:'#48484f', marginTop:'23px'}}></div>
           </SidebarHeader>
 
           {/* ---------- CONTENT ---------- */}

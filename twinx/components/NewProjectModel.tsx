@@ -229,7 +229,8 @@ const NewProjectModal: FC<NewProjectModalProps> = ({ isOpen, onClose, userId }) 
             published: false,
             thumbnail: "",
             // thumbnail: thumbnail,          base64 thumbnail is generated and it is too big to be stored. figure this out later
-            videoUrl: videoUrl
+            videoUrl: videoUrl,
+            pipelineFinished: false
         };
 
         const redirectPath = '/twinx/Dashboard/'+userId;

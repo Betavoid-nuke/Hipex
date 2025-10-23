@@ -23,6 +23,12 @@ import { copyToClipboard } from "@/twinx/utils/TwinxUtils";
 import { showNotification } from "@/twinx/components/AppNotification";
 import { getProjectById } from "@/twinx/utils/twinxDBUtils.action";
 import { Project } from "@/twinx/types/TwinxTypes";
+import { Button } from "@/components/ui/button";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 const ProjectViewPage = () => {
 
@@ -137,18 +143,9 @@ const ProjectViewPage = () => {
 
       {/* Project Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
-        <div>
-          <h2 className="text-3xl font-bold">{project.title}</h2>
-          <div className="flex items-center flex-wrap gap-4 mt-2">
-            <p
-              className={`text-sm font-semibold px-3 py-1 rounded-full inline-block ${
-                project.isPublished
-                  ? "bg-green-500/20 text-green-400"
-                  : "bg-yellow-500/20 text-yellow-400"
-              }`}
-            >
-              {project.isPublished ? "Published" : "Unpublished"}
-            </p>
+        <div style={{width:'100%'}}>
+          <h2 className="text-3xl font-bold" style={{fontSize:'28px', color:'#939398'}}>{project.title}</h2>
+          <div className="flex items-center flex-wrap gap-4 mt-2" style={{width:'100%', display:'flex', justifyContent:'flex-end', alignContent:'center',flexWrap:'nowrap', flexDirection:'row' }}>
             <div
               className="flex items-center gap-2 text-[#A0A0A5] font-mono text-sm cursor-pointer"
               onClick={handleCopyId}
@@ -156,6 +153,28 @@ const ProjectViewPage = () => {
               <span>{project.twinxid}</span>
               <Copy size={16} className="hover:text-[#6366F1]" />
             </div>
+
+            {/* IMPORTANT */}
+            {/* this publish button will be disabled until the pipeline finishes, so there will be another key in the model of the project will will be for pipelineFined, when that is finished, the published button will get enabled */}
+            {/* button will check for piplineFinished? key in db when loading and will also have a webhook trigger from n8n which will enable it if user has the page open when it finishes */}
+            <HoverCard>
+              <HoverCardTrigger>
+                <Button 
+                  className={`text-sm font-semibold px-3 py-1 rounded-full inline-block ${
+                    project.isPublished
+                      ? "bg-green-500/20 text-green-400"
+                      : "bg-yellow-500/20 text-yellow-400"
+                  }`} 
+                  style={{borderRadius:'20px', display:'flex', justifyContent:'end'}}
+                  disabled={project?.pipelineFinished ? false : true}
+                >
+                  {project.isPublished ? "Unpublish" : "Publish"}
+                </Button>
+              </HoverCardTrigger>
+              <HoverCardContent style={{backgroundColor:'#171718', border:'none'}}>
+                {project.isPublished ? "Publish project to let twinx plugin in your unreal project pull your digital twin." : "Please wait for the processing pipeline to complete before publishing your Digital Twin."}
+              </HoverCardContent>
+            </HoverCard>
           </div>
         </div>
 

@@ -30,7 +30,6 @@ import NavHeader from '@/twinx/components/sidebarNavHead';
 import NavItem from '@/twinx/components/SidebarNavIteam';
 import NewProjectModal from '@/twinx/components/NewProjectModel';
 import DeleteConfirmationModal from '@/twinx/components/DeleteConfirmationModal';
-import ProjectViewPage from '@/twinx/pages/ProjectView';
 import PlaceholderViewPage from '@/twinx/pages/PlaceholderView';
 import PlansPagePage from '@/twinx/pages/PlansPage';
 import ApiUsagePagePage from '@/app/(twinx)/twinx/apiusage/page';
@@ -433,20 +432,7 @@ function MainPage() {
 
     const ProjectView = () => {
 
-        return (
-            <ProjectViewPage
-              selectedProject={selectedProject}
-              projects={projects}
-              TOTAL_STEPS={TOTAL_STEPS}
-              PIPELINE_CONFIG={PIPELINE_CONFIG}
-              simulatingProjectId={simulatingProjectId}
-              setSimulatingProjectId={setSimulatingProjectId}
-              handleNavigate={handleNavigate}
-              showNotification={showNotification}
-              copyToClipboard={copyToClipboard}
-            />
-
-        );
+        return 
     };
 
     const PlaceholderView = () => {
@@ -869,7 +855,6 @@ function MainPage() {
     //     prints the pages
     const renderCurrentView = () => {
         const views: {[key: string]: React.ReactNode} = {
-            'project': <ProjectView />,
             'dashboard': <Dashboard />,
             'marketplace': <MarketplacePage friends={friends} onSelectTwin={handleSelectTwin} />,
             'yourtwins': <YourTwinsPage />,

@@ -21,6 +21,7 @@ export interface IProject extends Document {
     description: string;
     icon: string;
   }[];
+  pipelineFinished: boolean;
 }
 
 // 👇 Define Mongoose schema
@@ -90,6 +91,10 @@ const TwinxProjectSchema = new Schema<IProject>(
         { id: 11, name: 'Physics Caching', description: 'Pre-calculating physics interactions.', icon: 'Trash2' },
         { id: 12, name: 'Final Assembly', description: 'Compiling all data into the final twin.', icon: 'Check' },
       ],
+    },
+    pipelineFinished: {
+      type: Boolean,
+      default: false,
     }
   }
 )
