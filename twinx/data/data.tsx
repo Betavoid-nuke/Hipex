@@ -1,5 +1,5 @@
 import { Timestamp } from "firebase/firestore";
-import { BarChart2, BookOpen, Briefcase, Check, CreditCard, Download, Eye, FileText, KeyRound, LayoutTemplate, MoreVertical, Puzzle, Search, Settings, Star, Store, Trash2, UploadCloud, User, Users } from "lucide-react";
+import { BarChart2, BookOpen, Briefcase, Check, CreditCard, Download, Eye, FileText, KeyRound, LayoutTemplate, MoreVertical, Puzzle, Search, Settings, Star, Store, Trash2, UploadCloud, User, Users, Waypoints } from "lucide-react";
 
 
 // --- Data Model Interfaces ---
@@ -152,6 +152,7 @@ const SIDEBAR_CONFIG = [
     title: 'Workspace',
     items: [
       { view: 'dashboard', text: 'Digital Twins', icon: Briefcase, href: '/twinx/Dashboard', idneeded:true },
+      { view: 'PointCloud', text: 'Point Cloud', icon: Waypoints, href: '/twinx/PointCloud', idneeded:true },
       { view: 'templates', text: 'Templates', icon: LayoutTemplate, href: '/twinx/templates', idneeded:false },
       { view: 'members', text: 'Members', icon: Users, href: '/twinx/members', idneeded:true }, 
       { view: 'integrations', text: 'Integrations', icon: Puzzle, href: '/twinx/integrations', idneeded:false },
