@@ -55,7 +55,7 @@ export  default function AppSidebar({ currentView, onNavigate }: AppSidebarProps
           {/* ---------- HEADER ---------- */}
           <SidebarHeader>
             <div style={{color:'gray', display:'flex', alignItems:'center', gap:'8px', fontWeight:'600', height:'100%', width:'100%', justifyContent:'center', fontSize:'26px', fontFamily:'monospace', marginBottom:'-20px'}}>
-              Hipex
+              Hipex.
             </div>
             <div style={{height:'1px', width:'100%', backgroundColor:'#48484f', marginTop:'23px'}}></div>
           </SidebarHeader>

@@ -161,7 +161,7 @@ const SIDEBAR_CONFIG = [
   {
     title: 'Marketplace',
     items: [
-      { view: 'marketplace', text: 'Marketplace', icon: Store, href: '/twinx/marketplace', idneeded:true },
+      { view: 'marketplace', text: 'Marketplace', icon: Store, href: '/twinx/Marketplace', idneeded:true },
       { view: 'yourtwins', text: 'Your Twins', icon: Briefcase, href: '/twinx/yourtwins', idneeded:true },
       { view: 'analytics', text: 'Analytics', icon: BarChart2, href: '/twinx/analytics', idneeded:true },
     ],

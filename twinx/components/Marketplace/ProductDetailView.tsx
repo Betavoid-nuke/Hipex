@@ -1,0 +1,192 @@
+"use client";
+
+import React, { useState, useMemo } from 'react';
+import DownloadModal from './DownloadModal';
+import DetailTabs from './DetailTabs';
+import ProductCard from './ProductCard';
+import { 
+  ArrowLeft, Clock, Download, FileText, GitFork, 
+  Maximize, Tags, TrendingUp 
+} from 'lucide-react';
+import { MarketplaceProduct } from '@/twinx/types/TwinxTypes';
+
+interface ProductDetailViewProps {
+  product: MarketplaceProduct;
+  allProducts: MarketplaceProduct[];
+  onClose: (product?: MarketplaceProduct) => void;
+}
+
+const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProducts, onClose }) => {
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('description');
+
+  const recommendedAssets = useMemo(() => {
+    return allProducts
+      .filter(p => p.category === product.category && p.id !== product.id)
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 4);
+  }, [product, allProducts]);
+
+  const viewerColor = useMemo(() => {
+    switch (product.category) {
+      case '3D Models': return '#3B82F6';
+      case 'Textures': return '#EC4899';
+      case 'Audio': return '#10B981';
+      case 'Brushes': return '#F59E0B';
+      default: return '#6B7280';
+    }
+  }, [product.category]);
+
+  const formattedDate = useMemo(() => {
+    return new Date(product.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }, [product.createdAt]);
+
+  // --- Tab Content (unchanged functional logic, just visual restyle) ---
+  const TabContent = () => {
+    switch (activeTab) {
+        case 'description':
+            return (
+                <div className="text-gray-300 leading-relaxed whitespace-pre-wrap">
+                    {product.description}
+                </div>
+            );
+        case 'details':
+            return (
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="p-3 rounded-lg" style={{background:'#262629', border:'1px solid #4b4b52ff'}}>
+                        <p className="text-gray-400 flex items-center mb-1"><Tags size={14} className="mr-1 text-pink-400" /> Category</p>
+                        <p className="text-white font-semibold">{product.category}</p>
+                    </div>
+                    <div className="p-3 rounded-lg" style={{background:'#262629', border:'1px solid #4b4b52ff'}}>
+                        <p className="text-gray-400 flex items-center mb-1"><Clock size={14} className="mr-1 text-pink-400" /> Uploaded Date</p>
+                        <p className="text-white font-semibold">{formattedDate}</p>
+                    </div>
+                    <div className="p-3 rounded-lg" style={{background:'#262629', border:'1px solid #4b4b52ff'}}>
+                        <p className="text-gray-400 flex items-center mb-1"><TrendingUp size={14} className="mr-1 text-pink-400" /> Total Downloads</p>
+                        <p className="text-white font-semibold">{product.downloads}</p>
+                    </div>
+                    <div className="p-3 rounded-lg" style={{background:'#262629', border:'1px solid #4b4b52ff'}}>
+                        <p className="text-gray-400 flex items-center mb-1"><GitFork size={14} className="mr-1 text-pink-400" /> License</p>
+                        <p className="text-white font-semibold">CC BY 4.0 (Mock)</p>
+                    </div>
+                    <div className="p-3 rounded-lg col-span-2" style={{background:'#262629', border:'1px solid #4b4b52ff'}}>
+                        <p className="text-gray-400 flex items-center mb-1"><FileText size={14} className="mr-1 text-pink-400" /> File Size (Mock)</p>
+                        <p className="text-white font-semibold">Approx. {Math.round(Math.random() * 500) + 50} MB</p>
+                    </div>
+                </div>
+            );
+        case 'settings':
+            return <p className="text-gray-400">Mock Settings Panel: Here you would find options for lighting, post-processing, and background customization.</p>;
+        case 'comments':
+            return <p className="text-gray-400">Mock Comments: Users could leave feedback and questions here.</p>;
+        default: return null;
+    }
+  };
+
+  return (
+    <div className="min-h-screen p-4 sm:p-8" style={{backgroundColor:'#1c1c1e'}}>
+
+      {/* Top Bar */}
+      <div className='mb-6 flex justify-between items-center'>
+        <button 
+          onClick={() => onClose()} 
+          className="flex items-center text-indigo-400 hover:text-indigo-300 transition-colors rounded-lg px-3 py-2"
+          style={{background:'transparent', border:'none'}}
+        >
+          <ArrowLeft size={18} className="mr-2" /> Back to Marketplace
+        </button>
+        <span className="text-sm text-gray-500">Uploaded: {formattedDate}</span>
+      </div>
+
+      {/* Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        {/* LEFT/CENTER */}
+        <div className="lg:col-span-2 space-y-6">
+
+          {/* 3D Viewer */}
+          <div className="aspect-video rounded-xl shadow-xl overflow-hidden border-4 relative flex items-center justify-center"
+            style={{borderColor:'#262629'}}
+          >
+            <div 
+              className="w-full h-full flex items-center justify-center" 
+              style={{ backgroundColor: viewerColor, opacity: 0.15 }}
+            >
+              <Maximize size={32} className="absolute top-4 right-4 text-white/50 hover:text-white/80 cursor-pointer"/>
+              <p className="p-4 rounded-lg backdrop-blur-sm"
+                style={{background:'#1c1c1eee', border:'1px solid #4b4b52ff'}}
+              >
+                3D Viewer Placeholder: {product.category}
+              </p>
+            </div>
+          </div>
+
+           {/* Header Card */}
+          <div className="p-6 rounded-xl shadow-lg" style={{background:'transparent', border:'none', marginBottom:'-30px', marginTop:'0px'}}>
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h1 className="text-3xl font-bold text-white mb-1">{product.title}</h1>
+                <p className="text-md text-gray-400">
+                  By <span className="text-indigo-400 font-medium">{product.creator}</span>
+                </p>
+              </div>
+
+              <button
+                onClick={() => setIsDownloadModalOpen(true)}
+                className="bg-green-600 font-bold py-3 px-8 rounded-lg hover:bg-green-500 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-green-600/30 whitespace-nowrap"
+              >
+                <Download size={20} /> Free Download
+              </button>
+            </div>
+          </div>
+
+          {/* Tabs + Content */}
+          <div className="p-6 rounded-xl shadow-lg" style={{background:'#262629', border:'1px solid #4b4b52ff'}}>
+            <DetailTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+            <div className="mt-4">
+              <TabContent />
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT SIDEBAR */}
+        <div className="space-y-6">
+          <div className="p-4 rounded-xl shadow-lg sticky top-4"
+            style={{background:'#262629', border:'1px solid #4b4b52ff'}}
+          >
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2 pb-3"
+              style={{borderBottom:'1px solid #4b4b52ff'}}
+            >
+              <TrendingUp size={20} className="text-indigo-400" /> More from {product.creator}
+            </h3>
+
+            <div className="space-y-4">
+              {recommendedAssets.length > 0 ? (
+                recommendedAssets.map(rec => (
+                  <ProductCard 
+                    key={rec.id} 
+                    product={rec} 
+                    onSelectProduct={() => onClose(rec)} 
+                    isCompact={true} 
+                  />
+                ))
+              ) : (
+                <p className="text-gray-500 text-sm">No other assets found in this category from this creator.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Download Modal */}
+      {isDownloadModalOpen && (
+        <DownloadModal 
+          product={product} 
+          onClose={() => setIsDownloadModalOpen(false)} 
+        />
+      )}
+    </div>
+  );
+};
+
+export default ProductDetailView;

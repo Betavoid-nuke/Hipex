@@ -226,3 +226,32 @@ export default function dashboard() {
   );
 
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+// TODO -
+// make new project model, make new point cloud model, 
+// make new pointcloud fetching APIs and other chnage and delete and all APIs, basically copy all twinx APIs and make new ones for point cloud
+
+
+
+
+
+
+
+
+
+
+
+
+

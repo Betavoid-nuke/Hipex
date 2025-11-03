@@ -144,3 +144,28 @@ export interface PipelineStep {
 
 
 
+// types.ts
+
+/**
+ * @typedef {Object} MarketplaceProduct
+ * @property {string} id - Unique product ID.
+ * @property {string} title - Product name.
+ * @property {string} description - Short description.
+ * @property {string} imageUrl - Placeholder image URL.
+ * @property {string} category - Category (e.g., '3D Models', 'Textures').
+ * @property {string} creator - Creator's name.
+ * @property {number} downloads - Number of times downloaded.
+ * @property {number} createdAt - Timestamp of creation (ms).
+ * @property {string} downloadUrl - The direct link to the asset file.
+ */
+export interface MarketplaceProduct {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  category: string;
+  creator: string;
+  downloads: number;
+  createdAt: number;
+  downloadUrl: string;
+}
