@@ -2,23 +2,25 @@
 
 import React, { useState, useMemo } from 'react';
 import { Download, Loader2, X } from 'lucide-react';
-import { MarketplaceProduct } from '@/twinx/types/TwinxTypes';
+import { MarketplaceProductProduction } from '@/twinx/types/TwinxTypes';
 
 interface DownloadModalProps {
-  product: MarketplaceProduct;
+  product: MarketplaceProductProduction;
   onClose: () => void;
 }
 
 const DownloadModal: React.FC<DownloadModalProps> = ({ product, onClose }) => {
+
   const formats = useMemo(() => {
-    switch (product.category) {
-      case '3D Models': return ['OBJ', 'FBX', 'GLB', 'USDZ'];
-      case 'Textures': return ['PNG (4K)', 'JPG (2K)', 'EXR'];
-      case 'Audio': return ['WAV', 'MP3', 'OGG'];
-      case 'Brushes': return ['ABR (PS)', 'BRD (Procreate)'];
-      default: return ['ZIP'];
-    }
-  }, [product.category]);
+    if (!product?.downloadUrls?.length) return [];
+
+    // Extract unique formats from product.downloadUrls
+    const uniqueFormats = [
+      ...new Set(product.downloadUrls.map((item) => item.format).filter(Boolean))
+    ];
+
+    return uniqueFormats.length ? uniqueFormats : ["N/A"];
+  }, [product]);
 
   const [selectedFormat, setSelectedFormat] = useState(formats[0]);
   const [downloading, setDownloading] = useState(false);
@@ -28,22 +30,37 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ product, onClose }) => {
     if (downloading) return;
     setDownloading(true);
     setDownloadMessage('');
-
-    setTimeout(() => {
-      setDownloadMessage(`Success! Preparing download for ${product.title} (${selectedFormat}).`);
-      if (product.downloadUrl) {
-          window.open(product.downloadUrl, '_blank');
-      }
+  
+    // find the selected download file
+    const selectedFile = product.downloadUrls.find(
+      (item) => item.format === selectedFormat
+    );
+  
+    if (!selectedFile) {
+      setDownloadMessage("❌ Download link not found for selected format.");
       setDownloading(false);
+      return;
+    }
+  
+    setTimeout(() => {
+      setDownloadMessage(`✅ Success! Preparing download for ${product.title} (${selectedFormat}).`);
+    
+      // open the correct file url
+      window.open(selectedFile.url, '_blank');
+    
+      setDownloading(false);
+    
       setTimeout(onClose, 2000);
     }, 1500);
   };
 
+
   return (
-    <div className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4" onClick={onClose} style={{zIndex:'99999'}}>
       <div
         className="bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-md border border-gray-700/50"
         onClick={(e) => e.stopPropagation()}
+        style={{border:'none', backgroundColor:'#171718'}}
       >
         <div className="flex justify-between items-center pb-4 border-b border-gray-700 mb-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2"><Download size={20} className="text-green-400" /> Select Format</h2>

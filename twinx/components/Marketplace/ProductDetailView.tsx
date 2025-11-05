@@ -8,12 +8,12 @@ import {
   ArrowLeft, Clock, Download, FileText, GitFork, 
   Maximize, Tags, TrendingUp 
 } from 'lucide-react';
-import { MarketplaceProduct } from '@/twinx/types/TwinxTypes';
+import { MarketplaceProductProduction } from '@/twinx/types/TwinxTypes';
 
 interface ProductDetailViewProps {
-  product: MarketplaceProduct;
-  allProducts: MarketplaceProduct[];
-  onClose: (product?: MarketplaceProduct) => void;
+  product: MarketplaceProductProduction;
+  allProducts: MarketplaceProductProduction[];
+  onClose: (product?: MarketplaceProductProduction) => void;
 }
 
 const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProducts, onClose }) => {

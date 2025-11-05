@@ -4,20 +4,21 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Tags, Calendar, ArrowDown, ListFilter, X, Plus, Loader2 } from 'lucide-react';
-import { MarketplaceProduct } from '@/twinx/types/TwinxTypes';
 import ProductDetailView from '@/twinx/components/Marketplace/ProductDetailView';
 import ProductCard from '@/twinx/components/Marketplace/ProductCard';
 import NewProductModal from '@/twinx/components/Marketplace/NewProductModal';
 import { AnimatePresence, motion } from "framer-motion";
+import DownloadModal from '@/twinx/components/Marketplace/DownloadModal';
+import { MarketplaceProductProduction } from '@/twinx/types/TwinxTypes';
 
 export default function Home() {
-  const [products, setProducts] = useState<MarketplaceProduct[]>([]);
+  const [products, setProducts] = useState<MarketplaceProductProduction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortOption, setSortOption] = useState('newest');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<MarketplaceProduct | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<MarketplaceProductProduction | null>(null);
 
   const categories = ['All', '3D Models', 'Textures', 'Brushes', 'Audio'];
 
@@ -52,7 +53,7 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
   
-  const handleSelectProduct = (product: MarketplaceProduct | undefined) => {
+  const handleSelectProduct = (product: MarketplaceProductProduction | undefined) => {
       if (product) {
           setSelectedProduct(product)
       } else {
@@ -183,6 +184,8 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      
 
     </div>
   );

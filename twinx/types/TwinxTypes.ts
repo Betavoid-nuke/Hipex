@@ -170,10 +170,8 @@ export interface MarketplaceProduct {
   downloadUrl: string;
 }
 interface links {
-  link: {
-    formate: string,
-    link: string
-  }
+  format: string;
+  url: string;
 }
 export interface MarketplaceProductProduction {
   id: string;
