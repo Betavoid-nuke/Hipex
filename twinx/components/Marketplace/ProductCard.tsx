@@ -12,9 +12,8 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onSelectP
   const [purchaseMessage, setPurchaseMessage] = useState('');
   const isNew = useMemo(() => (Date.now() - product.createdAt) < (86400000 * 4), [product.createdAt]);
 
-  const colorIndex = product.id.charCodeAt(product.id.length - 1) % 4;
   const colors = ['#6366F1', '#EC4899', '#10B981', '#F59E0B'];
-  const bgColor = colors[colorIndex];
+  const bgColor = colors[0];
   const placeholderText = product.category.split(' ').map(w => w[0]).join('');
 
   const handleDownloadClick = (e: React.MouseEvent) => {

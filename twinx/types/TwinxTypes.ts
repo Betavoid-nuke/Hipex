@@ -169,3 +169,20 @@ export interface MarketplaceProduct {
   createdAt: number;
   downloadUrl: string;
 }
+interface links {
+  link: {
+    formate: string,
+    link: string
+  }
+}
+export interface MarketplaceProductProduction {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  category: string;
+  creator: string;
+  downloads: number;
+  createdAt: number;
+  downloadUrls: links[];
+}

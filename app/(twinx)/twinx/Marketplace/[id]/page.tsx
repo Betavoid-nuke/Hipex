@@ -8,16 +8,7 @@ import { MarketplaceProduct } from '@/twinx/types/TwinxTypes';
 import ProductDetailView from '@/twinx/components/Marketplace/ProductDetailView';
 import ProductCard from '@/twinx/components/Marketplace/ProductCard';
 import NewProductModal from '@/twinx/components/Marketplace/NewProductModal';
-
-// --- Mock Data ---
-const MOCK_PRODUCTS: MarketplaceProduct[] = [
-  { id: 'p1', title: 'Ancient Ruin 3D Kit', description: 'High-quality, modular 3D environment kit.', category: '3D Models', creator: 'Atlas', downloads: 120, createdAt: Date.now() - 86400000 * 3, imageUrl: '', downloadUrl: 'https://mock-cdn.com/ruin-kit.zip' },
-  { id: 'p2', title: 'PBR Wood Texture Pack', description: 'A collection of 12 seamless, high-resolution wood textures.', category: 'Textures', creator: 'TexturaPro', downloads: 550, createdAt: Date.now() - 86400000 * 1, imageUrl: '', downloadUrl: 'https://mock-cdn.com/wood-pack.zip' },
-  { id: 'p3', title: 'Sci-Fi Sound FX Bundle', description: 'Over 100 futuristic sound effects.', category: 'Audio', creator: 'SynthWave', downloads: 80, createdAt: Date.now() - 86400000 * 7, imageUrl: '', downloadUrl: 'https://mock-cdn.com/scifi-audio.zip' },
-  { id: 'p4', title: 'Stylized Water Brush Set', description: 'Custom brush set for Photoshop and Procreate.', category: 'Brushes', creator: 'BrushMaster', downloads: 900, createdAt: Date.now() - 86400000 * 10, imageUrl: '', downloadUrl: 'https://mock-cdn.com/water-brushes.zip' },
-  { id: 'p5', title: 'Low-Poly Dragon Model', description: 'A fierce yet low-poly dragon model, fully rigged.', category: '3D Models', creator: 'LowPolyGeek', downloads: 30, createdAt: Date.now() - 86400000 * 2, imageUrl: '', downloadUrl: 'https://mock-cdn.com/lowpoly-dragon.zip' },
-  { id: 'p6', title: 'Cracked Earth Texture', description: 'A set of 4k PBR texture maps.', category: 'Textures', creator: 'DirtGen', downloads: 320, createdAt: Date.now() - 86400000 * 5, imageUrl: '', downloadUrl: 'https://mock-cdn.com/cracked-earth.zip' },
-];
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function Home() {
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
@@ -30,25 +21,36 @@ export default function Home() {
 
   const categories = ['All', '3D Models', 'Textures', 'Brushes', 'Audio'];
 
-  // Simulate initial data loading
-  useEffect(() => {
-    setTimeout(() => {
-      setProducts(MOCK_PRODUCTS);
+  // Fetch all listed assets
+  async function fetchProducts() {
+    try {
+      const res = await fetch("/api/marketplace", { cache: "no-store" });
+      const data = await res.json();
+      if (res.ok) {
+        setProducts(data.data); // API returns: { message, data: [...] }
+      } else {
+        console.error("❌ Failed to fetch products:", data);
+        setProducts([]); // fallback empty
+      }
+    } catch (err) {
+      console.error("❌ Network error while fetching products:", err);
+      setProducts([]); // fallback
+    } finally {
       setIsLoading(false);
-    }, 500); // Simulate network delay
+    }
+  }
+  useEffect(() => {
+    fetchProducts();
   }, []);
 
-  const handleAddProduct = (newProductData: Omit<MarketplaceProduct, 'id' | 'downloads' | 'createdAt' | 'imageUrl' | 'downloadUrl'>) => {
-    const newProduct: MarketplaceProduct = {
-      ...newProductData,
-      id: `p${Date.now()}`, // Generate a unique ID
-      downloads: 0,
-      createdAt: Date.now(),
-      imageUrl: '', // Placeholder
-      downloadUrl: 'https://mock-cdn.com/new-asset.zip'
+  //esc to close new project model
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsModalOpen(false);
     };
-    setProducts(prevProducts => [newProduct, ...prevProducts]);
-  };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
   
   const handleSelectProduct = (product: MarketplaceProduct | undefined) => {
       if (product) {
@@ -59,22 +61,32 @@ export default function Home() {
   }
 
   const filteredAndSortedProducts = useMemo(() => {
-    let result = products;
+    let result = [...(products ?? [])]; // ✅ prevents undefined & clones array safely
+
     if (searchTerm) {
-      result = result.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase()));
+      result = result.filter(p =>
+        p.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
-    if (selectedCategory !== 'All') {
+
+    if (selectedCategory !== "All") {
       result = result.filter(p => p.category === selectedCategory);
     }
+
     result.sort((a, b) => {
       switch (sortOption) {
-        case 'downloads': return b.downloads - a.downloads;
-        case 'oldest': return a.createdAt - b.createdAt;
-        default: return b.createdAt - a.createdAt;
+        case "downloads":
+          return b.downloads - a.downloads;
+        case "oldest":
+          return a.createdAt - b.createdAt;
+        default:
+          return b.createdAt - a.createdAt;
       }
     });
+
     return result;
   }, [products, searchTerm, selectedCategory, sortOption]);
+
 
   if (isLoading) {
     return (
@@ -127,8 +139,8 @@ export default function Home() {
       
       {filteredAndSortedProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredAndSortedProducts.map((product) => (
-            <ProductCard key={product.id} product={product} onSelectProduct={handleSelectProduct} />
+          {filteredAndSortedProducts.map((product, index) => (
+            <ProductCard key={index} product={product} onSelectProduct={handleSelectProduct} />
           ))}
         </div>
       ) : (
@@ -138,13 +150,40 @@ export default function Home() {
         </div>
       )}
 
-      {isModalOpen && (
-        <NewProductModal
-          categories={categories.slice(1)}
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={handleAddProduct}
-        />
-      )}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md"
+            onClick={() => setIsModalOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+              onClick={(e) => e.stopPropagation()}
+              className="
+                w-full max-w-3xl rounded-2xl p-6
+                bg-white/10 dark:bg-neutral-900/20
+                border border-white/20 dark:border-white/10
+                backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.25)]
+                [box-shadow:inset_0_0_0.5px_rgba(255,255,255,0.4)]
+              "
+            >
+              <NewProductModal
+                categories={categories.slice(1)}
+                onClose={() => setIsModalOpen(false)}
+                refreshProducts={fetchProducts}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
