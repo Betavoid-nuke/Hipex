@@ -30,26 +30,26 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ product, onClose }) => {
     if (downloading) return;
     setDownloading(true);
     setDownloadMessage('');
-  
+
     // find the selected download file
     const selectedFile = product.downloadUrls.find(
       (item) => item.format === selectedFormat
     );
-  
+
     if (!selectedFile) {
       setDownloadMessage("❌ Download link not found for selected format.");
       setDownloading(false);
       return;
     }
-  
+
     setTimeout(() => {
       setDownloadMessage(`✅ Success! Preparing download for ${product.title} (${selectedFormat}).`);
-    
+
       // open the correct file url
       window.open(selectedFile.url, '_blank');
-    
+
       setDownloading(false);
-    
+
       setTimeout(onClose, 2000);
     }, 1500);
   };
@@ -106,3 +106,12 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ product, onClose }) => {
 };
 
 export default DownloadModal;
+
+
+
+
+//in this, use the sketchfeb API, which will return all available formates, and download links, for free..
+
+//make another tab in the new listing popup, one for listing manually and other for listing a sketchfeb asset, 
+//where users can get the UID from sketchfeb and rest all data will transfer using API
+
