@@ -158,7 +158,7 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md"
             onClick={() => setIsModalOpen(false)}
           >
             <motion.div
@@ -169,8 +169,6 @@ export default function Home() {
               onClick={(e) => e.stopPropagation()}
               className="
                 w-full max-w-3xl rounded-2xl p-6
-                bg-white/10 dark:bg-neutral-900/20
-                border border-white/20 dark:border-white/10
                 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.25)]
                 [box-shadow:inset_0_0_0.5px_rgba(255,255,255,0.4)]
               "
@@ -180,13 +178,11 @@ export default function Home() {
                 onClose={() => setIsModalOpen(false)}
                 refreshProducts={fetchProducts}
               />
+
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      
-
     </div>
   );
 }

@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 // Added FileUp and Link icons for the new tab
 import { Plus, X, Loader2, Trash2, Upload, FileUp, Link } from "lucide-react";
 
+// --- Types (from original file) ---
 type DownloadUrlItem = { format: string; url: string };
 
 type NewProductData = {
@@ -10,7 +11,7 @@ type NewProductData = {
   description: string;
   category: string;
   creator: string;
-  imageUrl: string;
+  imageUrl: string[]; // Used for primary thumbnail in Tab 1
   downloadUrls: DownloadUrlItem[];
 };
 
@@ -18,6 +19,52 @@ interface NewProductModalProps {
   categories: string[];
   onClose: () => void;
   refreshProducts: () => void;
+}
+
+// --- Azure Upload Utility (Provided by user and implemented here) ---
+// This function handles getting a SAS URL and then PUTting the file directly to Azure Blob Storage.
+async function uploadImageToAzure(file: File): Promise<string | null> {
+  try {
+    // Step 1️⃣ — Ask server for a SAS upload URL
+    const sasRes = await fetch("/api/generate-uploadmedia-sas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: file.name,
+        filetype: "image", // 👈 tells API to use image container
+      }),
+    });
+
+    const data = await sasRes.json();
+    if (!sasRes.ok || !data?.success) {
+      console.error("Failed to get SAS:", data);
+      throw new Error(data.message || "Failed to get upload URL");
+    }
+
+    const { uploadUrl, blobUrl } = data as { uploadUrl: string; blobUrl: string };
+
+    // Step 2️⃣ — PUT the file directly to Azure
+    const putRes = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: {
+        "x-ms-blob-type": "BlockBlob",
+        "Content-Type": file.type,
+      },
+      body: file,
+    });
+
+    if (!putRes.ok) {
+      const errText = await putRes.text().catch(() => "");
+      console.error("Azure PUT failed:", putRes.status, errText);
+      throw new Error("Azure upload failed");
+    }
+
+    // ✅ Return public blob URL
+    return blobUrl;
+  } catch (err) {
+    console.error("Azure upload error:", err);
+    return null;
+  }
 }
 
 const NewProductModal: React.FC<NewProductModalProps> = ({
@@ -28,23 +75,54 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
   // --- Shared State ---
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
-  // State for managing active tab
   const [activeTab, setActiveTab] = useState<'upload' | 'migrate'>('upload');
+  
+  const MAX_PHOTOS = 5;
 
-  // --- TAB 1: UPLOAD FILE (EXISTING LOGIC) ---
+  // --- TAB 1: UPLOAD FILE (EXISTING LOGIC MODIFIED FOR FILE UPLOAD) ---
+  
+  // States for file upload section in Tab 1 (new)
+  const [selectedPhotosUpload, setSelectedPhotosUpload] = useState<File[]>([]); 
+  const [isPhotoUploadingUpload, setIsPhotoUploadingUpload] = useState(false);
+  
+  // Handler for file selection in Tab 1 (new)
+  const handleFileSelectUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      const combinedFiles = [...selectedPhotosUpload, ...newFiles];
+      
+      if (combinedFiles.length > MAX_PHOTOS) {
+        setMessage(`You can only upload a maximum of ${MAX_PHOTOS} photos.`);
+        setSelectedPhotosUpload(combinedFiles.slice(0, MAX_PHOTOS));
+      } else {
+        setSelectedPhotosUpload(combinedFiles);
+        setMessage("");
+      }
+      e.target.value = ''; 
+    }
+  };
 
+  // Handler for file removal in Tab 1 (new)
+  const removePhotoUpload = (fileName: string) => {
+    setSelectedPhotosUpload(prev => prev.filter(file => file.name !== fileName));
+  };
+
+
+  // Fix for the reported error: ensure categories[0] access is safe
+  const defaultCategory = useMemo(() => categories?.[0] || "3D Models", [categories]);
+  
   const initialFormData: NewProductData = {
     title: "",
     description: "",
-    category: categories[0] || "3D Models",
+    category: defaultCategory, // Safely access default category
     creator: "Anonymous",
-    imageUrl: "",
+    imageUrl: [], // Will be set after photo upload
     downloadUrls: [{ format: "", url: "" }],
   };
 
   const [formData, setFormData] = useState<NewProductData>(initialFormData);
 
-  // Existing logic for basic text inputs
+  // Existing logic for basic text inputs (unchanged)
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -52,7 +130,7 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Existing logic for Download URLs handling
+  // Existing logic for Download URLs handling (unchanged)
   const handleDownloadUrlChange = (
     index: number,
     field: "format" | "url",
@@ -77,26 +155,50 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
     }));
   };
 
-  // Existing Submit handler (using existing backend logic)
+  // Existing Submit handler (MODIFIED to handle file upload first)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title || !formData.imageUrl) {
-      setMessage("Please fill required fields (title + image url).");
+    // Check for title and selected photos (replaces old imageUrl check)
+    if (!formData.title) {
+      setMessage("Please fill required fields (title).");
       return;
+    }
+    if (selectedPhotosUpload.length === 0) {
+        setMessage("Please upload at least one image for the asset thumbnail.");
+        return;
     }
 
     setIsSubmitting(true);
+    setIsPhotoUploadingUpload(true);
+    setMessage(`Uploading ${selectedPhotosUpload.length} image(s) to Azure...`);
 
-    // Clean up empty download links before sending
+    // 1. Upload photos to Azure concurrently
+    const uploadPromises = selectedPhotosUpload.map(uploadImageToAzure);
+    const uploadedUrls = await Promise.all(uploadPromises);
+    const photoUrls = uploadedUrls.filter((url): url is string => url !== null);
+    
+    setIsPhotoUploadingUpload(false);
+
+    if (photoUrls.length === 0) {
+        setMessage("❌ All thumbnail image uploads failed. Please try again.");
+        setIsSubmitting(false);
+        return;
+    }
+    
+    // 2. Clean up download links
     const cleanedDownloads = formData.downloadUrls
       .map((d) => ({ format: d.format.trim(), url: d.url.trim() }))
       .filter((d) => d.format && d.url);
 
-    const payload = { ...formData, downloadUrls: cleanedDownloads };
+    // 3. Construct the payload with the uploaded primary image URL
+    const payload = { ...formData, imageUrl: photoUrls, downloadUrls: cleanedDownloads };
+    
+
+    setMessage(`✅ Image uploaded. Submitting listing data...`);
 
     try {
-      // NOTE: Original fetch logic remains unchanged
+      // 4. Submit the final payload
       const res = await fetch("/api/marketplace", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -122,15 +224,28 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
     setIsSubmitting(false);
   };
   
-  // --- TAB 2: MIGRATE EXISTING ASSET (NEW LOGIC) ---
-  const initialMigrateData = {
+  // --- TAB 2: MIGRATE EXISTING ASSET (UNCHANGED LOGIC) ---
+  
+  type MigrateProductData = {
+      name: string;
+      description: string;
+      tags: string;
+      assetLink: string;
+      // photoUrls will be added to the payload during submission
+  }
+
+  const initialMigrateData: MigrateProductData = {
     name: "",
     description: "",
     tags: "",
     assetLink: "",
   };
+  
   const [migrateData, setMigrateData] = useState(initialMigrateData);
-  const [isPhotoUploading, setIsPhotoUploading] = useState(false); // New state for photo upload placeholder
+  // State to hold the actual File objects for Tab 2
+  const [selectedPhotos, setSelectedPhotos] = useState<File[]>([]); 
+  // State for upload process on the migrate tab
+  const [isPhotoUploading, setIsPhotoUploading] = useState(false); 
 
   const handleMigrateChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -138,36 +253,185 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
     const { name, value } = e.target;
     setMigrateData((prev) => ({ ...prev, [name]: value }));
   };
-
-  const handlePhotoUploadPlaceholder = () => {
-    setIsPhotoUploading(true);
-    setMessage("Simulating photo upload...");
-    
-    // Placeholder function for uploading photos
-    setTimeout(() => {
-      setIsPhotoUploading(false);
-      setMessage("Photo upload placeholder complete. Please fill in required fields.");
-    }, 1500);
+  
+  // Handler for file selection in Tab 2 (unchanged)
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      const combinedFiles = [...selectedPhotos, ...newFiles];
+      
+      if (combinedFiles.length > MAX_PHOTOS) {
+        setMessage(`You can only upload a maximum of ${MAX_PHOTOS} photos.`);
+        setSelectedPhotos(combinedFiles.slice(0, MAX_PHOTOS));
+      } else {
+        setSelectedPhotos(combinedFiles);
+        setMessage("");
+      }
+      e.target.value = ''; 
+    }
   };
 
-  const handleMigrateSubmit = (e: React.FormEvent) => {
+  // Handler for file removal in Tab 2 (unchanged)
+  const removePhoto = (fileName: string) => {
+    setSelectedPhotos(prev => prev.filter(file => file.name !== fileName));
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+  // Submit handler for Tab 2 (unchanged logic)
+  const handleMigrateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!migrateData.name || !migrateData.assetLink) {
         setMessage("Please fill required fields for migration (Name + Asset Link).");
         return;
     }
     
+    if (selectedPhotos.length === 0) {
+        setMessage("Please upload at least one photo for the asset.");
+        return;
+    }
+
     setIsSubmitting(true);
-    setMessage("Migrating asset (placeholder backend call)...");
+    setIsPhotoUploading(true);
+    setMessage(`Uploading ${selectedPhotos.length} photo(s) to Azure...`);
     
-    // Placeholder submission logic
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setMessage("✅ Migration Asset Submitted successfully! (Placeholder)");
-      console.log("Migrate Data Submitted:", migrateData);
-      setTimeout(onClose, 2000);
-    }, 2000);
+    // 1. Upload photos to Azure concurrently
+    const uploadPromises = selectedPhotos.map(uploadImageToAzure);
+    const uploadedUrls = await Promise.all(uploadPromises);
+    
+    // 2. Filter out any failed uploads and collect successful URLs
+    const photoUrls = uploadedUrls.filter((url): url is string => url !== null);
+    
+    setIsPhotoUploading(false);
+    
+    if (photoUrls.length === 0) {
+        setMessage("❌ All photo uploads failed. Please try again.");
+        setIsSubmitting(false);
+        return;
+    }
+
+    setMessage(`✅ ${photoUrls.length} photo(s) uploaded. Submitting migration data...`);
+
+    // 3. Construct the final payload including migrate data and photo URLs
+    const finalPayload = { 
+        ...migrateData,
+        photoUrls: photoUrls, // Array of Azure URLs
+    };
+
+    console.log("Final Migration Payload to /api/marketplace:", finalPayload);
+
+    // 4. Submit the final payload
+    try {
+        const res = await fetch("/api/marketplace", { // Using the requested marketplace route
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(finalPayload),
+        });
+
+        const data = await res.json();
+
+        if (res.status === 201) {
+            setMessage("✅ Migration Asset Submitted!");
+            await refreshProducts(); 
+            setTimeout(onClose, 900);
+        } else {
+            setMessage(`❌ Error submitting migration asset: ${data.message || 'Unknown error'}`);
+        }
+    } catch (err) {
+        console.error("Migration submission error:", err);
+        setMessage("❌ Server error during migration submission.");
+    }
+
+    setIsSubmitting(false);
   };
+
+
+
+// need to update the marketplate api route so we can define if the uploading asset is migrated or normal url, and then we can use that api here for migrated asset too
+// in the deatield page, use the image urls, for the photo carasol.
+
+// for migrated assets, wrirte a page scrapping script, there can be a button "attempt fectching" this will run scrapping script on the url and attempt to get the image urls,
+// downloadurls, text, etc, we maybe can use openAPI for this. and then the section below button will show what all data was able to migrate, and of the mini data we will need like
+//title description and download link, the user can proceed or manually enter the image urls or upload images and then submit the form.
+
+
+
+
+
+
+
+
+
+
+
+  // Reusable Photo Upload Component JSX for Tab 1 and Tab 2
+  const PhotoUploadSection = ({ 
+    photos, 
+    onFileSelect, 
+    onRemovePhoto, 
+    isUploading, 
+    title = "Asset Photos" 
+  }: {
+    photos: File[],
+    onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void,
+    onRemovePhoto: (fileName: string) => void,
+    isUploading: boolean,
+    title?: string
+  }) => (
+    <div className="p-4 bg-white/5 border border-white/10 rounded-md space-y-3">
+      <h3 className="text-sm font-medium text-white/90 flex justify-between items-center">
+          {title}
+          <span className="text-xs text-indigo-400">({photos.length}/{MAX_PHOTOS})</span>
+      </h3>
+      
+      {/* File Input */}
+      <label htmlFor={`photo-upload-${title.replace(/\s/g, '-')}`} className={`block w-full py-2 text-sm text-center rounded-md cursor-pointer transition 
+        ${photos.length < MAX_PHOTOS ? 'bg-indigo-600/20 text-indigo-300 hover:bg-indigo-600/30' : 'bg-gray-600/20 text-gray-400 cursor-not-allowed'}`}
+      >
+          <input
+              id={`photo-upload-${title.replace(/\s/g, '-')}`}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={onFileSelect}
+              disabled={photos.length >= MAX_PHOTOS || isUploading}
+              className="hidden"
+          />
+          <FileUp size={16} className="inline-block mr-2" />
+          {photos.length < MAX_PHOTOS ? "Select Photos (Max 5)" : "Maximum photos selected"}
+      </label>
+
+      {/* File Previews/List */}
+      {photos.length > 0 && (
+        <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+          {photos.map((file, index) => (
+            <div key={file.name + index} className="flex items-center justify-between text-xs text-white/70 bg-white/5 p-2 rounded-md">
+              <span className="truncate flex-1">{file.name}</span>
+              <button
+                type="button"
+                onClick={() => onRemovePhoto(file.name)}
+                className="ml-2 p-1 rounded hover:bg-white/10 transition"
+                aria-label={`Remove photo ${file.name}`}
+                disabled={isUploading}
+              >
+                <X size={12} className="text-red-400" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
 
   return (
@@ -177,6 +441,7 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
       aria-modal="true"
       aria-labelledby="upload-title"
       onClick={(e) => e.stopPropagation()}
+      className="p-6 rounded-xl shadow-2xl max-w-4xl w-full mx-auto"
     >
       {/* Header */}
       <div className="flex items-center justify-between gap-4 pb-4 border-b border-white/6 mb-4" style={{marginBottom:'20px'}}>
@@ -266,6 +531,28 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
                 Title *
               </label>
             </div>
+
+            {/* Description (full height in right column) */}
+              <div className="relative md:h-full">
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows={8}
+                  className="w-full h-full resize-none bg-transparent border border-white/6 rounded-md px-3 pt-6 pb-2
+                                  placeholder:text-transparent text-white outline-none
+                                  focus:border-indigo-500 transition"
+                  placeholder="Description"
+                  aria-label="Description"
+                />
+                <label
+                  htmlFor="description"
+                  className="absolute left-3 top-2 text-sm text-white/60 pointer-events-none transition-all"
+                >
+                  Description
+                </label>
+              </div>
       
             {/* Category (styled select) */}
             <div className="relative">
@@ -292,44 +579,8 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
               </label>
             </div>
             
-            {/* Image URL */}
-            <div className="relative">
-              <input
-                id="imageUrl"
-                name="imageUrl"
-                value={formData.imageUrl}
-                onChange={handleChange}
-                required
-                className="peer w-full bg-transparent border border-white/6 rounded-md px-3 pt-6 pb-2
-                            placeholder:text-transparent text-white outline-none
-                            focus:border-indigo-500 transition"
-                placeholder="Image URL"
-                aria-label="Image URL"
-              />
-              <label
-                htmlFor="imageUrl"
-                className="absolute left-3 top-2 text-sm text-white/60 pointer-events-none
-                            peer-placeholder-shown:top-4 peer-placeholder-shown:text-base
-                            peer-focus:top-2 peer-focus:text-sm transition-all"
-              >
-                Image URL *
-              </label>
-            
-              {/* Live image preview (small) */}
-              {formData.imageUrl && (
-                <div className="mt-2">
-                  <img
-                    src={formData.imageUrl}
-                    alt="preview"
-                    className="h-20 w-20 object-cover rounded-md border border-white/6"
-                    onError={(e) => {
-                      // hide broken preview gracefully
-                      (e.currentTarget as HTMLImageElement).style.display = "none";
-                    }}
-                  />
-                </div>
-              )}
-            </div>
+            {/* --- IMAGE UPLOAD SECTION (REPLACED IMAGE URL INPUT) --- */}
+            {/* Note: Original code's Creator input comes here, but I'll move it below the new PhotoUploadSection */}
             
             {/* Creator */}
             <div className="relative">
@@ -352,28 +603,15 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
             {/* RIGHT COLUMN */}
             <div className="space-y-4">
 
-              {/* Description (full height in right column) */}
-              <div className="relative md:h-full">
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows={8}
-                  className="w-full h-full resize-none bg-transparent border border-white/6 rounded-md px-3 pt-6 pb-2
-                                  placeholder:text-transparent text-white outline-none
-                                  focus:border-indigo-500 transition"
-                  placeholder="Description"
-                  aria-label="Description"
-                />
-                <label
-                  htmlFor="description"
-                  className="absolute left-3 top-2 text-sm text-white/60 pointer-events-none transition-all"
-                >
-                  Description
-                </label>
-              </div>
-              
+              {/* Image Upload Section for Tab 1 */}
+              <PhotoUploadSection
+                  photos={selectedPhotosUpload}
+                  onFileSelect={handleFileSelectUpload}
+                  onRemovePhoto={removePhotoUpload}
+                  isUploading={isPhotoUploadingUpload}
+                  title="Asset Thumbnail Images"
+              />
+
               {/* Download URLs section */}
               <div className="bg-white/3 border border-white/6 rounded-md p-3" style={{borderColor:'gray'}}>
                 <div className="flex items-center justify-between mb-2">
@@ -425,6 +663,7 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
                   ))}
                 </div>
               </div>
+              
             </div>
           </div>
           
@@ -442,11 +681,14 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
               
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white transition"
+                disabled={isSubmitting || isPhotoUploadingUpload || selectedPhotosUpload.length === 0}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white transition disabled:opacity-50"
               >
-                {isSubmitting ? (
-                  <Loader2 className="animate-spin" />
+                {isSubmitting || isPhotoUploadingUpload ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    {isPhotoUploadingUpload ? "Uploading Images..." : "Submitting..."}
+                  </>
                 ) : (
                   <>
                     <Upload size={16} />
@@ -459,7 +701,7 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
         </form>
       )}
 
-      {/* --- TAB 2: MIGRATE EXISTING ASSET (NEW FORM) --- */}
+      {/* --- TAB 2: MIGRATE EXISTING ASSET (NEW FORM WITH AZURE UPLOAD) --- */}
       {activeTab === 'migrate' && (
         <form onSubmit={handleMigrateSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -544,7 +786,7 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
                   name="description"
                   value={migrateData.description}
                   onChange={handleMigrateChange}
-                  rows={4} // Reduced rows to make space for the photo upload section
+                  rows={4} 
                   className="w-full resize-none bg-transparent border border-white/6 rounded-md px-3 pt-6 pb-2
                                   placeholder:text-transparent text-white outline-none
                                   focus:border-indigo-500 transition"
@@ -559,31 +801,13 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
                 </label>
               </div>
               
-              {/* Photo Upload Placeholder (NEW) */}
-              <div className="p-4 bg-white/5 border border-white/10 rounded-md flex flex-col items-center justify-center space-y-3 h-40">
-                <FileUp size={24} className="text-white/60" />
-                <p className="text-sm text-white/70 font-medium">
-                  Upload Photo Placeholder
-                </p>
-                <button
-                  type="button"
-                  onClick={handlePhotoUploadPlaceholder}
-                  disabled={isPhotoUploading}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-md bg-white/10 text-white/90 hover:bg-white/20 transition text-sm disabled:opacity-50"
-                >
-                  {isPhotoUploading ? (
-                    <Loader2 className="animate-spin h-4 w-4" />
-                  ) : (
-                    <>
-                      Select Files
-                    </>
-                  )}
-                </button>
-                <p className="text-xs text-red-400">
-                  (Placeholder Functionality)
-                </p>
-              </div>
-
+              {/* Photo Upload Section for Tab 2 */}
+              <PhotoUploadSection
+                  photos={selectedPhotos}
+                  onFileSelect={handleFileSelect}
+                  onRemovePhoto={removePhoto}
+                  isUploading={isPhotoUploading}
+              />
             </div>
           </div>
           
@@ -601,12 +825,14 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
               
               <button
                 type="submit"
-                disabled={isSubmitting || isPhotoUploading}
-                // Using a different color (green) for migration submit for visual distinction
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded-md bg-green-600 hover:bg-green-500 text-white transition"
+                disabled={isSubmitting || isPhotoUploading || selectedPhotos.length === 0}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2 rounded-md bg-green-600 hover:bg-green-500 text-white transition disabled:opacity-50"
               >
-                {isSubmitting ? (
-                  <Loader2 className="animate-spin" />
+                {isSubmitting || isPhotoUploading ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    {isPhotoUploading ? "Uploading Photos..." : "Submitting..."}
+                  </>
                 ) : (
                   <>
                     <Link size={16} />
