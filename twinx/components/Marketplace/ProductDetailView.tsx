@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import DownloadModal from './DownloadModal';
 import DetailTabs from './DetailTabs';
 import ProductCard from './ProductCard';
@@ -9,6 +9,16 @@ import {
   Maximize, Tags, TrendingUp 
 } from 'lucide-react';
 import { MarketplaceProductProduction } from '@/twinx/types/TwinxTypes';
+
+import { Card, CardContent } from "@/components/ui/card"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+import PhotoSlider from '../PhotoSlider';
 
 interface ProductDetailViewProps {
   product: MarketplaceProductProduction;
@@ -19,6 +29,7 @@ interface ProductDetailViewProps {
 const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProducts, onClose }) => {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
+  const [imagesToShow, setimagesToShow] = useState(['']);
 
   const recommendedAssets = useMemo(() => {
     return allProducts
@@ -27,19 +38,32 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
       .slice(0, 4);
   }, [product, allProducts]);
 
-  const viewerColor = useMemo(() => {
-    switch (product.category) {
-      case '3D Models': return '#3B82F6';
-      case 'Textures': return '#EC4899';
-      case 'Audio': return '#10B981';
-      case 'Brushes': return '#F59E0B';
-      default: return '#6B7280';
-    }
-  }, [product.category]);
-
   const formattedDate = useMemo(() => {
     return new Date(product.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   }, [product.createdAt]);
+
+  // Load the images when they come from Mongo
+  useEffect(() => {
+    const imageData = product?.imageUrl as unknown;
+
+    if (!imageData) return;
+
+    let urlsArray: string[] = [];
+
+    if (Array.isArray(imageData)) {
+      urlsArray = imageData as string[];
+    } else if (typeof imageData === "string") {
+      urlsArray = imageData
+        .split(",")
+        .map((url) => url.trim())
+        .filter((url) => url.length > 0);
+    }
+
+    setimagesToShow(urlsArray);
+    console.log("urls:", urlsArray);
+  }, [product.imageUrl]);
+
+  
 
   // --- Tab Content (unchanged functional logic, just visual restyle) ---
   const TabContent = () => {
@@ -105,21 +129,7 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
         <div className="lg:col-span-2 space-y-6">
 
           {/* 3D Viewer */}
-          <div className="aspect-video rounded-xl shadow-xl overflow-hidden border-4 relative flex items-center justify-center"
-            style={{borderColor:'#262629'}}
-          >
-            <div 
-              className="w-full h-full flex items-center justify-center" 
-              style={{ backgroundColor: viewerColor, opacity: 0.15 }}
-            >
-              <Maximize size={32} className="absolute top-4 right-4 text-white/50 hover:text-white/80 cursor-pointer"/>
-              <p className="p-4 rounded-lg backdrop-blur-sm"
-                style={{background:'#1c1c1eee', border:'1px solid #4b4b52ff'}}
-              >
-                3D Viewer Placeholder: {product.category}
-              </p>
-            </div>
-          </div>
+            <PhotoSlider images={imagesToShow} />
 
            {/* Header Card */}
           <div className="p-6 rounded-xl shadow-lg" style={{background:'transparent', border:'none', marginBottom:'-30px', marginTop:'0px'}}>

@@ -177,7 +177,7 @@ export interface MarketplaceProductProduction {
   id: string;
   title: string;
   description: string;
-  imageUrl: string;
+  imageUrl: string[];
   category: string;
   creator: string;
   downloads: number;
