@@ -1,7 +1,10 @@
 "use client";
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 // Added FileUp and Link icons for the new tab
 import { Plus, X, Loader2, Trash2, Upload, FileUp, Link } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
+import { AppUser } from "@/twinx/types/TwinxTypes";
+import { getUserById } from "@/twinx/utils/twinxDBUtils.action";
 
 // --- Types (from original file) ---
 type DownloadUrlItem = { format: string; url: string };
@@ -72,18 +75,52 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
   onClose,
   refreshProducts
 }) => {
+
+  const initialMigrateData: MigrateProductData = {
+    name: "",
+    description: "",
+    tags: "",
+    assetLink: "",
+  };
+
   // --- Shared State ---
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [activeTab, setActiveTab] = useState<'upload' | 'migrate'>('upload');
   
-  const MAX_PHOTOS = 5;
-
-  // --- TAB 1: UPLOAD FILE (EXISTING LOGIC MODIFIED FOR FILE UPLOAD) ---
-  
   // States for file upload section in Tab 1 (new)
   const [selectedPhotosUpload, setSelectedPhotosUpload] = useState<File[]>([]); 
   const [isPhotoUploadingUpload, setIsPhotoUploadingUpload] = useState(false);
+
+  const [migrateData, setMigrateData] = useState(initialMigrateData);
+  // State to hold the actual File objects for Tab 2
+  const [selectedPhotos, setSelectedPhotos] = useState<File[]>([]); 
+  // State for upload process on the migrate tab
+  const [isPhotoUploading, setIsPhotoUploading] = useState(false); 
+
+  const MAX_PHOTOS = 5;
+
+  // Fetch user data ___________________________________
+  const { user } = useUser();
+  const [fetchedUser, setfetchedUser] = useState<AppUser>();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) return;
+      try {
+        const fetchedUser = await getUserById(user.id);
+        setfetchedUser(fetchedUser)
+      } catch (err) {
+        console.error('❌ Error fetching user:', err);
+      }
+    };
+    fetchData();
+  }, [user]);
+  // Fetch user data __________________________________________
+
+
+  
+  // --- TAB 1: UPLOAD FILE (EXISTING LOGIC MODIFIED FOR FILE UPLOAD) ---
   
   // Handler for file selection in Tab 1 (new)
   const handleFileSelectUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,7 +152,7 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
     title: "",
     description: "",
     category: defaultCategory, // Safely access default category
-    creator: "Anonymous",
+    creator: "UnAutherised User",
     imageUrl: [], // Will be set after photo upload
     downloadUrls: [{ format: "", url: "" }],
   };
@@ -192,7 +229,12 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
       .filter((d) => d.format && d.url);
 
     // 3. Construct the payload with the uploaded primary image URL
-    const payload = { ...formData, imageUrl: photoUrls, downloadUrls: cleanedDownloads };
+    let payload;
+    if(fetchedUser){
+      payload = { ...formData, imageUrl: photoUrls, downloadUrls: cleanedDownloads, creator: fetchedUser.name };
+    } else {
+      setMessage(`Please Login To List New Assets.`);
+    }
     
 
     setMessage(`✅ Image uploaded. Submitting listing data...`);
@@ -233,19 +275,6 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
       assetLink: string;
       // photoUrls will be added to the payload during submission
   }
-
-  const initialMigrateData: MigrateProductData = {
-    name: "",
-    description: "",
-    tags: "",
-    assetLink: "",
-  };
-  
-  const [migrateData, setMigrateData] = useState(initialMigrateData);
-  // State to hold the actual File objects for Tab 2
-  const [selectedPhotos, setSelectedPhotos] = useState<File[]>([]); 
-  // State for upload process on the migrate tab
-  const [isPhotoUploading, setIsPhotoUploading] = useState(false); 
 
   const handleMigrateChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -576,26 +605,6 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
                 className="absolute left-3 -top-3 text-xs text-white/50 select-none"
               >
                 Category *
-              </label>
-            </div>
-            
-            {/* --- IMAGE UPLOAD SECTION (REPLACED IMAGE URL INPUT) --- */}
-            {/* Note: Original code's Creator input comes here, but I'll move it below the new PhotoUploadSection */}
-            
-            {/* Creator */}
-            <div className="relative">
-              <input
-                id="creator"
-                name="creator"
-                value={formData.creator}
-                onChange={handleChange}
-                className="w-full bg-transparent border border-white/6 rounded-md px-3 py-4
-                            text-white outline-none focus:border-indigo-500 transition"
-                placeholder="Creator"
-                aria-label="Creator"
-              />
-              <label htmlFor="creator" className="absolute left-3 -top-3 text-xs text-white/50">
-                Creator
               </label>
             </div>
             </div>

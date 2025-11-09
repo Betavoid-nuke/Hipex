@@ -12,8 +12,17 @@ const MarketplaceProductSchema = new Schema(
       {
         format: { type: String, required: true },
         url: { type: String, required: true },
-      }
-    ]
+      },
+    ],
+    comments: [
+      {
+        content: { type: String, required: true },
+        owner: { type: String, required: true }, // userId or username
+        date: { type: Date, default: Date.now },
+        likes: { type: Number, default: 0 },
+        LikedBy: [{ type: String, required: true }]
+      },
+    ],
   },
   { timestamps: true }
 );

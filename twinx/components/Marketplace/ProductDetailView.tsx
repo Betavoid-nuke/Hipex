@@ -5,20 +5,11 @@ import DownloadModal from './DownloadModal';
 import DetailTabs from './DetailTabs';
 import ProductCard from './ProductCard';
 import { 
-  ArrowLeft, Clock, Download, FileText, GitFork, 
-  Maximize, Tags, TrendingUp 
+  ArrowLeft, Clock, Download, FileText, GitFork, Tags, TrendingUp 
 } from 'lucide-react';
 import { MarketplaceProductProduction } from '@/twinx/types/TwinxTypes';
-
-import { Card, CardContent } from "@/components/ui/card"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
 import PhotoSlider from '../PhotoSlider';
+import CommentSection from './CommentSection';
 
 interface ProductDetailViewProps {
   product: MarketplaceProductProduction;
@@ -30,10 +21,9 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
   const [imagesToShow, setimagesToShow] = useState(['']);
-
   const recommendedAssets = useMemo(() => {
     return allProducts
-      .filter(p => p.category === product.category && p.id !== product.id)
+      .filter(p => p.category === product.category && p._id !== product._id)
       .sort(() => 0.5 - Math.random())
       .slice(0, 4);
   }, [product, allProducts]);
@@ -60,10 +50,7 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
     }
 
     setimagesToShow(urlsArray);
-    console.log("urls:", urlsArray);
   }, [product.imageUrl]);
-
-  
 
   // --- Tab Content (unchanged functional logic, just visual restyle) ---
   const TabContent = () => {
@@ -91,7 +78,7 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
                     </div>
                     <div className="p-3 rounded-lg" style={{background:'#262629', border:'1px solid #4b4b52ff'}}>
                         <p className="text-gray-400 flex items-center mb-1"><GitFork size={14} className="mr-1 text-pink-400" /> License</p>
-                        <p className="text-white font-semibold">CC BY 4.0 (Mock)</p>
+                        <p className="text-white font-semibold">CC BY 4.0</p>
                     </div>
                     <div className="p-3 rounded-lg col-span-2" style={{background:'#262629', border:'1px solid #4b4b52ff'}}>
                         <p className="text-gray-400 flex items-center mb-1"><FileText size={14} className="mr-1 text-pink-400" /> File Size (Mock)</p>
@@ -99,10 +86,6 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
                     </div>
                 </div>
             );
-        case 'settings':
-            return <p className="text-gray-400">Mock Settings Panel: Here you would find options for lighting, post-processing, and background customization.</p>;
-        case 'comments':
-            return <p className="text-gray-400">Mock Comments: Users could leave feedback and questions here.</p>;
         default: return null;
     }
   };
@@ -112,7 +95,7 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
 
       {/* Top Bar */}
       <div className='mb-6 flex justify-between items-center'>
-        <button 
+        <button
           onClick={() => onClose()} 
           className="flex items-center text-indigo-400 hover:text-indigo-300 transition-colors rounded-lg px-3 py-2"
           style={{background:'transparent', border:'none'}}
@@ -157,6 +140,10 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
               <TabContent />
             </div>
           </div>
+
+          {/* comment section */}
+          <CommentSection productId={product._id} />
+
         </div>
 
         {/* RIGHT SIDEBAR */}
@@ -174,7 +161,7 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
               {recommendedAssets.length > 0 ? (
                 recommendedAssets.map(rec => (
                   <ProductCard 
-                    key={rec.id} 
+                    key={rec._id} 
                     product={rec} 
                     onSelectProduct={() => onClose(rec)} 
                     isCompact={true} 

@@ -139,7 +139,14 @@ export interface PipelineStep {
   icon: FC<{ size?: number }>;
 }
 
-
+export interface Comment {
+  _id: string;
+  owner: string;
+  content: string;
+  date: Date;
+  likes: number;
+  LikedBy: string[];
+}
 
 
 
@@ -174,7 +181,7 @@ interface links {
   url: string;
 }
 export interface MarketplaceProductProduction {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   imageUrl: string[];
@@ -183,4 +190,12 @@ export interface MarketplaceProductProduction {
   downloads: number;
   createdAt: number;
   downloadUrls: links[];
+  comments: Comment[];
 }
+
+
+
+
+
+
+

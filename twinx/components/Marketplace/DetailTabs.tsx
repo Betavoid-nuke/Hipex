@@ -17,9 +17,7 @@ interface Tab {
 const DetailTabs: React.FC<DetailTabsProps> = ({ activeTab, setActiveTab }) => {
   const tabs: Tab[] = [
     { key: 'description', name: 'Description', icon: FileText },
-    { key: 'details', name: 'Model Details', icon: Cpu },
-    { key: 'settings', name: '3D Settings', icon: GitFork },
-    { key: 'comments', name: 'Comments (Mock)', icon: MessageSquare },
+    { key: 'details', name: 'Model Details', icon: Cpu }
   ];
 
   return (
