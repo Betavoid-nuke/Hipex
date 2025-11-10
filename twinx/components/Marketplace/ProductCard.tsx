@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ArrowDown, Download, Tags, Users } from 'lucide-react';
 import DownloadModal from './DownloadModal';
 import { MarketplaceProductProduction } from '@/twinx/types/TwinxTypes';
+import Image from 'next/image';
 
 interface ProductCardProps {
   product: MarketplaceProductProduction;
@@ -59,10 +60,15 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onSelectP
           </div>
         )}
         <div
-          className="h-40 flex items-center justify-center p-4 relative"
-          style={{ backgroundColor: bgColor }}
+          className="h-40 flex items-center justify-center relative"
+          style={{ backgroundColor: bgColor, height: '220px' }}
         >
-          <span className="text-5xl font-extrabold text-white opacity-80">{placeholderText}</span>
+          {product.imageUrl.length !== 0 && (
+          <Image src={product.imageUrl[0]} alt='' width={500} height={100} style={{height:'100%', width:'100%'}} className='object-cover' />
+          )}
+          {product.imageUrl.length == 0 && (
+          <div>No Photos</div>
+          )}
         </div>
         <div className="p-4 flex flex-col flex-grow">
           <h3 className="text-lg font-bold text-white leading-tight mr-2 mb-2">{product.title}</h3>

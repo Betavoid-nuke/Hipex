@@ -110,6 +110,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen text-white p-4 sm:p-8" style={{backgroundColor:'#1c1c1e'}}>
+      
       <div className="bg-gray-800/50 p-4 rounded-xl mb-8" style={{backgroundColor:'#1c1c1e'}}>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-grow">

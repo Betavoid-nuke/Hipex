@@ -13,6 +13,7 @@ const nextConfig = {
       'uploadthing.com',
       'placehold.co',
       'utfs.io',
+      'hipextwinx.blob.core.windows.net',
     ],
     remotePatterns: [
       {
@@ -34,6 +35,12 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'utfs.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'hipextwinx.blob.core.windows.net',
+        port: '',
+        pathname: '/**',
       },
     ],
   },
