@@ -3,14 +3,14 @@ import { ArrowDown, Download, Tags, Users } from 'lucide-react';
 import DownloadModal from './DownloadModal';
 import { MarketplaceProductProduction } from '@/twinx/types/TwinxTypes';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface ProductCardProps {
   product: MarketplaceProductProduction;
-  onSelectProduct: (product: MarketplaceProductProduction) => void;
   isCompact?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onSelectProduct, isCompact = false }) => {
+const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, isCompact = false }) => {
   const [purchaseMessage, setPurchaseMessage] = useState('');
   const isNew = useMemo(() => (Date.now() - product.createdAt) < (86400000 * 4), [product.createdAt]);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
@@ -25,15 +25,10 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onSelectP
     setTimeout(() => setPurchaseMessage(''), 2000);
   };
 
-  const handleCardClick = () => {
-    onSelectProduct(product);
-  };
-
   if (isCompact) {
     return (
       <div
         className="bg-gray-700 rounded-lg p-3 hover:bg-gray-600 transition-colors cursor-pointer flex items-center"
-        onClick={handleCardClick}
       >
         <div className="w-10 h-10 rounded-md mr-3 flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: bgColor }}>
           {placeholderText}
@@ -49,17 +44,17 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onSelectP
 
   return (
     <>
-      <div
-        className="bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-700/50 flex flex-col relative cursor-pointer"
-        onClick={handleCardClick}
-        style={{border:'none', backgroundColor:'#171718'}}
-      >
-        {purchaseMessage && (
-          <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full z-10 transition-opacity duration-300">
-            {purchaseMessage}
-          </div>
-        )}
+      <Link href='/twinx/Marketplace/[id]' as={`/twinx/Marketplace/${product._id}`}>
         <div
+          className="bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-700/50 flex flex-col relative cursor-pointer transition-all duration-300 transform hover:scale-[1.03] hover:-translate-y-2 hover:shadow-2xl"
+          style={{border:'none', backgroundColor:'#171718'}}
+        >
+          {purchaseMessage && (
+            <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full z-10 transition-opacity duration-300">
+              {purchaseMessage}
+            </div>
+          )}
+          <div
           className="h-40 flex items-center justify-center relative"
           style={{ backgroundColor: bgColor, height: '220px' }}
         >
@@ -69,8 +64,8 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onSelectP
           {product.imageUrl.length == 0 && (
           <div>No Photos</div>
           )}
-        </div>
-        <div className="p-4 flex flex-col flex-grow">
+          </div>
+          <div className="p-4 flex flex-col flex-grow">
           <h3 className="text-lg font-bold text-white leading-tight mr-2 mb-2">{product.title}</h3>
           <p className="text-sm text-gray-400 mb-3 flex-grow">{product.description.substring(0, 50)}...</p>
           <div className="flex flex-wrap gap-2 text-xs mb-4" style={{marginTop:'20px', marginBottom:'20px'}}>
@@ -92,8 +87,9 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, onSelectP
               <Download size={16} /> Download
             </button>
           </div>
+          </div>
         </div>
-      </div>
+      </Link>
 
       {/* Download Modal */}
       {isDownloadModalOpen && (

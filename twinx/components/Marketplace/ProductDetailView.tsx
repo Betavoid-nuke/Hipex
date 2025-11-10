@@ -10,14 +10,14 @@ import {
 import { MarketplaceProductProduction } from '@/twinx/types/TwinxTypes';
 import PhotoSlider from '../PhotoSlider';
 import CommentSection from './CommentSection';
+import AdminToolbar from './DetailedPageControlBar';
 
 interface ProductDetailViewProps {
   product: MarketplaceProductProduction;
   allProducts: MarketplaceProductProduction[];
-  onClose: (product?: MarketplaceProductProduction) => void;
 }
 
-const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProducts, onClose }) => {
+const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProducts }) => {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
   const [imagesToShow, setimagesToShow] = useState(['']);
@@ -27,6 +27,10 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
       .sort(() => 0.5 - Math.random())
       .slice(0, 4);
   }, [product, allProducts]);
+
+  const [isPublished, setIsPublished] = useState<boolean>(false); 
+  const [isDownloadEnabled, setIsDownloadEnabled] = useState<boolean>(true);
+  const [isListed, setIsListed] = useState<boolean>(true);
 
   const formattedDate = useMemo(() => {
     return new Date(product.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -96,7 +100,6 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
       {/* Top Bar */}
       <div className='mb-6 flex justify-between items-center'>
         <button
-          onClick={() => onClose()} 
           className="flex items-center text-indigo-400 hover:text-indigo-300 transition-colors rounded-lg px-3 py-2"
           style={{background:'transparent', border:'none'}}
         >
@@ -104,6 +107,15 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
         </button>
         <span className="text-sm text-gray-500">Uploaded: {formattedDate}</span>
       </div>
+
+      <AdminToolbar 
+        isPublished={isPublished} 
+        setIsPublished={setIsPublished}
+        isDownloadEnabled={isDownloadEnabled}
+        setIsDownloadEnabled={setIsDownloadEnabled}
+        isListed={isListed}
+        setIsListed={setIsListed}
+      />
 
       {/* Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -162,8 +174,7 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
                 recommendedAssets.map(rec => (
                   <ProductCard 
                     key={rec._id} 
-                    product={rec} 
-                    onSelectProduct={() => onClose(rec)} 
+                    product={rec}
                     isCompact={true} 
                   />
                 ))
@@ -184,6 +195,7 @@ const ProductDetailView: React.FC<ProductDetailViewProps> = ({ product, allProdu
       )}
     </div>
   );
+
 };
 
 export default ProductDetailView;
