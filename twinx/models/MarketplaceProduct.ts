@@ -7,6 +7,7 @@ const MarketplaceProductSchema = new Schema(
     imageUrl: [{ type: String, required: true }],
     category: { type: String, required: true },
     creator: { type: String, required: true },
+    creatorid: { type: String, required: true },
     downloads: { type: Number, default: 0 },
     downloadUrls: [
       {

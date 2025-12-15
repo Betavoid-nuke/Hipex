@@ -10,6 +10,10 @@ import NewProductModal from '@/twinx/components/Marketplace/NewProductModal';
 import { AnimatePresence, motion } from "framer-motion";
 import DownloadModal from '@/twinx/components/Marketplace/DownloadModal';
 import { MarketplaceProductProduction } from '@/twinx/types/TwinxTypes';
+import { useUser } from '@clerk/nextjs';
+import { getUserById } from '@/twinx/utils/twinxDBUtils.action';
+import { AppUser } from '@/Website/Marketplace/types';
+import { useParams } from 'next/navigation';
 
 export default function Home() {
   const [products, setProducts] = useState<MarketplaceProductProduction[]>([]);
@@ -21,24 +25,62 @@ export default function Home() {
 
   const categories = ['All', '3D Models', 'Textures', 'Brushes', 'Audio'];
 
+  // Fetch user data ___________________________________
+  const { user } = useUser();
+  const [fetchedUser, setfetchedUser] = useState<AppUser>();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  const params = useParams();
+  const id = params?.id as string | null;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) return;
+      try {
+        const fetchedUser = await getUserById(user.id);
+        setfetchedUser(fetchedUser)
+      } catch (err) {
+        console.error('❌ Error fetching user:', err);
+      }
+    };
+    fetchData();
+    
+  }, [userId]);
+  
+  useEffect(() => {
+    if (id) {
+      setUserId(id);
+    }
+  }, [id]);
+  // Fetch user data __________________________________________
+
   // Fetch all listed assets
   async function fetchProducts() {
     try {
       const res = await fetch("/api/marketplace", { cache: "no-store" });
       const data = await res.json();
+  
       if (res.ok) {
-        setProducts(data.data); // API returns: { message, data: [...] }
+        const filteredProducts = Array.isArray(data.data)
+          ? data.data.filter(
+              (product: any) => product.creatorid === fetchedUser?.id
+            )
+          : [];
+          
+        setProducts(filteredProducts);
+          
       } else {
         console.error("❌ Failed to fetch products:", data);
-        setProducts([]); // fallback empty
+        setProducts([]);
       }
     } catch (err) {
       console.error("❌ Network error while fetching products:", err);
-      setProducts([]); // fallback
+      setProducts([]);
     } finally {
       setIsLoading(false);
     }
   }
+
 
   useEffect(() => {
     fetchProducts();

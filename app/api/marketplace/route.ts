@@ -49,6 +49,7 @@ export async function POST(req: Request) {
       imageUrl: body.imageUrl,
       category: body.category,
       creator: body.creator,
+      creatorid: body.creatorid,
       downloadUrls,
     });
 

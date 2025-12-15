@@ -231,7 +231,7 @@ const NewProductModal: React.FC<NewProductModalProps> = ({
     // 3. Construct the payload with the uploaded primary image URL
     let payload;
     if(fetchedUser){
-      payload = { ...formData, imageUrl: photoUrls, downloadUrls: cleanedDownloads, creator: fetchedUser.name };
+      payload = { ...formData, imageUrl: photoUrls, downloadUrls: cleanedDownloads, creator: fetchedUser.name, creatorid: fetchedUser.id };
     } else {
       setMessage(`Please Login To List New Assets.`);
     }

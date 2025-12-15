@@ -39,6 +39,7 @@ export default function Home() {
       setIsLoading(false);
     }
   }
+
   useEffect(() => {
     fetchProducts();
   }, []);

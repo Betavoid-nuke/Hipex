@@ -67,6 +67,7 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, isCompact
           </div>
           <div className="p-4 flex flex-col flex-grow">
           <h3 className="text-lg font-bold text-white leading-tight mr-2 mb-2">{product.title}</h3>
+          <p className="text-sm text-gray-400 mb-3 flex-grow" style={{marginTop:'-10px', fontWeight:'lighter', fontSize:'14px'}}>{product.creator}</p>
           <p className="text-sm text-gray-400 mb-3 flex-grow">{product.description.substring(0, 50)}...</p>
           <div className="flex flex-wrap gap-2 text-xs mb-4" style={{marginTop:'20px', marginBottom:'20px'}}>
             <span className="bg-gray-700 text-gray-300 px-2 py-1 rounded-full flex items-center">
