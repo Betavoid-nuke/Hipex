@@ -27,12 +27,7 @@ class Item(BaseModel):
 
 @app.get("/info")
 async def get_info():
-    return {"status": "ok", "message": "Hello from Hipex echosystem", "source": "Hipx"}
-
-@app.post("/item")
-async def create_item(item: Item):
-    # example processing
-    return {"status": "created", "item": item.dict()}
+    return {"status": "ok", "message": "Welcome to Twinx Point Cloud Backend", "source": "Hipx"}
 
 # small health-check
 @app.get("/health")

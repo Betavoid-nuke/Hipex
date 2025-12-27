@@ -30,6 +30,9 @@ _______________________________________________________
 Hipex APIs are within this project file, the root/backend folder has the code for python backend.
 main.py is the main python file where the initial apis are defined.
 
+## Point Cloud Backend:
+Hipex Point Cloud Backend are within this project file, the root/PointClouldBackend folder has the code for python backend.
+main.py is the main python file where the initial apis are defined.
 
 ## CUETRACK:
 root/cuetrack has the code for the cuetrack app for snooker.
