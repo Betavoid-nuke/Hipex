@@ -19,3 +19,17 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+
+
+
+_______________________________________________________
+
+
+## HIPEX APIs:
+Hipex APIs are within this project file, the root/backend folder has the code for python backend.
+main.py is the main python file where the initial apis are defined.
+
+
+## CUETRACK:
+root/cuetrack has the code for the cuetrack app for snooker.
