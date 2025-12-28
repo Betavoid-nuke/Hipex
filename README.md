@@ -51,12 +51,12 @@ This service is designed for production use, with a clean separation between:
 6. The API never blocks and never runs heavy computation directly.
 
 ## How to run locally:
-0. cd backend
-1. if you are on Windows, run the following command to activate the virtual environment:
+1. cd backend
+2. if you are on Windows, run the following command to activate the virtual environment:
    - For PowerShell: `.venv\Scripts\Activate.ps1`
    - For Command Prompt: `.venv\Scripts\activate.bat`
-2. install dependencies: `pip install -r requirements.txt`
-3. run the server: `uvicorn main:app --reload`
+3. install dependencies: `pip install -r requirements.txt`
+4. run the server: `uvicorn main:app --reload`
 
 
 ## Testing API:
