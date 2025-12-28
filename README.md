@@ -61,6 +61,7 @@ to check status of a job:
 
 
 ## How TwinX API works:
+```bash
 ┌────────────────────┐
 │ FastAPI (API)      │
 │ - creates job      │
@@ -75,6 +76,7 @@ to check status of a job:
 │ - runs Pipeline    │
 │ - return result    │
 └────────────────────┘
+```
 
 _______________________________________________________
 
