@@ -3,42 +3,8 @@ uvicorn[standard]
 gunicorn
 python-dotenv
 
-# MongoDB (async driver)
+# MongoDB async driver
 motor
 
-# Async HTTP client (webhooks, future downloads)
+# Async HTTP client (used for webhooks / external calls)
 httpx
-
-# Task queue and scheduler
-celery[redis]
-
-# Redis client
-aioredis
-
-# WebSocket support
-websockets
-
-# For handling CORS
-fastapi.middleware.cors
-
-# For environment variable management
-python-dotenv
-dotenv
-
-# For handling background tasks
-asyncio
-
-# For data validation
-pydantic
-
-# For logging
-loguru
-
-# For video processing (if needed in future)
-moviepy
-
-enum
-uuid
-typing
-
-motor.motor_asyncio
