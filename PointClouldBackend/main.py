@@ -135,7 +135,7 @@ app.add_middleware(
 # ---------------------------------------------------------------------
 
 mongo_client = AsyncIOMotorClient(os.getenv("MONGODB_URL"))
-db = mongo_client.get_default_database()
+db = mongo_client["pointcloud"]
 jobs_collection = db.jobs
 
 # ---------------------------------------------------------------------
