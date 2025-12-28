@@ -30,9 +30,27 @@ _______________________________________________________
 Hipex APIs are within this project file, the root/backend folder has the code for python backend.
 main.py is the main python file where the initial apis are defined.
 
+
+
 ## Point Cloud Backend:
 Hipex Point Cloud Backend are within this project file, the root/PointClouldBackend folder has the code for python backend.
 main.py is the main python file where the initial apis are defined.
+
+to test api - 
+1. go to - http://pointcloud.hipexapp.com/docs
+
+2. copy this json in POST - 
+    {
+      "job_id": "live_test_003",
+      "video_url": "https://example.com/test-video.mp4"
+    }
+
+3. click Execute
+
+to check status of a job - 
+1. go to - http://pointcloud.hipexapp.com/job/*job_id*
+
+
 
 ## CUETRACK:
 root/cuetrack has the code for the cuetrack app for snooker.
