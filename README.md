@@ -36,7 +36,16 @@ _______________________________________________________
 Hipex Point Cloud Backend are within this project file, the root/PointClouldBackend folder has the code for python backend.
 main.py is the main python file where the initial apis are defined.
 
-to test api - 
+# How to run locally:
+0. cd backend
+1. if you are on Windows, run the following command to activate the virtual environment:
+   - For PowerShell: `.venv\Scripts\Activate.ps1`
+   - For Command Prompt: `.venv\Scripts\activate.bat`
+2. install dependencies: `pip install -r requirements.txt`
+3. run the server: `uvicorn main:app --reload`
+
+
+# Testing API:
 1. go to - http://pointcloud.hipexapp.com/docs
 
 2. copy this json in POST - 
@@ -47,8 +56,25 @@ to test api -
 
 3. click Execute
 
-to check status of a job - 
+to check status of a job:
 1. go to - http://pointcloud.hipexapp.com/job/*job_id*
+
+
+# How TwinX API works:
+┌────────────────────┐
+│ FastAPI (API)      │
+│ - creates job      │
+│ - updates Database │
+└─────────┬──────────┘
+          │
+          │ (job_id + params)
+          ▼
+┌────────────────────┐
+│ Worker (Docker)    │
+│ - downloads video  │
+│ - runs Pipeline    │
+│ - return result    │
+└────────────────────┘
 
 _______________________________________________________
 
