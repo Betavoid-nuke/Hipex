@@ -225,8 +225,35 @@ async def process_point_cloud_job(job_id: str):
 
     # SIMULATED POINT CLOUD PROCESSING PIPELINE _________________________________________________________________ UPDATE THIS WITH REAL LOGIC FOR POINT CLOUD GENERATION
     try:
-        await update(JobStatus.processing, 10, "Downloading video")
-        await asyncio.sleep(2)
+        
+        # STEP 1 — JOB ORCHESTRATION ONLY (NO PROCESSING HERE)
+        try:
+            # Mark job as queued and ready for worker pickup
+            await jobs_collection.update_one(
+                {"job_id": job_id},
+                {
+                    "$set": {
+                        "status": JobStatus.queued,
+                        "progress": 0,
+                        "message": "Job queued for worker",
+                        "updated_at": datetime.datetime.utcnow()
+                    }
+                }
+            )
+        
+        except Exception as e:
+            await jobs_collection.update_one(
+                {"job_id": job_id},
+                {
+                    "$set": {
+                        "status": JobStatus.failed,
+                        "progress": 0,
+                        "message": f"Job orchestration failed: {str(e)}",
+                        "updated_at": datetime.datetime.utcnow()
+                    }
+                }
+            )
+        
 
         await update(JobStatus.processing, 30, "Extracting frames")
         await asyncio.sleep(2)

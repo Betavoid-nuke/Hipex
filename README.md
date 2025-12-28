@@ -75,31 +75,111 @@ to check status of a job:
 
 
 ## How TwinX API works:
+Frontend calls the TwinX API and it creates a job in DB, then the TwinX point cloud backend automatically picks up on a new model in DB with status "qued" and proccess it and when done, sets the status as "compeleted". when status is compeleted, it is pickedup by the API backend and it populates the frontend by sending a webhook.
+
+DB acts as a bridge between API backend and Point Cloud backend. Both backends run a infinite loop which keeps checking DB for updates.
+
 ```bash
-Client (Web / App)
-        |
-        v
-+----------------------+
-| FastAPI Backend      |
-| - Creates jobs       |
-| - Stores state       |
-| - Updates progress   |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| MongoDB              |
-| - Job documents      |
-| - Status tracking    |
-+----------+-----------+
-           |
-           v
-+----------------------+
-| Worker (Docker)      |
-| - Downloads video    |
-| - Runs COLMAP        |
-| - Uploads outputs    |
-+----------------------+
+┌───────────────────────────────┐
+│          FRONTEND             │
+│  (Web / App / Client)         │
+└───────────────┬───────────────┘
+                │
+                │ 1. POST /createPointCloud
+                │    - job_id
+                │    - video_url
+                ▼
+┌───────────────────────────────┐
+│         API (FastAPI)         │
+│                               │
+│  - validates request          │
+│  - creates job in MongoDB     │
+│  - sets status = "queued"     │
+│  - returns job_id immediately │
+│                               │
+│  ❌ no video download         │
+│  ❌ no COLMAP execution       │
+└───────────────┬───────────────┘
+                │
+                │ 2. INSERT JOB DOCUMENT
+                ▼
+┌───────────────────────────────┐
+│            MONGODB            │
+│                               │
+│  jobs collection              │
+│                               │
+│  {                            │
+│    job_id: "abc123",          │
+│    status: "queued",          │
+│    progress: 0,               │
+│    video_url: "...",          │
+│  }                            │
+└───────────────┬───────────────┘
+                │
+                │ 3. Worker polls for queued jobs
+                ▼
+┌───────────────────────────────┐
+│        WORKER (Docker)        │
+│                               │
+│  while true:                  │
+│    find job where             │
+│      status = "queued"        │
+│    set status = "claimed"     │
+│                               │
+│  (atomic operation)           │
+└───────────────┬───────────────┘
+                │
+                │ 4. Processing pipeline
+                ▼
+┌──────────────────────────────────────────────────────────┐
+│                    WORKER PIPELINE                       │
+│                                                          │
+│  /data/jobs/<job_id>/                                    │
+│                                                          │
+│  ├── input/                                              │
+│  │    └── video.mp4   ← download from video_url          │
+│  │                                                       │
+│  ├── frames/         ← FFmpeg extracts frames            │
+│  │                                                       │
+│  ├── colmap/         ← COLMAP reconstruction             │
+│  │                                                       │
+│  ├── output/                                             │
+│  │    └── pointcloud.ply                                 │
+│  │                                                       │
+│  └── logs/                                               │
+│                                                          │
+│  MongoDB updates during pipeline:                        │
+│    status   : processing → completed                     │
+│    progress : 10 → 30 → 60 → 100                         │
+│    message  : "Downloading video", ...                   │
+└───────────────┬──────────────────────────────────────────┘
+                │
+                │ 5. Job completion
+                ▼
+┌───────────────────────────────┐
+│            MONGODB            │
+│                               │
+│  {                            │
+│    job_id: "abc123",          │
+│    status: "completed",       │
+│    progress: 100,             │
+│    result: {                  │
+│      pointcloud_url: "..."    │
+│    }                          │
+│  }                            │
+└───────────────┬───────────────┘
+                │
+                │ 6. Frontend polls job status
+                ▼
+┌───────────────────────────────┐
+│          FRONTEND             │
+│                               │
+│  GET /job/<job_id>            │
+│                               │
+│  - shows progress bar         │
+│  - displays result when done  │
+└───────────────────────────────┘
+
 ```
 
 ## Job Lifecycle (Step-by-Step)
