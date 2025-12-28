@@ -36,6 +36,20 @@ _______________________________________________________
 Hipex Point Cloud Backend are within this project file, the root/PointClouldBackend folder has the code for python backend.
 main.py is the main python file where the initial apis are defined.
 
+An asynchronous, job-based backend for generating 3D point clouds from video using COLMAP.
+This service is designed for production use, with a clean separation between:
+1. API orchestration
+2. Job state management
+3. Heavy 3D reconstruction workloads
+
+## What This API Does
+1. Accepts a video URL
+2. Creates a job in MongoDB
+3. Processes the job asynchronously
+4. Tracks progress and status
+5. Returns a point cloud output URL when complete
+6. The API never blocks and never runs heavy computation directly.
+
 ## How to run locally:
 0. cd backend
 1. if you are on Windows, run the following command to activate the virtual environment:
@@ -62,22 +76,126 @@ to check status of a job:
 
 ## How TwinX API works:
 ```bash
-┌────────────────────┐
-│ FastAPI (API)      │
-│ - creates job      │
-│ - updates Database │
-└─────────┬──────────┘
-          │
-          │ (job_id + params)
-          ▼
-┌────────────────────┐
-│ Worker (Docker)    │
-│ - downloads video  │
-│ - runs Pipeline    │
-│ - return result    │
-└────────────────────┘
+Client (Web / App)
+        |
+        v
++----------------------+
+| FastAPI Backend      |
+| - Creates jobs       |
+| - Stores state       |
+| - Updates progress   |
++----------+-----------+
+           |
+           v
++----------------------+
+| MongoDB              |
+| - Job documents      |
+| - Status tracking    |
++----------+-----------+
+           |
+           v
++----------------------+
+| Worker (Docker)      |
+| - Downloads video    |
+| - Runs COLMAP        |
+| - Uploads outputs    |
++----------------------+
 ```
 
+## Job Lifecycle (Step-by-Step)
+```bash
+POST /createPointCloud
+        |
+        v
+MongoDB: insert job (status=queued)
+        |
+        v
+Background task starts
+        |
+        v
+Worker pipeline:
+  - Download video
+  - Extract frames
+  - Run COLMAP
+  - Upload outputs
+        |
+        v
+MongoDB updated (status=completed)
+
+```
+
+## API Endpoints
+
+### A) Health Check
+```bash
+GET /health
+```
+
+Response:
+```bash
+{ "status": "healthy" }
+```
+
+### B) Service Info:
+```bash
+GET /info
+```
+
+Response:
+```bash
+{
+  "status": "ok",
+  "service": "Twinx Point Cloud Backend",
+  "version": "1.0.0"
+}
+```
+
+### C) Create Point Cloud Job:
+```bash
+POST /createPointCloud/
+```
+
+Request body:
+```bash
+{
+  "job_id": "job_001",
+  "video_url": "https://cdn.example.com/video.mp4"
+}
+```
+
+Response:
+```bash
+{
+  "job_id": "job_001",
+  "status": "queued",
+  "message": "Point cloud job queued successfully"
+}
+```
+
+### D) Get Job Status:
+```bash
+GET /job/{job_id}
+```
+
+Example response (processing):
+```bash
+{
+  "status": "processing",
+  "progress": 60,
+  "message": "Running point cloud reconstruction"
+}
+```
+
+Example response (completed):
+```bash
+{
+  "status": "completed",
+  "progress": 100,
+  "result": {
+    "pointcloud_url": "https://cdn.example.com/results/job_001/pointcloud.ply"
+  }
+}
+```
 _______________________________________________________
 
 # CUETRACK:
