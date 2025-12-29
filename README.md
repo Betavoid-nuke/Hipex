@@ -276,6 +276,51 @@ Example response (completed):
   }
 }
 ```
+
+### E) List All Users (Admin Only)
+```bash
+GET /users
+```
+
+Authentication:
+(This endpoint requires a secret password passed as a query parameter.)
+```bash
+?secret=YOUR_ADMIN_SECRET
+```
+
+Example Request:
+```bash
+GET /users?secret=super-secret-password
+```
+
+Example Response (success):
+```bash
+[
+  {
+    "id": "user_001",
+    "username": "johndoe",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "country": "Earth",
+    "onboarded": true,
+    "twinxprojects": [],
+    "socialhandles": [
+      {
+        "platform": "twitter",
+        "url": "https://x.com/johndoe"
+      }
+    ]
+  }...
+]
+```
+
+Example Response (unauthorized):
+```bash
+{
+  "detail": "Unauthorized"
+}
+```
+
 _______________________________________________________
 
 # CUETRACK:

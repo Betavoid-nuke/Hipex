@@ -4,6 +4,11 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from motor.motor_asyncio import AsyncIOMotorClient
+from models.user import User
+import logging as logger
+from fastapi import HTTPException
+from fastapi import Query
 
 load_dotenv()  # loads .env in backend/ if you want
 
@@ -24,28 +29,6 @@ app.add_middleware(
 class Item(BaseModel):
     name: str
     price: float
-
-@app.get("/info")
-async def get_info():
-    return {"status": "ok", "message": "Welcome to Twinx Point Cloud Backend", "source": "Hipx"}
-
-# small health-check
-@app.get("/health")
-async def health():
-    return {"status": "healthy"}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -307,6 +290,10 @@ async def process_point_cloud_job(job_id: str):
 async def health():
     return {"status": "healthy"}
 
+@app.get("/whatsup")
+async def whatsup():
+    return {"Hipex": "whatsup"}
+
 @app.get("/info")
 async def info():
     return {
@@ -314,6 +301,51 @@ async def info():
         "service": "Twinx Point Cloud Backend",
         "version": "1.0.0"
     }
+
+from fastapi import Header
+
+@app.get("/users", response_model=list[User])
+async def list_all_users(secret: str = Query(...)):
+
+    try:
+        # 🔒 AUTH CHECK
+        expected_secret = os.getenv("ADMIN_SECRET")
+
+        if not expected_secret:
+            raise HTTPException(
+                status_code=500,
+                detail="Admin secret not configured"
+            )
+
+        if secret != expected_secret:
+            raise HTTPException(
+                status_code=401,
+                detail="Unauthorized"
+            )
+
+        users: list[User] = []
+
+        mongo_client = AsyncIOMotorClient(os.getenv("MONGODB_URL"))
+        db = mongo_client["test"]
+        users_collection = db.users
+
+        cursor = users_collection.find({})
+        async for doc in cursor:
+            if "_id" in doc:
+                doc["_id"] = str(doc["_id"])
+
+            users.append(User(**doc))
+
+        return users
+
+    except HTTPException:
+        raise  # rethrow auth errors cleanly
+
+    except Exception as e:
+        logger.error(f"❌ Error fetching users: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 
 @app.post("/createPointCloud/", response_model=PointCloudResponse)
 async def create_point_cloud(
