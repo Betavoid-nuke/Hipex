@@ -288,17 +288,31 @@ Authentication:
 ?secret=YOUR_ADMIN_SECRET
 ```
 
-Find specific user:
+Find specific user (Admin Only):
 ```bash
 &username=USERNAME
 ```
 
-Example Request (specific user):
+Nuke specific user (deletes user and deletes all projects by user) (Admin Only):
+```bash
+GET /nukeusers?secret=super-secret-password&id=USERID
+```
+
+Example Response (success):
+```bash
+{
+  "status": "success",
+  "deleted_user_id": "",
+  "deleted_projects_count": 2
+}
+```
+
+Example Request (specific user) (Admin Only):
 ```bash
 GET /users?secret=super-secret-password&username=USERNAME
 ```
 
-Example Request:
+Example Request (Admin Only):
 ```bash
 GET /users?secret=super-secret-password
 ```

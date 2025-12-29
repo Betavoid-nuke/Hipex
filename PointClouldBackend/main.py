@@ -304,6 +304,10 @@ async def info():
 
 from fastapi import Query
 
+# ---------------------------------------------------------------------
+# ADMIN USER MANAGEMENT ROUTES
+# ---------------------------------------------------------------------
+
 @app.get("/users", response_model=list[User])
 async def list_all_users(
     secret: str = Query(...),
@@ -359,8 +363,71 @@ async def list_all_users(
         logger.error(f"❌ Error fetching users: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+# ---------------------------------------------------------------------
+
+from fastapi import Query
+
+@app.get("/nukeusers")
+async def delete_user(
+    secret: str = Query(...),
+    id: str = Query(...)
+):
+    try:
+        # 🔒 AUTH CHECK
+        expected_secret = os.getenv("ADMIN_SECRET")
+
+        if not expected_secret:
+            raise HTTPException(
+                status_code=500,
+                detail="Admin secret not configured"
+            )
+
+        if secret != expected_secret:
+            raise HTTPException(
+                status_code=401,
+                detail="Unauthorized"
+            )
+
+        mongo_client = AsyncIOMotorClient(os.getenv("MONGODB_URL"))
+        db = mongo_client["test"]
+
+        users_collection = db.users
+        projects_collection = db.twinxprojects  # ⬅️ projects collection
+
+        # ✅ DELETE USER (by app-level id)
+        user_result = await users_collection.delete_one({
+            "id": id
+        })
+
+        if user_result.deleted_count == 0:
+            raise HTTPException(
+                status_code=404,
+                detail=f"User with id '{id}' not found"
+            )
+
+        # ✅ DELETE ALL TWINX PROJECTS OWNED BY USER
+        projects_result = await projects_collection.delete_many({
+            "ownerID": id
+        })
+
+        return {
+            "status": "success",
+            "deleted_user_id": id,
+            "deleted_projects_count": projects_result.deleted_count
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.error(f"❌ Error nuking user: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
+
+# ---------------------------------------------------------------------
+# POINT CLOUD ROUTES
+# ---------------------------------------------------------------------
 
 @app.post("/createPointCloud/", response_model=PointCloudResponse)
 async def create_point_cloud(
