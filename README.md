@@ -288,6 +288,16 @@ Authentication:
 ?secret=YOUR_ADMIN_SECRET
 ```
 
+Find specific user:
+```bash
+&username=USERNAME
+```
+
+Example Request (specific user):
+```bash
+GET /users?secret=super-secret-password&username=USERNAME
+```
+
 Example Request:
 ```bash
 GET /users?secret=super-secret-password

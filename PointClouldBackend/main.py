@@ -302,11 +302,13 @@ async def info():
         "version": "1.0.0"
     }
 
-from fastapi import Header
+from fastapi import Query
 
 @app.get("/users", response_model=list[User])
-async def list_all_users(secret: str = Query(...)):
-
+async def list_all_users(
+    secret: str = Query(...),
+    username: Optional[str] = Query(None)
+):
     try:
         # 🔒 AUTH CHECK
         expected_secret = os.getenv("ADMIN_SECRET")
@@ -329,21 +331,34 @@ async def list_all_users(secret: str = Query(...)):
         db = mongo_client["test"]
         users_collection = db.users
 
-        cursor = users_collection.find({})
+        # 🔎 FILTER LOGIC
+        query = {}
+        if username:
+            query["username"] = username
+
+        cursor = users_collection.find(query)
         async for doc in cursor:
             if "_id" in doc:
                 doc["_id"] = str(doc["_id"])
 
             users.append(User(**doc))
 
+        # If username was provided but no user found
+        if username and not users:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
+
         return users
 
     except HTTPException:
-        raise  # rethrow auth errors cleanly
+        raise
 
     except Exception as e:
         logger.error(f"❌ Error fetching users: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 
 
