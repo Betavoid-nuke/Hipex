@@ -23,7 +23,7 @@ DB_NAME = "pointcloud"
 
 DATA_ROOT = Path("/data/jobs")
 
-PIPELINE_ROOT = Path("/app/PointClouldBackend/worker/PointCloudv1")
+PIPELINE_ROOT = Path("/app/PointCloudv1")
 
 VIDEOS_DIR = PIPELINE_ROOT / "02_VIDEOS"
 SCENES_DIR = PIPELINE_ROOT / "04_SCENES"
@@ -61,7 +61,7 @@ async def process_job(job: dict):
     video_path = input_dir / "video.mp4"
 
     # ---- pipeline dirs ----
-    PIPELINE_ROOT = Path("/app/PointClouldBackend/worker/PointCloudv1")
+    PIPELINE_ROOT = Path("/app/PointCloudv1")
     VIDEOS_DIR = PIPELINE_ROOT / "02_VIDEOS"
     SCENES_DIR = PIPELINE_ROOT / "04_SCENES"
     SCRIPTS_DIR = PIPELINE_ROOT / "05_SCRIPT"
@@ -123,7 +123,7 @@ async def process_job(job: dict):
     log(f"Video exists: {video_path.exists()}")
     log(f"Video size: {video_path.stat().st_size if video_path.exists() else 'N/A'}")
 
-    PIPELINE_ROOT = Path("/app/PointClouldBackend/worker/PointCloudv1")
+    PIPELINE_ROOT = Path("/app/PointCloudv1")
     VIDEOS_DIR = PIPELINE_ROOT / "02_VIDEOS"
     SCENES_DIR = PIPELINE_ROOT / "04_SCENES"
     SCRIPTS_DIR = PIPELINE_ROOT / "05_SCRIPT"
