@@ -87,6 +87,22 @@ async def process_job(job: dict):
         }}
     )
 
+
+
+
+
+
+
+
+    # works till here, now need to work on the proccessing part of the video, running ffmpeg and the reconstruction script
+
+
+
+
+
+
+
+
     # ------------------------------------------------
     # PIPELINE STARTS HERE
     # ------------------------------------------------
@@ -183,6 +199,7 @@ async def worker_loop():
                         "updated_at": datetime.datetime.utcnow()
                     }}
                 )
+                print(str(e), flush=True)
         else:
             await asyncio.sleep(3)
 

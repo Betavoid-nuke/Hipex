@@ -1,5 +1,7 @@
 # in the VPS server terminal,
 
+working dir - root@srv859620:~/workers/Hipex/PointClouldBackend/worker# 
+
 steps for setting up the worker which checks mongo for jobs with status "qued" and picks them to build pointcloud:
 
 PART 1 — Get your pipeline code onto the VPS
