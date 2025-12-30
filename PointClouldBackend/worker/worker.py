@@ -10,6 +10,12 @@ import httpx
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 
+import sys
+sys.stdout.reconfigure(line_buffering=True)
+
+def log(msg: str):
+    print(f"[PIPELINE] {msg}", flush=True)
+
 load_dotenv()
 
 MONGO_URL = os.getenv("MONGODB_URL")
@@ -110,6 +116,21 @@ async def process_job(job: dict):
     import shutil
     import subprocess
 
+    log(f"Job {job_id}: entering pipeline")
+    log(f"Job dir: {job_dir}")
+    log(f"Video path: {video_path}")
+
+    log(f"Video exists: {video_path.exists()}")
+    log(f"Video size: {video_path.stat().st_size if video_path.exists() else 'N/A'}")
+
+    PIPELINE_ROOT = Path("/app/PointCloudV1")
+    VIDEOS_DIR = PIPELINE_ROOT / "02_VIDEOS"
+    SCENES_DIR = PIPELINE_ROOT / "04_SCENES"
+    SCRIPTS_DIR = PIPELINE_ROOT / "05_SCRIPT"
+
+    log(f"Pipeline root contents: {list(PIPELINE_ROOT.iterdir())}")
+    log(f"Scripts dir contents: {list(SCRIPTS_DIR.iterdir())}")
+
     pipeline_video_path = VIDEOS_DIR / f"{job_id}.mp4"
     scene_out_dir = SCENES_DIR / job_id
     frames_dir = scene_out_dir / "frames"
@@ -117,8 +138,12 @@ async def process_job(job: dict):
     scene_out_dir.mkdir(parents=True, exist_ok=True)
     frames_dir.mkdir(parents=True, exist_ok=True)
 
-    # ---- copy video into pipeline ----
+    # ---- copy video ----
+    log(f"Copying video → {pipeline_video_path}")
     shutil.copy(video_path, pipeline_video_path)
+
+    log(f"Copied video exists: {pipeline_video_path.exists()}")
+    log(f"Copied video size: {pipeline_video_path.stat().st_size}")
 
     await jobs.update_one(
         {"job_id": job_id},
@@ -129,13 +154,21 @@ async def process_job(job: dict):
         }}
     )
 
-    # ---- extract frames (ffmpeg) ----
-    subprocess.check_call([
+    # ---- ffmpeg ----
+    ffmpeg_cmd = [
         "ffmpeg",
+        "-y",
         "-i", str(pipeline_video_path),
         "-qscale:v", "2",
         str(frames_dir / "frame_%04d.jpg")
-    ])
+    ]
+
+    log(f"Running FFmpeg: {' '.join(ffmpeg_cmd)}")
+    log(f"Frames dir before: {list(frames_dir.iterdir())}")
+
+    subprocess.run(ffmpeg_cmd, check=True)
+
+    log(f"Frames dir after: {list(frames_dir.iterdir())}")
 
     await jobs.update_one(
         {"job_id": job_id},
@@ -146,17 +179,20 @@ async def process_job(job: dict):
         }}
     )
 
-    # ---- run reconstruction script ----
-    # ⚠️ adjust script name if needed
-    subprocess.check_call(
-        [
-            "python",
-            "run_pipeline.py",
-            str(frames_dir),
-            str(scene_out_dir)
-        ],
-        cwd=SCRIPTS_DIR
-    )
+    # ---- reconstruction ----
+    colmap_cmd = [
+        "python",
+        "run_pipeline.py",
+        str(frames_dir),
+        str(scene_out_dir)
+    ]
+
+    log(f"Running reconstruction: {' '.join(colmap_cmd)}")
+    log(f"Scene dir before: {list(scene_out_dir.iterdir())}")
+
+    subprocess.run(colmap_cmd, cwd=SCRIPTS_DIR, check=True)
+
+    log(f"Scene dir after: {list(scene_out_dir.iterdir())}")
 
     await jobs.update_one(
         {"job_id": job_id},
@@ -167,7 +203,6 @@ async def process_job(job: dict):
         }}
     )
 
-    # ---- done ----
     await jobs.update_one(
         {"job_id": job_id},
         {"$set": {
@@ -177,6 +212,9 @@ async def process_job(job: dict):
             "updated_at": datetime.datetime.utcnow()
         }}
     )
+
+    log(f"Job {job_id}: completed")
+
 
 async def worker_loop():
     print("Worker started. Waiting for jobs...")
