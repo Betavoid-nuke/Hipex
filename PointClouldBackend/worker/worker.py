@@ -213,7 +213,7 @@ async def process_job(job: dict):
         }}
     )
 
-    log(f"Job {job_id}: completed")
+    log(f"Job {job_id}: completed") 
 
 
 async def worker_loop():
