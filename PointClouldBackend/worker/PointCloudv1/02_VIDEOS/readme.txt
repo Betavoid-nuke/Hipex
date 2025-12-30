@@ -1,1 +1,0 @@
-the video from the users come here, and then we process them using the other steps in the pipeline and eventually convert them into the point cloud.

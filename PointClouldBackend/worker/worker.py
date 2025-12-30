@@ -204,7 +204,7 @@ async def process_job(job: dict):
         # ---- reconstruction ----
         colmap_cmd = [
             "python",
-            "run_pipeline.py",
+            "AutoTracker_v1.4.bat",
             str(frames_dir),
             str(scene_out_dir)
         ]

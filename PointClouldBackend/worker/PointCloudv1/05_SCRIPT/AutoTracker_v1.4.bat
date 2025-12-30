@@ -11,10 +11,10 @@ pushd "%~dp0\.." >nul
 set "TOP=%cd%"
 
 :: ---------- Key paths -------------------------------------------
-set "SFM_DIR=%TOP%\01 GLOMAP"
-set "VIDEOS_DIR=%TOP%\02 VIDEOS"
-set "FFMPEG_DIR=%TOP%\03 FFMPEG"
-set "SCENES_DIR=%TOP%\04 SCENES"
+set "SFM_DIR=%TOP%\01_GLOMAP"
+set "VIDEOS_DIR=%TOP%\02_VIDEOS"
+set "FFMPEG_DIR=%TOP%\03_FFMPEG"
+set "SCENES_DIR=%TOP%\04_SCENES"
 
 :: ---------- Locate ffmpeg.exe -----------------------------------
 if exist "%FFMPEG_DIR%\ffmpeg.exe" (
