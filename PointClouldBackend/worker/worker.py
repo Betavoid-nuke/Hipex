@@ -36,6 +36,51 @@ client = AsyncIOMotorClient(MONGO_URL)
 db = client[DB_NAME]
 jobs = db.jobs
 
+def cleanup_job(job_id: str):
+    log(f"Cleanup started for job {job_id}")
+
+    try:
+        jobs.sync_update_one(
+            {"job_id": job_id},
+            {"$set": {
+                "cleanup_status": "in_progress",
+                "cleanup_started_at": datetime.datetime.utcnow()
+            }}
+        )
+    except Exception:
+        pass  # cleanup should never fail because of DB
+
+    # job workspace
+    job_dir = DATA_ROOT / job_id
+
+    # pipeline artifacts
+    pipeline_video = VIDEOS_DIR / f"{job_id}.mp4"
+    scene_dir = SCENES_DIR / job_id
+
+    for path in [job_dir, pipeline_video, scene_dir]:
+        try:
+            if path.exists():
+                if path.is_dir():
+                    shutil.rmtree(path)
+                    log(f"Deleted directory: {path}")
+                else:
+                    path.unlink()
+                    log(f"Deleted file: {path}")
+        except Exception as e:
+            log(f"Cleanup warning ({path}): {e}")
+
+    try:
+        jobs.sync_update_one(
+            {"job_id": job_id},
+            {"$set": {
+                "cleanup_status": "completed",
+                "cleanup_completed_at": datetime.datetime.utcnow()
+            }}
+        )
+    except Exception:
+        pass
+
+    log(f"Cleanup completed for job {job_id}")
 
 async def download_video(url: str, dest: Path):
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -55,165 +100,149 @@ async def process_job(job: dict):
     job_id = job["job_id"]
     video_url = job["video_url"]
 
-    # ---- job workspace ----
-    job_dir = DATA_ROOT / job_id
-    input_dir = job_dir / "input"
-    video_path = input_dir / "video.mp4"
+    try:
+        # ---- job workspace ----
+        job_dir = DATA_ROOT / job_id
+        input_dir = job_dir / "input"
+        video_path = input_dir / "video.mp4"
 
-    # ---- pipeline dirs ----
-    PIPELINE_ROOT = Path("/app/PointCloudv1")
-    VIDEOS_DIR = PIPELINE_ROOT / "02_VIDEOS"
-    SCENES_DIR = PIPELINE_ROOT / "04_SCENES"
-    SCRIPTS_DIR = PIPELINE_ROOT / "05_SCRIPT"
+        # ---- pipeline dirs ----
+        PIPELINE_ROOT = Path("/app/PointCloudv1")
+        VIDEOS_DIR = PIPELINE_ROOT / "02_VIDEOS"
+        SCENES_DIR = PIPELINE_ROOT / "04_SCENES"
+        SCRIPTS_DIR = PIPELINE_ROOT / "05_SCRIPT"
 
-    VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
-    SCENES_DIR.mkdir(parents=True, exist_ok=True)
+        VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
+        SCENES_DIR.mkdir(parents=True, exist_ok=True)
 
-    # ---- status: downloading ----
-    await jobs.update_one(
-        {"job_id": job_id},
-        {"$set": {
-            "status": "processing",
-            "progress": 10,
-            "message": "Downloading video",
-            "updated_at": datetime.datetime.utcnow()
-        }}
-    )
+        # ---- status: downloading ----
+        await jobs.update_one(
+            {"job_id": job_id},
+            {"$set": {
+                "status": "processing",
+                "progress": 10,
+                "message": "Downloading video",
+                "updated_at": datetime.datetime.utcnow()
+            }}
+        )
 
-    await download_video(video_url, video_path)
+        await download_video(video_url, video_path)
 
-    # ---- status: downloaded ----
-    await jobs.update_one(
-        {"job_id": job_id},
-        {"$set": {
-            "progress": 30,
-            "message": "Video downloaded",
-            "updated_at": datetime.datetime.utcnow(),
-            "local_video_path": str(video_path)
-        }}
-    )
+        # ---- status: downloaded ----
+        await jobs.update_one(
+            {"job_id": job_id},
+            {"$set": {
+                "progress": 30,
+                "message": "Video downloaded",
+                "updated_at": datetime.datetime.utcnow(),
+                "local_video_path": str(video_path)
+            }}
+        )
 
+        # ------------------------------------------------
+        # PIPELINE STARTS HERE
+        # ------------------------------------------------
 
+        log(f"Job {job_id}: entering pipeline")
+        log(f"Job dir: {job_dir}")
+        log(f"Video path: {video_path}")
 
+        log(f"Video exists: {video_path.exists()}")
+        log(f"Video size: {video_path.stat().st_size if video_path.exists() else 'N/A'}")
 
+        log(f"Pipeline root contents: {list(PIPELINE_ROOT.iterdir())}")
+        log(f"Scripts dir contents: {list(SCRIPTS_DIR.iterdir())}")
 
+        pipeline_video_path = VIDEOS_DIR / f"{job_id}.mp4"
+        scene_out_dir = SCENES_DIR / job_id
+        frames_dir = scene_out_dir / "frames"
 
+        scene_out_dir.mkdir(parents=True, exist_ok=True)
+        frames_dir.mkdir(parents=True, exist_ok=True)
 
+        # ---- copy video ----
+        log(f"Copying video → {pipeline_video_path}")
+        shutil.copy(video_path, pipeline_video_path)
 
-    # works till here, now need to work on the proccessing part of the video, running ffmpeg and the reconstruction script
+        log(f"Copied video exists: {pipeline_video_path.exists()}")
+        log(f"Copied video size: {pipeline_video_path.stat().st_size}")
 
+        await jobs.update_one(
+            {"job_id": job_id},
+            {"$set": {
+                "progress": 40,
+                "message": "Video prepared for pipeline",
+                "updated_at": datetime.datetime.utcnow()
+            }}
+        )
 
+        # ---- ffmpeg ----
+        ffmpeg_cmd = [
+            "ffmpeg",
+            "-y",
+            "-i", str(pipeline_video_path),
+            "-qscale:v", "2",
+            str(frames_dir / "frame_%04d.jpg")
+        ]
 
+        log(f"Running FFmpeg: {' '.join(ffmpeg_cmd)}")
+        log(f"Frames dir before: {list(frames_dir.iterdir())}")
 
+        subprocess.run(ffmpeg_cmd, check=True)
 
+        log(f"Frames dir after: {list(frames_dir.iterdir())}")
 
+        await jobs.update_one(
+            {"job_id": job_id},
+            {"$set": {
+                "progress": 55,
+                "message": "Frames extracted",
+                "updated_at": datetime.datetime.utcnow()
+            }}
+        )
 
+        # ---- reconstruction ----
+        colmap_cmd = [
+            "python",
+            "run_pipeline.py",
+            str(frames_dir),
+            str(scene_out_dir)
+        ]
 
-    # ------------------------------------------------
-    # PIPELINE STARTS HERE
-    # ------------------------------------------------
+        log(f"Running reconstruction: {' '.join(colmap_cmd)}")
+        log(f"Scene dir before: {list(scene_out_dir.iterdir())}")
 
-    import shutil
-    import subprocess
+        subprocess.run(colmap_cmd, cwd=SCRIPTS_DIR, check=True)
 
-    log(f"Job {job_id}: entering pipeline")
-    log(f"Job dir: {job_dir}")
-    log(f"Video path: {video_path}")
+        log(f"Scene dir after: {list(scene_out_dir.iterdir())}")
 
-    log(f"Video exists: {video_path.exists()}")
-    log(f"Video size: {video_path.stat().st_size if video_path.exists() else 'N/A'}")
+        await jobs.update_one(
+            {"job_id": job_id},
+            {"$set": {
+                "progress": 90,
+                "message": "Point cloud generated",
+                "updated_at": datetime.datetime.utcnow()
+            }}
+        )
 
-    PIPELINE_ROOT = Path("/app/PointCloudv1")
-    VIDEOS_DIR = PIPELINE_ROOT / "02_VIDEOS"
-    SCENES_DIR = PIPELINE_ROOT / "04_SCENES"
-    SCRIPTS_DIR = PIPELINE_ROOT / "05_SCRIPT"
+        await jobs.update_one(
+            {"job_id": job_id},
+            {"$set": {
+                "status": "completed",
+                "progress": 100,
+                "scene_path": str(scene_out_dir),
+                "updated_at": datetime.datetime.utcnow()
+            }}
+        )
 
-    log(f"Pipeline root contents: {list(PIPELINE_ROOT.iterdir())}")
-    log(f"Scripts dir contents: {list(SCRIPTS_DIR.iterdir())}")
+        log(f"Job {job_id}: completed")
 
-    pipeline_video_path = VIDEOS_DIR / f"{job_id}.mp4"
-    scene_out_dir = SCENES_DIR / job_id
-    frames_dir = scene_out_dir / "frames"
+    except Exception as e:
+        log(f"Job {job_id} failed: {e}")
+        raise
 
-    scene_out_dir.mkdir(parents=True, exist_ok=True)
-    frames_dir.mkdir(parents=True, exist_ok=True)
-
-    # ---- copy video ----
-    log(f"Copying video → {pipeline_video_path}")
-    shutil.copy(video_path, pipeline_video_path)
-
-    log(f"Copied video exists: {pipeline_video_path.exists()}")
-    log(f"Copied video size: {pipeline_video_path.stat().st_size}")
-
-    await jobs.update_one(
-        {"job_id": job_id},
-        {"$set": {
-            "progress": 40,
-            "message": "Video prepared for pipeline",
-            "updated_at": datetime.datetime.utcnow()
-        }}
-    )
-
-    # ---- ffmpeg ----
-    ffmpeg_cmd = [
-        "ffmpeg",
-        "-y",
-        "-i", str(pipeline_video_path),
-        "-qscale:v", "2",
-        str(frames_dir / "frame_%04d.jpg")
-    ]
-
-    log(f"Running FFmpeg: {' '.join(ffmpeg_cmd)}")
-    log(f"Frames dir before: {list(frames_dir.iterdir())}")
-
-    subprocess.run(ffmpeg_cmd, check=True)
-
-    log(f"Frames dir after: {list(frames_dir.iterdir())}")
-
-    await jobs.update_one(
-        {"job_id": job_id},
-        {"$set": {
-            "progress": 55,
-            "message": "Frames extracted",
-            "updated_at": datetime.datetime.utcnow()
-        }}
-    )
-
-    # ---- reconstruction ----
-    colmap_cmd = [
-        "python",
-        "run_pipeline.py",
-        str(frames_dir),
-        str(scene_out_dir)
-    ]
-
-    log(f"Running reconstruction: {' '.join(colmap_cmd)}")
-    log(f"Scene dir before: {list(scene_out_dir.iterdir())}")
-
-    subprocess.run(colmap_cmd, cwd=SCRIPTS_DIR, check=True)
-
-    log(f"Scene dir after: {list(scene_out_dir.iterdir())}")
-
-    await jobs.update_one(
-        {"job_id": job_id},
-        {"$set": {
-            "progress": 90,
-            "message": "Point cloud generated",
-            "updated_at": datetime.datetime.utcnow()
-        }}
-    )
-
-    await jobs.update_one(
-        {"job_id": job_id},
-        {"$set": {
-            "status": "completed",
-            "progress": 100,
-            "scene_path": str(scene_out_dir),
-            "updated_at": datetime.datetime.utcnow()
-        }}
-    )
-
-    log(f"Job {job_id}: completed") 
+    finally:
+        cleanup_job(job_id)
 
 
 async def worker_loop():
