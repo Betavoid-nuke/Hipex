@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # ---------------- PROJECT FILES ----------------
 COPY worker.py .
-COPY PointCloudV1 ./PointCloudV1
+COPY PointCloudv1 ./PointCloudv1
 
 # ---------------- DATA DIR ----------------
 RUN mkdir -p /data/jobs
