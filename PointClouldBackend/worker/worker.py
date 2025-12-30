@@ -23,7 +23,7 @@ DB_NAME = "pointcloud"
 
 DATA_ROOT = Path("/data/jobs")
 
-PIPELINE_ROOT = Path("/app/PointCloudV1")
+PIPELINE_ROOT = Path("/app/PointClouldBackend/worker/PointCloudv1")
 
 VIDEOS_DIR = PIPELINE_ROOT / "02_VIDEOS"
 SCENES_DIR = PIPELINE_ROOT / "04_SCENES"
