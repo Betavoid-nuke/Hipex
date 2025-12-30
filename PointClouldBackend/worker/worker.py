@@ -61,7 +61,7 @@ async def process_job(job: dict):
     video_path = input_dir / "video.mp4"
 
     # ---- pipeline dirs ----
-    PIPELINE_ROOT = Path("/app/PointCloudV1")
+    PIPELINE_ROOT = Path("/app/PointClouldBackend/worker/PointCloudv1")
     VIDEOS_DIR = PIPELINE_ROOT / "02_VIDEOS"
     SCENES_DIR = PIPELINE_ROOT / "04_SCENES"
     SCRIPTS_DIR = PIPELINE_ROOT / "05_SCRIPT"
