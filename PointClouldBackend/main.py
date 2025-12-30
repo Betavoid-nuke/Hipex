@@ -164,7 +164,6 @@ async def send_webhook(webhook_url: str, payload: dict):
 
 
 
-
 # ---------------------------------------------------------------------
 # BACKGROUND JOB WORKER - PROCESS POINT CLOUD REQUEST 
 # ---------------------------------------------------------------------
@@ -193,18 +192,6 @@ async def process_point_cloud_job(job_id: str):
                 "progress": progress,
                 "message": message
             })
-
-
-
-
-
-
-
-
-
-
-
-
 
     # SIMULATED POINT CLOUD PROCESSING PIPELINE _________________________________________________________________ UPDATE THIS WITH REAL LOGIC FOR POINT CLOUD GENERATION
     try:
@@ -278,10 +265,6 @@ async def process_point_cloud_job(job_id: str):
 
 
 
-
-
-
-
 # ---------------------------------------------------------------------
 # ROUTES
 # ---------------------------------------------------------------------
@@ -303,6 +286,9 @@ async def info():
     }
 
 from fastapi import Query
+
+
+
 
 # ---------------------------------------------------------------------
 # ADMIN USER MANAGEMENT ROUTES
@@ -422,6 +408,7 @@ async def delete_user(
     except Exception as e:
         logger.error(f"❌ Error nuking user: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 
 
