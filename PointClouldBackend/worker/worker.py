@@ -217,7 +217,7 @@ async def process_job(job: dict):
         )
 
         # ---- reconstruction ----
-        bat_path = SCRIPTS_DIR / "AutoTracker_v1.4.bat"
+        bat_path = SCRIPTS_DIR / "AutoTracker_v1.4.sh"
 
         log(f"Running AutoTracker script: {bat_path}")
         log(f"Script exists: {bat_path.exists()}")
