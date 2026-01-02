@@ -96,21 +96,6 @@ def run_cmd(cmd: list, cwd: Path | None = None):
     print("▶ RUN:", " ".join(cmd), flush=True)
     subprocess.check_call(cmd, cwd=cwd)
 
-
-
-
-
-# fix this step, make the AutoTracker_v1.4.bat execute and not this made up .py file 
-
-# [PIPELINE] Scene dir before: [PosixPath('/app/PointCloudv1/04_SCENES/live_test_001/frames')]
-# python: can't open file '/app/PointCloudv1/05_SCRIPT/run_pipeline.py': [Errno 2] No such file or directory
-# Command '['python', 'run_pipeline.py', '/app/PointCloudv1/04_SCENES/live_test_001/frames', '/app/PointCloudv1/04_SCENES/live_test_001']' returned non-zero exit status 2.
-
-
-
-
-
-
 async def process_job(job: dict):
     job_id = job["job_id"]
     video_url = job["video_url"]
@@ -230,6 +215,48 @@ async def process_job(job: dict):
 
         log(f"Scene dir before: {list(scene_out_dir.iterdir())}")
         log(f"Scene dir after: {list(scene_out_dir.iterdir())}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # Running error - Now need to fix CLOMAP and GLOMAP, try find the linux verison of both.
+
+        # [PIPELINE] Running AutoTracker script: /app/PointCloudv1/05_SCRIPT/AutoTracker_v1.4.sh
+        # [PIPELINE] Script exists: True
+        # [ERROR] colmap not found
+        # [PIPELINE] Job live_test_001 failed: Command '['bash', '/app/PointCloudv1/05_SCRIPT/AutoTracker_v1.4.sh']' returned non-zero exit status 1.
+        # [PIPELINE] Cleanup started for job live_test_001
+        # [PIPELINE] Deleted directory: /data/jobs/live_test_001
+        # [PIPELINE] Deleted file: /app/PointCloudv1/02_VIDEOS/live_test_001.mp4
+        # [PIPELINE] Deleted directory: /app/PointCloudv1/04_SCENES/live_test_001
+        # [PIPELINE] Cleanup completed for job live_test_001
+        # Command '['bash', '/app/PointCloudv1/05_SCRIPT/AutoTracker_v1.4.sh']' returned non-zero exit status 1.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         await jobs.update_one(
             {"job_id": job_id},

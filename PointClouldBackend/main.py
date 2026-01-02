@@ -47,25 +47,6 @@ class Item(BaseModel):
 # 2. install dependencies: `pip install -r requirements.txt`
 # 3. run the server: `uvicorn main:app --reload`
 
-# TODO
-# change this code for creating api in which there will be video for the pipline to create pointcloud, then api will use the pipeline to create pointcloud and return the pointcloud file link
-# the api will also take parameters like video file link, pointcloud file format etc.
-# also create another api to get the status of the pointcloud creation process
-# also create another api to get the list of pointcloud files created by the user# also create another api to delete the pointcloud files created by the user
-# also create another api to update the pointcloud files created by the user
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
