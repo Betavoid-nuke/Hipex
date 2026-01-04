@@ -45,7 +45,10 @@ RUN apt-get install -y \
     libceres-dev \
     libssl-dev \
     libcurl4-openssl-dev \
-    libopenimageio-dev
+    libopenimageio-dev \
+    libopenexr-dev \
+    libimath-dev
+
 
 # -------------------------------
 # 4. FFMPEG (system default)
