@@ -12,10 +12,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 TOP="$(dirname "$SCRIPT_DIR")"
 
 # --- Key paths ---
-COLMAP_DIR="$TOP/01 COLMAP"
-VIDEOS_DIR="$TOP/02 VIDEOS"
-FFMPEG_DIR="$TOP/03 FFMPEG"
-SCENES_DIR="$TOP/04 SCENES"
+COLMAP_DIR="$TOP/01_COLMAP"
+VIDEOS_DIR="$TOP/02_VIDEOS"
+FFMPEG_DIR="$TOP/03_FFMPEG"
+SCENES_DIR="$TOP/04_SCENES"
 
 # --- Locate ffmpeg (checks system path first) ---
 if command -v ffmpeg &> /dev/null; then
