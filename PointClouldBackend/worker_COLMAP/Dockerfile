@@ -46,9 +46,7 @@ RUN apt-get install -y \
     libssl-dev \
     libcurl4-openssl-dev \
     libopenimageio-dev \
-    libopenexr-dev \
-    libimath-dev
-
+    libopenexr-dev
 
 # -------------------------------
 # 4. FFMPEG (system default)
